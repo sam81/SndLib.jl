@@ -18,10 +18,10 @@
 #SndLib.jls is a module to generate sounds in julia
 module SndLib
 
-export AMTone, broadbandNoise, complexTone, gate!, fir2Filt, makeSilence, pureTone, scaleLevel, steepNoise
+export AMTone, broadbandNoise, complexTone, gate!, fir2Filt, makeSilence, pureTone, scaleLevel, sound, steepNoise
 
 VERSION < v"0.4-" && using Docile
-using PyCall
+using PyCall, WAV
 #using Devectorize
 #pyinitialize("python3")
 @pyimport scipy.signal as scisig
@@ -52,13 +52,13 @@ Generate an amplitude modulated tone.
 
 ```julia
 snd = AMTone(frequency=1000, AMFreq=20, AMDepth=1, phase=0, AMPhase,
-level=65, duration=980, ramp=10, channel="Both", sf=48000, maxLevel=100)
+level=65, duration=980, ramp=10, channel="Diotic", sf=48000, maxLevel=100)
 ```    
 """ ->
 
 function AMTone(;frequency::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
                 phase::Real=0, AMPhase::Real=1.5*pi, level::Real=60,
-                duration::Real=980, ramp::Real=10, channel::String="Both",
+                duration::Real=980, ramp::Real=10, channel::String="Diotic",
                 sf::Real=48000, maxLevel::Real=101)
 
     amp = 10^((level - maxLevel) / 20)
@@ -72,22 +72,24 @@ function AMTone(;frequency::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
     timeAll = [0:nTot-1] / sf
     timeRamp = [0:nRamp-1]
 
-    snd = zeros(nTot, 2)
+    snd_mono = zeros(nTot, 1)
+    snd_mono[1:nRamp, 1] = amp * (1+AMDepth*sin(2*pi*AMFreq*timeAll[1:nRamp]+AMPhase)) .* ((1-cos(pi* timeRamp/nRamp))/2) .* sin(2*pi*frequency * timeAll[1:nRamp] + phase)
+    snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * (1 + AMDepth*sin(2*pi*AMFreq*timeAll[nRamp+1:nRamp+nSamples]+AMPhase)) .* sin(2*pi*frequency * timeAll[nRamp+1:nRamp+nSamples] + phase)
+    snd_mono[nRamp+nSamples+1:nTot, 1] = amp * (1 + AMDepth*sin(2*pi*AMFreq*timeAll[nRamp+nSamples+1:nTot]+AMPhase)) .* ((1+cos(pi * timeRamp/nRamp))/2) .* sin(2*pi*frequency * timeAll[nRamp+nSamples+1:nTot] + phase)
+    
+    if channel == "Mono"
+        snd = snd_mono
+    else
+        snd = zeros(nTot, 2)
+    end
 
     if channel == "Right"
-        snd[1:nRamp, 2] = amp * (1+AMDepth*sin(2*pi*AMFreq*timeAll[1:nRamp]+AMPhase)) .* ((1-cos(pi* timeRamp/nRamp))/2) .* sin(2*pi*frequency * timeAll[1:nRamp] + phase)
-        snd[nRamp+1:nRamp+nSamples, 2] = amp * (1 + AMDepth*sin(2*pi*AMFreq*timeAll[nRamp+1:nRamp+nSamples]+AMPhase)) .* sin(2*pi*frequency * timeAll[nRamp+1:nRamp+nSamples] + phase)
-        snd[nRamp+nSamples+1:nTot, 2] = amp * (1 + AMDepth*sin(2*pi*AMFreq*timeAll[nRamp+nSamples+1:nTot]+AMPhase)) .* ((1+cos(pi * timeRamp/nRamp))/2) .* sin(2*pi*frequency * timeAll[nRamp+nSamples+1:nTot] + phase)
-
+        snd[:,2] = snd_mono
     elseif channel == "Left"
-        snd[1:nRamp, 1] = amp * (1+AMDepth*sin(2*pi*AMFreq*timeAll[1:nRamp]+AMPhase)) .* ((1-cos(pi* timeRamp/nRamp))/2) .* sin(2*pi*frequency * timeAll[1:nRamp] + phase)
-        snd[nRamp+1:nRamp+nSamples, 1] = amp * (1 + AMDepth*sin(2*pi*AMFreq*timeAll[nRamp+1:nRamp+nSamples]+AMPhase)) .* sin(2*pi*frequency * timeAll[nRamp+1:nRamp+nSamples] + phase)
-        snd[nRamp+nSamples+1:nTot, 1] = amp * (1 + AMDepth*sin(2*pi*AMFreq*timeAll[nRamp+nSamples+1:nTot]+AMPhase)) .* ((1+cos(pi * timeRamp/nRamp))/2) .* sin(2*pi*frequency * timeAll[nRamp+nSamples+1:nTot] + phase)
-    elseif channel == "Both"
-        snd[1:nRamp, 2] = amp * (1+AMDepth*sin(2*pi*AMFreq*timeAll[1:nRamp]+AMPhase)) .* ((1-cos(pi* timeRamp/nRamp))/2) .* sin(2*pi*frequency * timeAll[1:nRamp] + phase)
-        snd[nRamp+1:nRamp+nSamples, 2] = amp * (1 + AMDepth*sin(2*pi*AMFreq*timeAll[nRamp+1:nRamp+nSamples]+AMPhase)) .* sin(2*pi*frequency * timeAll[nRamp+1:nRamp+nSamples] + phase)
-        snd[nRamp+nSamples+1:nTot, 2] = amp * (1 + AMDepth*sin(2*pi*AMFreq*timeAll[nRamp+nSamples+1:nTot]+AMPhase)) .* ((1+cos(pi * timeRamp/nRamp))/2) .* sin(2*pi*frequency * timeAll[nRamp+nSamples+1:nTot] + phase)
-        snd[:, 1] = snd[:, 2]
+        snd[:,1] = snd_mono
+    elseif channel == "Diotic"
+        snd[:,1] = snd_mono
+        snd[:,2] = snd_mono
     end
        
     return snd
@@ -400,6 +402,29 @@ function makeSilence(;duration=1000, sf=48000)
     
     return snd
 end
+
+@doc doc"""
+Simple function to play sounds. Uses aplay on Linux and afplay on OSX.
+Windows is not currently supported.
+
+##### Arguments
+
+* `snd`: The sound to be played.
+* `sf`: The sampling frequency.
+
+""" ->
+function sound(snd, sf::Int=48000, nbits::Int=32)
+    tmp = tempname()
+    wavwrite(snd, tmp, Fs=sf, nbits=nbits)
+    if OS_NAME == :Linux
+        run(`aplay $tmp`)
+    elseif OS_NAME == :OSX
+        run(`afplay $tmp`)
+    else
+        println("Sorry sound function does not currently support your operating system")
+    end
+end
+
 
 @doc doc"""
 """ ->
