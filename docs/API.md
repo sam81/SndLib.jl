@@ -13,30 +13,129 @@ Generate an amplitude modulated tone.
 * `frequency`: Carrier frequency in hertz.
 * `AMFreq`:  Amplitude modulation frequency in Hz.
 * `AMDepth`:  Amplitude modulation depth (a value of 1 corresponds to 100% modulation). 
-* `phase`: Starting phase in radians.
+* `carrierPhase`: Starting phase in radians.
 * `AMPhase`: Starting AM phase in radians.
 * `level`: Tone level in dB SPL. 
-* `duration`: Tone duration (excluding ramps) in milliseconds.
-* `ramp`: Duration of the onset and offset ramps in milliseconds.
-        The total duration of the sound will be duration+ramp*2.
-* `channel`: Channel in which the tone will be generated.
-* `fs`: Samplig frequency in Hz.
+* `dur`: Tone duration in seconds.
+* `rampDur`: Duration of the onset and offset ramps in seconds.
+* `channel`: Channel in which the tone will be generated (`mono`, `right`, `left`, or diotic`).
+* `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
 ##### Returns:
 
-* `snd`: 2-dimensional array of floats
+* `snd`: array 
        
 ##### Examples:
 
 ```julia
-snd = AMTone(frequency=1000, AMFreq=20, AMDepth=1, phase=0, AMPhase,
-level=65, duration=980, ramp=10, channel="Both", fs=48000, maxLevel=100)
+snd = AMTone(carrierFreq=1000, AMFreq=20, AMDepth=1, carrierPhase=0, AMPhase,
+level=65, dur=1, rampDur=0.01, channel="diotic", sf=48000, maxLevel=100)
 ```    
 
 
 *source:*
-[SndLib/src/SndLib.jl:57](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:138](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+
+---
+
+<a id="method__amtoneipd.1" class="lexicon_definition"></a>
+#### AMToneIPD() [¶](#method__amtoneipd.1)
+Generate an amplitude modulated tone with an IPD in the carrier and/or
+modulation phase.
+
+##### Parameters:
+
+* `frequency`: Carrier frequency in hertz.
+* `AMFreq`:  Amplitude modulation frequency in Hz.
+* `AMDepth`:  Amplitude modulation depth (a value of 1 corresponds to 100% modulation). 
+* `carrierPhase`: Starting phase in radians.
+* `AMPhase`: Starting AM phase in radians.
+* `carrierIPD`: IPD to apply to the carrier phase in radians.
+* `AMIPD`: IPD to apply to the AM phase in radians.
+* `level`: Tone level in dB SPL. 
+* `dur`: Tone duration in seconds.
+* `rampDur`: Duration of the onset and offset ramps in seconds.
+* `channel`: channel in which the IPD(s) will be applied (`right`, `left`).
+* `sf`: Samplig frequency in Hz.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
+
+##### Returns:
+
+* `snd`: array 
+       
+##### Examples:
+
+```julia
+snd = AMToneIPD(carrierFreq=1000, AMFreq=20, AMDepth=1, carrierPhase=0, AMPhase,
+carrierIPD=0, AMIPD=pi/2,
+level=65, dur=1, rampDur=0.01, channel="diotic", sf=48000, maxLevel=100)
+```    
+
+
+*source:*
+[SndLib/src/SndLib.jl:211](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+
+---
+
+<a id="method__itdtoipd.1" class="lexicon_definition"></a>
+#### ITDToIPD(ITD::Real, freq::Real) [¶](#method__itdtoipd.1)
+
+Convert an interaural time difference to an equivalent interaural
+phase difference for a given frequency.
+
+##### Parameters
+
+* `itd`: Interaural time difference in seconds.
+* `freq`: Frequency in hertz.
+
+##### Returns
+
+`ipd`: 
+
+##### Examples
+
+```julia
+itd = 300 #microseconds
+itd = 300/1000000 #convert to seconds
+itdtoipd(itd, 1000)
+```
+
+
+
+*source:*
+[SndLib/src/SndLib.jl:564](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+
+---
+
+<a id="method__addsounds.1" class="lexicon_definition"></a>
+#### addSounds{T<:Real}(snd1::Array{T<:Real, 2}, snd2::Array{T<:Real, 2}) [¶](#method__addsounds.1)
+Add or concatenate two sounds.
+
+##### Parameters
+
+* `snd1`: First sound.
+* `snd2`: Second sound.
+* `delay`: Delay in seconds between the onset of 'snd1' and the onset of 'snd2'
+* `sf`: Sampling frequency in hertz of the two sounds.
+
+##### Returns
+
+* `snd` : array with dimensions (nSamples, nChannels) 
+       
+##### Examples
+
+```julia
+snd1 = pureTone(frequency=440, phase=0, level=65, duration=180,
+ramp=10, channel="right", sf=48000, maxLevel=100)
+snd2 = pureTone(frequency=880, phase=0, level=65, duration=180,
+ramp=10, channel="right", sf=48000, maxLevel=100)
+snd = addSounds(snd1=snd1, snd2=snd2, delay=100, sf=48000)
+```
+
+
+*source:*
+[SndLib/src/SndLib.jl:59](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
@@ -47,29 +146,29 @@ Synthetise a broadband noise.
 ##### Parameters:
 
 * `spectrumLevel`: Intensity spectrum level of the noise in dB SPL. 
-* `duration`: Noise duration (excluding ramps) in milliseconds.
-* `ramp`: Duration of the onset and offset ramps in milliseconds.
-        The total duration of the sound will be duration+ramp*2.
-* `channel`: Channel in which the noise will be generated.
-* `fs`: Samplig frequency in Hz.
+* `dur`: Noise duration in seconds.
+* `rampDur`: Duration of the onset and offset ramps in seconds.
+* `channel`: Channel in which the noise will be generated (`mono`, `right`, `left`,
+             `diotic`, or `dichotic`). If `dichotic` the noise will be uncorrelated
+             at the two ears.
+* `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
 ##### Returns:
 
-* `snd` : 2-dimensional array of floats
-        The array has dimensions (nSamples, 2).
+* `snd` : array. The array has dimensions (nSamples, nCh).
        
 ##### Examples:
 
 ```julia
-noise = broadbandNoise(spectrumLevel=40, duration=180, ramp=10,
-    ...     channel="Both", fs=48000, maxLevel=100)
+noise = broadbandNoise(spectrumLevel=20, dur=180, rampDur=10,
+         channel="diotic", sf=48000, maxLevel=100)
 ```
 
 
 
 *source:*
-[SndLib/src/SndLib.jl:121](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:264](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
@@ -80,7 +179,7 @@ Synthetise a complex tone.
 ##### Parameters:
 
 * `F0`: Tone fundamental frequency in hertz.
-* `harmPhase : one of 'Sine', 'Cosine', 'Alternating', 'Random', 'Schroeder'
+* `harmPhase : one of 'sine', 'cosine', 'alternating', 'random', 'schroeder'
         Phase relationship between the partials of the complex tone.
 * `lowHarm`: Lowest harmonic component number.
 * `highHarm`: Highest harmonic component number.
@@ -88,39 +187,37 @@ Synthetise a complex tone.
         that is equal to (F0*stretch)/100. If 'stretch' is different than
         zero, an inhanmonic complex tone will be generated.
 * `level`: The level of each partial in dB SPL.
-* `duration`: Tone duration (excluding ramps) in milliseconds.
-* `ramp`: Duration of the onset and offset ramps in milliseconds.
-        The total duration of the sound will be duration+ramp*2.
-* `channel`: 'Right', 'Left', 'Both', 'Odd Right' or 'Odd Left'.
+* `dur`: Tone duration in seconds.
+* `rampDur`: Duration of the onset and offset ramps in seconds.
+* `channel`: 'right', 'left', 'diotic', 'odd right' or 'odd left'.
         Channel in which the tone will be generated. If `channel`
-        if `Odd Right`, odd numbered harmonics will be presented
+        if `odd right`, odd numbered harmonics will be presented
         to the right channel and even number harmonics to the left
-        channel. The opposite is true if `channel` is `Odd Left`.
-* `fs`: Samplig frequency in Hz.
+        channel. The opposite is true if `channel` is `odd left`.
+* `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
 ##### Returns:
 
-* `snd`: 2-dimensional array of floats
-        The array has dimensions (nSamples, 2).
+* `snd`: array of floats with dimensions (nSamples, nChannels).
 
 ##### Examples
 
 ```julia
- ct = complexTone(F0=440, harmPhase="Sine", lowHarm=3, highHarm=10,
-    ...     stretch=0, level=55, duration=180, ramp=10, channel="Both",
-    ...     fs=48000, maxLevel=100)
+ ct = complexTone(F0=440, harmPhase="sine", lowHarm=3, highHarm=10,
+         stretch=0, level=55, dur=180, rampDur=10, channel="diotic",
+         sf=48000, maxLevel=100)
 ```
 
 
 
 *source:*
-[SndLib/src/SndLib.jl:212](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:369](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
 <a id="method__fir2filt.1" class="lexicon_definition"></a>
-#### fir2Filt(f1, f2, f3, f4, snd, fs) [¶](#method__fir2filt.1)
+#### fir2Filt!{T<:Real}(f1::Real, f2::Real, f3::Real, f4::Real, snd::Array{T<:Real, 2}) [¶](#method__fir2filt.1)
 Filter signal with a fir2 filter.
 
 This function designs and applies a fir2 filter to a sound.
@@ -139,8 +236,9 @@ increasing order.
         for the high-frequency cutoff starts.
 * `f4`: Frequency in hertz of the point at which the transition
         for the high-frequency cutoff ends. 
-* `snd`:The sound to be filtered.
-* `fs`: Sampling frequency of 'snd'.
+* `snd`: The sound to be filtered.
+* `nTaps`: Number of filter taps.
+* `sf`: Sampling frequency of 'snd'.
 
 ##### Returns:
 
@@ -148,10 +246,10 @@ increasing order.
 
 ##### Notes:
 
-If 'f1' and 'f2' are zero the filter will be lowpass.
+If 'f1' and 'f2' are zero the filter will be low pass.
 If 'f3' and 'f4' are equal to or greater than the nyquist
-frequency (fs/2) the filter will be highpass.
-In the other cases the filter will be bandpass.
+frequency (sf/2) the filter will be high pass.
+In the other cases the filter will be band pass.
 
 The order of the filter (number of taps) is fixed at 256.
 This function uses internally 'scipy.signal.firwin2'.
@@ -160,31 +258,31 @@ This function uses internally 'scipy.signal.firwin2'.
 
 ```julia
 noise = broadbandNoise(spectrumLevel=40, duration=180, ramp=10,
-     channel="Both", fs=48000, maxLevel=100)
+     channel="diotic", sf=48000, maxLevel=100)
 lpNoise = fir2Filt(f1=0, f2=0, f3=1000, f4=1200, 
-     snd=noise, fs=48000) #lowpass filter
+     snd=noise, sf=48000) #lowpass filter
 hpNoise = fir2Filt(f1=0, f2=0, f3=24000, f4=26000, 
-     snd=noise, fs=48000) #highpass filter
+     snd=noise, sf=48000) #highpass filter
 bpNoise = fir2Filt(f1=400, f2=600, f3=4000, f4=4400, 
-.     snd=noise, fs=48000) #bandpass filter
+.     snd=noise, sf=48000) #bandpass filter
 ```   
 
 
 
 *source:*
-[SndLib/src/SndLib.jl:598](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:1056](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
 <a id="method__gate.1" class="lexicon_definition"></a>
-#### gate!(sig, ramps, fs) [¶](#method__gate.1)
+#### gate!{T<:Real}(sig::Array{T<:Real, 2}) [¶](#method__gate.1)
 Impose onset and offset ramps to a sound.
 
 ##### Parameters:
 
-* `ramps`: The duration of the ramps.
+* `rampDur`: The duration of the ramps.
 * `sig`: The signal on which the ramps should be imposed.
-* `fs`: The sampling frequency os 'sig'
+* `sf`: The sampling frequency of 'sig'
 
 ##### Returns
 
@@ -193,15 +291,49 @@ Impose onset and offset ramps to a sound.
 ##### Examples
 
 ```julia
-noise = broadbandNoise(spectrumLevel=40, duration=200, ramp=0,
-channel="Both", fs=48000, maxLevel=100)
-gate!(sig=noise, ramps=10, fs=48000)
+noise = broadbandNoise(spectrumLevel=40, dur=2, rampDur=0,
+channel="diotic", sf=48000, maxLevel=100)
+gate!(sig=noise, rampDur=0.01, sf=48000)
 ```
 
 
 
 *source:*
-[SndLib/src/SndLib.jl:357](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:525](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+
+---
+
+<a id="method__makepink.1" class="lexicon_definition"></a>
+#### makePink!{T<:Real}(sig::Array{T<:Real, 2}) [¶](#method__makepink.1)
+Convert a white noise into a pink noise.
+
+The spectrum level of the pink noise at the frequency "ref"
+will be equal to the spectrum level of the white noise input
+to the function.
+
+##### Parameters
+
+* `sig`: The white noise to be turned into a pink noise.
+* `sf`: Sampling frequency of the sound.
+* `ref`: Reference frequency in Hz. The amplitude of the other
+        frequencies will be scaled with respect to the amplitude
+        of this frequency.
+
+##### Returns
+
+* `snd` : array of floats. The array has dimensions (nSamples, nChannels).
+
+##### Examples
+
+```julia
+noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
+channel="diotic", sf=48000, maxLevel=100)
+noise = makePink(noise, sf=48000, ref=1000)
+```
+
+
+*source:*
+[SndLib/src/SndLib.jl:600](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
@@ -214,8 +346,8 @@ desired duration.
     
 ##### Parameters:
 
-* `duration`: Duration of the silence in milliseconds.
-* `fs`: Samplig frequency in Hz.
+* `dur`: Duration of the silence in seconds.
+* `sf`: Samplig frequency in Hz.
 
 ##### Returns:
 
@@ -226,26 +358,149 @@ The array has dimensions (nSamples, 2).
 ##### Examples:
 
 ```julia
-sil = makeSilence(duration=200, fs=48000)
+sil = makeSilence(dur=2, sf=48000)
 ```
 
 
 *source:*
-[SndLib/src/SndLib.jl:395](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:647](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
 <a id="method__puretone.1" class="lexicon_definition"></a>
 #### pureTone() [¶](#method__puretone.1)
+Synthetise a pure tone.
+
+##### Parameters:
+
+* `frequency`: Tone frequency in hertz.
+* `phase`: Starting phase in radians.
+* `level`: Tone level in dB SPL.
+* `dur`: Tone duration in seconds.
+* `ramp`: Duration of the onset and offset ramps in seconds.
+* `channel`: Channel in which the tone will be generated.  ('right', 'left' or 'diotic')
+* `sf`: Samplig frequency in Hz.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
+
+##### Returns:
+
+* `snd` : 2-dimensional array of floats
+        The array has dimensions (nSamples, 2).
+       
+##### Examples:
+
+```julia
+pt = pureTone(frequency=440, phase=0, level=65, duration=180,
+ramp=10, channel="right", sf=48000, maxLevel=100)
+```
 
 
 *source:*
-[SndLib/src/SndLib.jl:405](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:706](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+
+---
+
+<a id="method__puretoneild.1" class="lexicon_definition"></a>
+#### pureToneILD() [¶](#method__puretoneild.1)
+Synthetise a pure tone with an interaural level difference.
+
+##### Parameters:
+
+* `frequency`: Tone frequency in hertz.
+* `phase`: Starting phase in radians.
+* `level`: Tone level in dB SPL.
+* `ILD`: Interaural level difference in dB SPL.
+* `dur`: Tone duration in seconds.
+* `ramp`: Duration of the onset and offset ramps in seconds.
+* `channel`: Channel in which the ILD will be applied.  ('right' or 'left')
+* `sf`: Samplig frequency in Hz.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
+
+##### Returns:
+
+* `snd` : Array with dimensions (nSamples, 2).
+       
+##### Examples:
+
+```julia
+pt = pureToneITD(frequency=440, phase=0, ITD=0.004/1000, level=65, duration=180,
+ramp=10, channel="right", sf=48000, maxLevel=100)
+```
+
+
+*source:*
+[SndLib/src/SndLib.jl:774](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+
+---
+
+<a id="method__puretoneipd.1" class="lexicon_definition"></a>
+#### pureToneIPD() [¶](#method__puretoneipd.1)
+Synthetise a pure tone with an interaural phase difference.
+
+##### Parameters:
+
+* `frequency`: Tone frequency in hertz.
+* `phase`: Starting phase in radians.
+* `IPD`: Interaural phase difference in radians.
+* `level`: Tone level in dB SPL.
+* `dur`: Tone duration in seconds.
+* `ramp`: Duration of the onset and offset ramps in seconds.
+* `channel`: Channel in which the tone IPD will be applied.  ('right' or 'left')
+* `sf`: Samplig frequency in Hz.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
+
+##### Returns:
+
+* `snd` : Array with dimensions (nSamples, 2).
+       
+##### Examples:
+
+```julia
+pt = pureToneIPD(frequency=440, phase=0, IPD=pi/2, level=65, duration=180,
+ramp=10, channel="right", sf=48000, maxLevel=100)
+```
+
+
+*source:*
+[SndLib/src/SndLib.jl:820](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+
+---
+
+<a id="method__puretoneitd.1" class="lexicon_definition"></a>
+#### pureToneITD() [¶](#method__puretoneitd.1)
+Synthetise a pure tone with an interaural time difference.
+
+##### Parameters:
+
+* `frequency`: Tone frequency in hertz.
+* `phase`: Starting phase in radians.
+* `ITD`: Interaural time difference in seconds.
+* `level`: Tone level in dB SPL.
+* `dur`: Tone duration in seconds.
+* `ramp`: Duration of the onset and offset ramps in seconds.
+* `channel`: Channel in which the ITD will be applied.  ('right' or 'left')
+* `sf`: Samplig frequency in Hz.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
+
+##### Returns:
+
+* `snd` : Array with dimensions (nSamples, 2).
+       
+##### Examples:
+
+```julia
+pt = pureToneITD(frequency=440, phase=0, ITD=0.004/1000, level=65, duration=180,
+ramp=10, channel="right", sf=48000, maxLevel=100)
+```
+
+
+*source:*
+[SndLib/src/SndLib.jl:863](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
 <a id="method__scalelevel.1" class="lexicon_definition"></a>
-#### scaleLevel(sig, level) [¶](#method__scalelevel.1)
+#### scaleLevel{T<:Real}(sig::Array{T<:Real, 2}) [¶](#method__scalelevel.1)
 Increase or decrease the amplitude of a sound signal.
 
 ##### Parameters:
@@ -261,13 +516,64 @@ Increase or decrease the amplitude of a sound signal.
 
 ```julia
 noise = broadbandNoise(spectrumLevel=40, duration=180, ramp=10,
-channel="Both", fs=48000, maxLevel=100)
+channel="diotic", sf=48000, maxLevel=100)
 noise = scale(sig=noise, level=-10) #reduce level by 10 dB
 ```
 
 
 *source:*
-[SndLib/src/SndLib.jl:458](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:894](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+
+---
+
+<a id="method__sound.1" class="lexicon_definition"></a>
+#### sound(snd) [¶](#method__sound.1)
+Simple function to play sounds. Uses aplay on Linux and afplay on OSX.
+Windows is not currently supported.
+
+##### Arguments
+
+* `snd`: The sound to be played.
+* `sf`: The sampling frequency.
+
+
+
+*source:*
+[SndLib/src/SndLib.jl:667](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+
+---
+
+<a id="method__sound.2" class="lexicon_definition"></a>
+#### sound(snd, sf::Int64) [¶](#method__sound.2)
+Simple function to play sounds. Uses aplay on Linux and afplay on OSX.
+Windows is not currently supported.
+
+##### Arguments
+
+* `snd`: The sound to be played.
+* `sf`: The sampling frequency.
+
+
+
+*source:*
+[SndLib/src/SndLib.jl:667](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+
+---
+
+<a id="method__sound.3" class="lexicon_definition"></a>
+#### sound(snd, sf::Int64, nbits::Int64) [¶](#method__sound.3)
+Simple function to play sounds. Uses aplay on Linux and afplay on OSX.
+Windows is not currently supported.
+
+##### Arguments
+
+* `snd`: The sound to be played.
+* `sf`: The sampling frequency.
+
+
+
+*source:*
+[SndLib/src/SndLib.jl:667](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
@@ -282,27 +588,25 @@ sinusoids.
 * `frequency1`: Start frequency of the noise.
 * `frequency2`: End frequency of the noise.
 * `level`: Noise spectrum level.
-* `duration`: Tone duration (excluding ramps) in milliseconds.
-* `ramp`: Duration of the onset and offset ramps in milliseconds.
-        The total duration of the sound will be duration+ramp*2.
-* `channel`: 'Right', 'Left' or 'Both'. Channel in which the tone will be generated.
-* `fs`: Samplig frequency in Hz.
+* `dur`: Tone duration in seconds.
+* `rampDur`: Duration of the onset and offset ramps in seconds.
+* `channel`: 'right', 'left' or 'diotic'. Channel in which the tone will be generated.
+* `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
 ##### Returns:
 
-* `snd`: 2-dimensional array of floats
-        The array has dimensions (nSamples, 2).
+* `snd`: 2-dimensional array of floats. The array has dimensions (nSamples, nChannels).
        
 ##### Examples:
 
 ```julia
 nbNoise = steepNoise(frequency=440, frequency2=660, level=65,
-duration=180, ramp=10, channel="Right", fs=48000, maxLevel=100)
+dur=180, rampDur=10, channel="right", sf=48000, maxLevel=100)
 ```
 
 
 
 *source:*
-[SndLib/src/SndLib.jl:497](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:932](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
