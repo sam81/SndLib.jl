@@ -35,7 +35,7 @@ level=65, dur=1, rampDur=0.01, channel="diotic", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/SndLib.jl:138](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:144](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
@@ -74,7 +74,7 @@ level=65, dur=1, rampDur=0.01, channel="diotic", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/SndLib.jl:211](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:220](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
@@ -98,13 +98,13 @@ phase difference for a given frequency.
 ```julia
 itd = 300 #microseconds
 itd = 300/1000000 #convert to seconds
-itdtoipd(itd, 1000)
+ITDToIPD(itd, 1000)
 ```
 
 
 
 *source:*
-[SndLib/src/SndLib.jl:564](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:621](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
@@ -130,12 +130,12 @@ snd1 = pureTone(frequency=440, phase=0, level=65, duration=180,
 ramp=10, channel="right", sf=48000, maxLevel=100)
 snd2 = pureTone(frequency=880, phase=0, level=65, duration=180,
 ramp=10, channel="right", sf=48000, maxLevel=100)
-snd = addSounds(snd1=snd1, snd2=snd2, delay=100, sf=48000)
+snd = addSounds(snd1=snd1, snd2=snd2, delay=1, sf=48000)
 ```
 
 
 *source:*
-[SndLib/src/SndLib.jl:59](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:62](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
@@ -168,7 +168,7 @@ noise = broadbandNoise(spectrumLevel=20, dur=180, rampDur=10,
 
 
 *source:*
-[SndLib/src/SndLib.jl:264](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:276](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
@@ -212,7 +212,7 @@ Synthetise a complex tone.
 
 
 *source:*
-[SndLib/src/SndLib.jl:369](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:385](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
@@ -270,7 +270,7 @@ bpNoise = fir2Filt(f1=400, f2=600, f3=4000, f4=4400,
 
 
 *source:*
-[SndLib/src/SndLib.jl:1056](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:1224](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
@@ -299,7 +299,7 @@ gate!(sig=noise, rampDur=0.01, sf=48000)
 
 
 *source:*
-[SndLib/src/SndLib.jl:525](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:578](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
@@ -333,7 +333,7 @@ noise = makePink(noise, sf=48000, ref=1000)
 
 
 *source:*
-[SndLib/src/SndLib.jl:600](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:659](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
@@ -363,7 +363,7 @@ sil = makeSilence(dur=2, sf=48000)
 
 
 *source:*
-[SndLib/src/SndLib.jl:647](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:707](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
@@ -396,7 +396,7 @@ ramp=10, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/SndLib.jl:706](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:771](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
@@ -423,13 +423,13 @@ Synthetise a pure tone with an interaural level difference.
 ##### Examples:
 
 ```julia
-pt = pureToneITD(frequency=440, phase=0, ITD=0.004/1000, level=65, duration=180,
+pt = pureToneILD(frequency=440, phase=0, level=65, ILD=10, duration=180,
 ramp=10, channel="right", sf=48000, maxLevel=100)
 ```
 
 
 *source:*
-[SndLib/src/SndLib.jl:774](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:841](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
@@ -462,7 +462,41 @@ ramp=10, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/SndLib.jl:820](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:890](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+
+---
+
+<a id="method__puretoneipdild.1" class="lexicon_definition"></a>
+#### pureToneIPDILD() [¶](#method__puretoneipdild.1)
+Synthetise a pure tone with an interaural phase and interaural level difference.
+
+##### Parameters:
+
+* `frequency`: Tone frequency in hertz.
+* `phase`: Starting phase in radians.
+* `IPD`: Interaural phase difference in radians.
+* `level`: Tone level in dB SPL.
+* `ILD`: Interaural level difference in dB SPL.
+* `dur`: Tone duration in seconds.
+* `ramp`: Duration of the onset and offset ramps in seconds.
+* `channel`: Channel in which the ILD will be applied.  ('right' or 'left')
+* `sf`: Samplig frequency in Hz.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
+
+##### Returns:
+
+* `snd` : Array with dimensions (nSamples, 2).
+       
+##### Examples:
+
+```julia
+pt = pureToneIPDILD(frequency=440, phase=0, IPD=pi/2, level=65, ILD=10, duration=180,
+ramp=10, channel="right", sf=48000, maxLevel=100)
+```
+
+
+*source:*
+[SndLib/src/SndLib.jl:977](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
@@ -495,7 +529,41 @@ ramp=10, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/SndLib.jl:863](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:936](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+
+---
+
+<a id="method__puretoneitdild.1" class="lexicon_definition"></a>
+#### pureToneITDILD() [¶](#method__puretoneitdild.1)
+Synthetise a pure tone with an interaural time and interaural level difference.
+
+##### Parameters:
+
+* `frequency`: Tone frequency in hertz.
+* `phase`: Starting phase in radians.
+* `ITD`: Interaural time difference in seconds.
+* `level`: Tone level in dB SPL.
+* `ILD`: Interaural level difference in dB SPL.
+* `dur`: Tone duration in seconds.
+* `ramp`: Duration of the onset and offset ramps in seconds.
+* `channel`: Channel in which the ILD will be applied.  ('right' or 'left')
+* `sf`: Samplig frequency in Hz.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
+
+##### Returns:
+
+* `snd` : Array with dimensions (nSamples, 2).
+       
+##### Examples:
+
+```julia
+pt = pureToneITDILD(frequency=440, phase=0, ITD=0.004/1000, level=65, ILD=10, duration=180,
+ramp=10, channel="right", sf=48000, maxLevel=100)
+```
+
+
+*source:*
+[SndLib/src/SndLib.jl:1026](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
@@ -522,12 +590,12 @@ noise = scale(sig=noise, level=-10) #reduce level by 10 dB
 
 
 *source:*
-[SndLib/src/SndLib.jl:894](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:1058](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
 <a id="method__sound.1" class="lexicon_definition"></a>
-#### sound(snd) [¶](#method__sound.1)
+#### sound{T<:Real}(snd::Array{T<:Real, 2}) [¶](#method__sound.1)
 Simple function to play sounds. Uses aplay on Linux and afplay on OSX.
 Windows is not currently supported.
 
@@ -539,12 +607,12 @@ Windows is not currently supported.
 
 
 *source:*
-[SndLib/src/SndLib.jl:667](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:730](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
 <a id="method__sound.2" class="lexicon_definition"></a>
-#### sound(snd, sf::Int64) [¶](#method__sound.2)
+#### sound{T<:Real}(snd::Array{T<:Real, 2}, sf::Int64) [¶](#method__sound.2)
 Simple function to play sounds. Uses aplay on Linux and afplay on OSX.
 Windows is not currently supported.
 
@@ -556,12 +624,12 @@ Windows is not currently supported.
 
 
 *source:*
-[SndLib/src/SndLib.jl:667](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:730](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
 <a id="method__sound.3" class="lexicon_definition"></a>
-#### sound(snd, sf::Int64, nbits::Int64) [¶](#method__sound.3)
+#### sound{T<:Real}(snd::Array{T<:Real, 2}, sf::Int64, nbits::Int64) [¶](#method__sound.3)
 Simple function to play sounds. Uses aplay on Linux and afplay on OSX.
 Windows is not currently supported.
 
@@ -573,13 +641,12 @@ Windows is not currently supported.
 
 
 *source:*
-[SndLib/src/SndLib.jl:667](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:730](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
 ---
 
 <a id="method__steepnoise.1" class="lexicon_definition"></a>
 #### steepNoise() [¶](#method__steepnoise.1)
-    
 Synthetise band-limited noise from the addition of random-phase
 sinusoids.
 
@@ -608,5 +675,37 @@ dur=180, rampDur=10, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/SndLib.jl:932](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/SndLib.jl:1098](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+
+## Internal
+
+---
+
+<a id="method__erbdistance.1" class="lexicon_definition"></a>
+#### ERBDistance(f1::Real, f2::Real) [¶](#method__erbdistance.1)
+Compute the distance in equivalent rectangular bandwiths (ERBs)
+between the frequencies `f1` and `f2`.
+
+##### Parameters
+
+* `f1`: frequency 1 in Hz
+* `f2`: frequency 2 in Hz
+
+##### Returns
+
+* `deltaERB`: distance between f1 and f2 in ERBs.
+
+##### References
+
+.. [GM] Glasberg, B. R., & Moore, B. C. J. (1990). Derivation of auditory filter shapes from notched-noise data. Hear. Res., 47(1-2), 103–38.
+
+##### Examples
+
+```julia
+ERBDistance(1000, 1200)
+```
+
+
+*source:*
+[SndLib/src/SndLib.jl:545](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
 
