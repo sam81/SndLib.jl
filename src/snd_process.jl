@@ -1,3 +1,25 @@
+## The MIT License (MIT)
+
+## Copyright (c) 2013-2015 Samuele Carcagno <sam.carcagno@gmail.com>
+
+## Permission is hereby granted, free of charge, to any person obtaining a copy
+## of this software and associated documentation files (the "Software"), to deal
+## in the Software without restriction, including without limitation the rights
+## to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+## copies of the Software, and to permit persons to whom the Software is
+## furnished to do so, subject to the following conditions:
+
+## The above copyright notice and this permission notice shall be included in
+## all copies or substantial portions of the Software.
+
+## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+## IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+## FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+## AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+## OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+## THE SOFTWARE.
+
 ################################
 ## addSounds
 ################################
@@ -76,6 +98,89 @@ function addSounds{T<:Real, P<:Real}(snd1::Array{T, 2}, snd2::Array{P, 2}; delay
     return snd
 end
 
+############################
+## delayAdd
+############################
+@doc doc"""
+Delay and add algorithm for the generation of iterated rippled noise.
+
+##### Parameters
+
+* `sig`: The signal to manipulate
+* `delay`: delay in seconds
+* `gain`: The gain to apply to the delayed signal
+* `iterations`: The number of iterations of the delay-add cycle
+* `configuration`: If 'add same', the output of iteration N-1 is added to delayed signal of the current iteration.
+If 'add original', the original signal is added to delayed signal of the current iteration.
+* `channel`: a number or a vector of numbers indicating to which columns of `sig` the delay and add process should be applied
+* `sf`: Sampling frequency in Hz.
+
+##### Returns
+
+* `snd`:
+
+##### References
+
+.. [YPS1996] Yost, W. A., Patterson, R., & Sheft, S. (1996). A time domain description for the pitch strength of iterated rippled noise. J. Acoust. Soc. Am., 99(2), 1066–78. 
+
+##### Examples
+
+```julia
+noise = broadbandNoise(spectrumLevel=40, duration=180, ramp=10,
+channel="diotic", fs=48000, maxLevel=100)
+irn = delayAdd(noise, delay=1/440, gain=1, iterations=6, configuration="add same", channel=[1,2], fs=48000)
+
+""" ->
+
+function delayAdd!{T<:Real, P<:Integer}(sig::Array{T,2}; delay::Real=0.01,
+                                        gain::Real=1, iterations::Integer=1,
+                                        configuration::String="add same",
+                                        channel::Union(P, AbstractVector{P})=[1:size(sig)[2]],
+                                        sf::Real=48000)
+
+    #delay::Real=0.01; gain::Real=1; iterations::Integer=1;
+    #configuration::String="add same"; sf::Real=48000;
+    #channel = [1,2]
+    #delay in seconds
+    delayPnt = round(delay * sf)
+    nChans = size(sig)[2]
+    nSamples = length(sig[:,1])
+    if channel == "all"
+        chans = [1:nChans]
+    else
+        chans = channel
+    end
+    #snd = zeros(nSamples, nChans)
+
+    if configuration == "add original"
+        original_sig = copy(sig)
+    end
+
+    for ch=1:length(chans)
+        delayed_sig = zeros(nSamples, 1)
+        en_input = sqrt(sum(sig[:,ch].^2))
+        if configuration == "add same"
+            for i=1:iterations
+                delayed_sig = vcat(sig[delayPnt+1:nSamples,ch], sig[1:delayPnt,ch])
+                delayed_sig = delayed_sig * gain
+                sig[:,ch] = sig[:,ch] + delayed_sig
+            end
+        elseif configuration == "add original"
+            for i=1:iterations
+                delayed_sig = vcat(sig[delayPnt+1:nSamples,ch], sig[1:delayPnt,ch])
+                delayed_sig = delayed_sig * gain
+                sig[:,ch] = original_sig[:,ch] + delayed_sig
+            end
+        end
+        en_output = sqrt(sum(sig[:,ch].^2))
+        scale_factor = en_input / en_output
+        sig[:,ch] = sig[:,ch] * scale_factor
+    end
+
+    return sig
+end
+
+
 #####################################
 ## fir2Filt!
 #####################################
@@ -130,7 +235,7 @@ bpNoise = fir2Filt(f1=400, f2=600, f3=4000, f4=4400,
 ```   
 
 """ ->
-function fir2Filt!{T<:Real}(f1::Real, f2::Real, f3::Real, f4::Real, snd::Array{T, 2}; nTaps::Int=256, sf::Real=48000)
+function fir2Filt!{T<:Real}(f1::Real, f2::Real, f3::Real, f4::Real, snd::Array{T, 2}; nTaps::Integer=256, sf::Real=48000)
 
     f1 = (f1 * 2) / sf
     f2 = (f2 * 2) / sf
@@ -228,6 +333,48 @@ function gate!{T<:Real}(sig::Array{T, 2}; rampDur::Real=0.01, sf::Real=48000)
 
     return sig
 end
+
+@doc doc"""
+Compute the root mean square (RMS) value of the signal.
+
+##### Parameters
+
+* `sig`: The signal for which the RMS needs to be computed.
+* `channel`: Either an integer indicating the channel number,
+or `each` for a list of the RMS values in each channel, or `all`
+for the RMS across all channels.
+##### Returns
+
+* `RMS`: The RMS of `sig`
+
+##### Examples
+
+```julia
+pt = pureTone(frequency=440, phase=0, level=65, duration=180,
+     rampDur=10, channel="right", fs=48000, maxLevel=100)
+getRMS(pt, 1)
+getRMS(pt, 2)
+getRMS(pt, "each")
+getRMS(pt, "all")
+```
+
+""" ->
+function getRMS{T<:Real}(sig::Array{T,2}, channel::Union(String, Integer))
+    RMS = (FloatingPoint)[]
+    if channel == "all"
+        push!(RMS, sqrt(mean(sig.*sig)))
+        #RMS = sqrt(mean(sig.*sig))
+    elseif channel == "each"
+        nChans = size(sig)[2]
+        for i=1:nChans
+            push!(RMS, sqrt(mean(sig[:,i].*sig[:,i])))
+        end
+    else
+        push!(RMS, sqrt(mean(sig[:,channel].*sig[:,channel])))
+        #RMS = sqrt(mean(sig[:,channel].*sig[:,channel]))
+    end
+    return RMS
+    end
 
 #################################
 ## ITDToIPD
@@ -366,7 +513,7 @@ Windows is not currently supported.
 * `sf`: The sampling frequency.
 
 """ ->
-function sound{T<:Real}(snd::Array{T,2}, sf::Int=48000, nbits::Int=32)
+function sound{T<:Real}(snd::Array{T,2}, sf::Integer=48000, nbits::Integer=32)
     tmp = tempname()
     wavwrite(snd, tmp, Fs=sf, nbits=nbits)
     if OS_NAME == :Linux

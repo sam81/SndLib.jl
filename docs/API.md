@@ -35,7 +35,7 @@ level=65, dur=1, rampDur=0.01, channel="diotic", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/SndLib.jl:144](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_generate.jl:53](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -74,7 +74,7 @@ level=65, dur=1, rampDur=0.01, channel="diotic", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/SndLib.jl:220](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_generate.jl:129](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -104,12 +104,12 @@ ITDToIPD(itd, 1000)
 
 
 *source:*
-[SndLib/src/SndLib.jl:621](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_process.jl:404](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
 <a id="method__addsounds.1" class="lexicon_definition"></a>
-#### addSounds{T<:Real}(snd1::Array{T<:Real, 2}, snd2::Array{T<:Real, 2}) [¶](#method__addsounds.1)
+#### addSounds{T<:Real, P<:Real}(snd1::Array{T<:Real, 2}, snd2::Array{P<:Real, 2}) [¶](#method__addsounds.1)
 Add or concatenate two sounds.
 
 ##### Parameters
@@ -135,7 +135,7 @@ snd = addSounds(snd1=snd1, snd2=snd2, delay=1, sf=48000)
 
 
 *source:*
-[SndLib/src/SndLib.jl:62](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_process.jl:49](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -168,7 +168,33 @@ noise = broadbandNoise(spectrumLevel=20, dur=180, rampDur=10,
 
 
 *source:*
-[SndLib/src/SndLib.jl:276](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_generate.jl:185](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+
+---
+
+<a id="method__centdistance.1" class="lexicon_definition"></a>
+#### centDistance(f1::Real, f2::Real) [¶](#method__centdistance.1)
+Compute the distance in cents
+between the frequencies `f1` and `f2`.
+
+##### Parameters
+
+* `f1`: frequency 1 in Hz
+* `f2`: frequency 2 in Hz
+
+##### Returns
+
+* `deltaCents`: distance between f1 and f2 in cents.
+
+##### Examples
+
+```julia
+centDistance(1000, 1200)
+```
+
+
+*source:*
+[SndLib/src/utils.jl:76](file:///home/sam/.julia/v0.3/SndLib/src/utils.jl)
 
 ---
 
@@ -212,7 +238,44 @@ Synthetise a complex tone.
 
 
 *source:*
-[SndLib/src/SndLib.jl:385](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_generate.jl:294](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+
+---
+
+<a id="method__delayadd.1" class="lexicon_definition"></a>
+#### delayAdd!{T<:Real}(sig::Array{T<:Real, 2}) [¶](#method__delayadd.1)
+Delay and add algorithm for the generation of iterated rippled noise.
+
+##### Parameters
+
+* `sig`: The signal to manipulate
+* `delay`: delay in seconds
+* `gain`: The gain to apply to the delayed signal
+* `iterations`: The number of iterations of the delay-add cycle
+* `configuration`: If 'add same', the output of iteration N-1 is added to delayed signal of the current iteration.
+If 'add original', the original signal is added to delayed signal of the current iteration.
+* `channel`: a number or a vector of numbers indicating to which columns of `sig` the delay and add process should be applied
+* `sf`: Sampling frequency in Hz.
+
+##### Returns
+
+* `snd`:
+
+##### References
+
+.. [YPS1996] Yost, W. A., Patterson, R., & Sheft, S. (1996). A time domain description for the pitch strength of iterated rippled noise. J. Acoust. Soc. Am., 99(2), 1066–78. 
+
+##### Examples
+
+```julia
+noise = broadbandNoise(spectrumLevel=40, duration=180, ramp=10,
+channel="diotic", fs=48000, maxLevel=100)
+irn = delayAdd(noise, delay=1/440, gain=1, iterations=6, configuration="add same", channel=[1,2], fs=48000)
+
+
+
+*source:*
+[SndLib/src/snd_process.jl:133](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -270,7 +333,73 @@ bpNoise = fir2Filt(f1=400, f2=600, f3=4000, f4=4400,
 
 
 *source:*
-[SndLib/src/SndLib.jl:1224](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_process.jl:237](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+
+---
+
+<a id="method__freqfromcentinterval.1" class="lexicon_definition"></a>
+#### freqFromCentInterval{T<:Real, P<:Real}(f1::Union(AbstractArray{T<:Real, 1}, T<:Real), deltaCent::Union(P<:Real, AbstractArray{P<:Real, 1})) [¶](#method__freqfromcentinterval.1)
+Compute the frequency, in Hz, corresponding to a distance,
+in equivalent cents of `deltaCents` from `f1`.
+
+##### Parameters
+ 
+* `f1`: frequency at one end of the interval in Hz
+* `deltaCents`: distance in cents
+
+##### Returns
+
+* `f2`: frequency at the other end of the interval
+    
+##### Examples
+
+```julia
+freqFromCentInterval(100, 1.5)
+freqFromCentInterval(100, -1.5)
+#for several frequencies
+freqFromCentInterval([100, 200, 300], 1.5)
+# for several distances
+freqFromCentInterval(100, [1, 1.5, 2])
+```
+
+
+*source:*
+[SndLib/src/utils.jl:49](file:///home/sam/.julia/v0.3/SndLib/src/utils.jl)
+
+---
+
+<a id="method__freqfromerbinterval.1" class="lexicon_definition"></a>
+#### freqFromERBInterval{T<:Real, P<:Real}(f1::Union(AbstractArray{T<:Real, 1}, T<:Real), deltaERB::Union(P<:Real, AbstractArray{P<:Real, 1})) [¶](#method__freqfromerbinterval.1)
+Compute the frequency, in Hz, corresponding to a distance,
+in equivalent rectangular bandwidths (ERBs), of `deltaERB` from `f1`.
+
+##### Parameters
+ 
+* `f1`: frequency at one end of the interval in Hz
+* `deltaERB`: distance in ERBs
+
+##### Returns
+
+* `f2`: frequency at the other end of the interval
+
+##### References
+
+.. [GM] Glasberg, B. R., & Moore, B. C. J. (1990). Derivation of auditory filter shapes from notched-noise data. Hear. Res., 47(1-2), 103–38.
+    
+##### Examples
+
+```julia
+freqFromERBInterval(100, 1.5)
+freqFromERBInterval(100, -1.5)
+#for several frequencies
+freqFromERBInterval([100, 200, 300], 1.5)
+# for several distances
+freqFromERBInterval(100, [1, 1.5, 2])
+```
+
+
+*source:*
+[SndLib/src/utils.jl:116](file:///home/sam/.julia/v0.3/SndLib/src/utils.jl)
 
 ---
 
@@ -299,7 +428,39 @@ gate!(sig=noise, rampDur=0.01, sf=48000)
 
 
 *source:*
-[SndLib/src/SndLib.jl:578](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_process.jl:320](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+
+---
+
+<a id="method__getrms.1" class="lexicon_definition"></a>
+#### getRMS{T<:Real}(sig::Array{T<:Real, 2}, channel::Union(String, Integer)) [¶](#method__getrms.1)
+Compute the root mean square (RMS) value of the signal.
+
+##### Parameters
+
+* `sig`: The signal for which the RMS needs to be computed.
+* `channel`: Either an integer indicating the channel number,
+or `each` for a list of the RMS values in each channel, or `all`
+for the RMS across all channels.
+##### Returns
+
+* `RMS`: The RMS of `sig`
+
+##### Examples
+
+```julia
+pt = pureTone(frequency=440, phase=0, level=65, duration=180,
+     rampDur=10, channel="right", fs=48000, maxLevel=100)
+getRMS(pt, 1)
+getRMS(pt, 2)
+getRMS(pt, "each")
+getRMS(pt, "all")
+```
+
+
+
+*source:*
+[SndLib/src/snd_process.jl:361](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -333,7 +494,7 @@ noise = makePink(noise, sf=48000, ref=1000)
 
 
 *source:*
-[SndLib/src/SndLib.jl:659](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_process.jl:444](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -363,7 +524,7 @@ sil = makeSilence(dur=2, sf=48000)
 
 
 *source:*
-[SndLib/src/SndLib.jl:707](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_generate.jl:454](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -396,7 +557,7 @@ ramp=10, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/SndLib.jl:771](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_generate.jl:493](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -429,7 +590,7 @@ ramp=10, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/SndLib.jl:841](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_generate.jl:563](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -462,7 +623,7 @@ ramp=10, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/SndLib.jl:890](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_generate.jl:612](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -496,7 +657,7 @@ ramp=10, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/SndLib.jl:977](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_generate.jl:699](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -529,7 +690,7 @@ ramp=10, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/SndLib.jl:936](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_generate.jl:658](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -563,7 +724,7 @@ ramp=10, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/SndLib.jl:1026](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_generate.jl:748](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -590,7 +751,7 @@ noise = scale(sig=noise, level=-10) #reduce level by 10 dB
 
 
 *source:*
-[SndLib/src/SndLib.jl:1058](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_process.jl:491](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -607,12 +768,12 @@ Windows is not currently supported.
 
 
 *source:*
-[SndLib/src/SndLib.jl:730](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_process.jl:515](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
 <a id="method__sound.2" class="lexicon_definition"></a>
-#### sound{T<:Real}(snd::Array{T<:Real, 2}, sf::Int64) [¶](#method__sound.2)
+#### sound{T<:Real}(snd::Array{T<:Real, 2}, sf::Integer) [¶](#method__sound.2)
 Simple function to play sounds. Uses aplay on Linux and afplay on OSX.
 Windows is not currently supported.
 
@@ -624,12 +785,12 @@ Windows is not currently supported.
 
 
 *source:*
-[SndLib/src/SndLib.jl:730](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_process.jl:515](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
 <a id="method__sound.3" class="lexicon_definition"></a>
-#### sound{T<:Real}(snd::Array{T<:Real, 2}, sf::Int64, nbits::Int64) [¶](#method__sound.3)
+#### sound{T<:Real}(snd::Array{T<:Real, 2}, sf::Integer, nbits::Integer) [¶](#method__sound.3)
 Simple function to play sounds. Uses aplay on Linux and afplay on OSX.
 Windows is not currently supported.
 
@@ -641,7 +802,7 @@ Windows is not currently supported.
 
 
 *source:*
-[SndLib/src/SndLib.jl:730](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_process.jl:515](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -675,7 +836,7 @@ dur=180, rampDur=10, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/SndLib.jl:1098](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/snd_generate.jl:787](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ## Internal
 
@@ -707,5 +868,5 @@ ERBDistance(1000, 1200)
 
 
 *source:*
-[SndLib/src/SndLib.jl:545](file:///home/sam/.julia/v0.3/SndLib/src/SndLib.jl)
+[SndLib/src/utils.jl:147](file:///home/sam/.julia/v0.3/SndLib/src/utils.jl)
 
