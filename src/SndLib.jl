@@ -29,10 +29,10 @@ centDistance, complexTone,
 delayAdd!,
 fir2Filt!, freqFromCentInterval, freqFromERBInterval,
 gate!, getRMS,
-ITDToIPD,
-makePink!, makeSilence,
+IRN, ITDToIPD,
+makePink!, 
 pureTone, pureToneILD, pureToneIPD, pureToneIPDILD, pureToneITD, pureToneITDILD,
-scaleLevel, sound, steepNoise
+scaleLevel, silence, sound, steepNoise
 
 VERSION < v"0.4-" && using Docile
 using PyCall, WAV

@@ -426,41 +426,65 @@ function complexTone(;F0::Real=220, harmPhase::String="sine", lowHarm::Integer=1
     return snd
 end
 
-##################################
-## makeSilence
-##################################
+#################################
+## IRN
+#################################
+
 @doc doc"""
-Generate a silence.
 
-This function just fills an array with zeros for the
-desired duration.
-    
-##### Parameters:
+Generate an iterated rippled noise
 
-* `dur`: Duration of the silence in seconds.
-* `sf`: Samplig frequency in Hz.
+##### Parameters
 
-##### Returns:
+* `delay`: delay in seconds
+* `gain`: The gain to apply to the delayed signal
+* `iterations`: The number of iterations of the delay-add cycle
+* `configuration`: If `add same`, the output of iteration N-1 is added to delayed signal of the current iteration.
+If `add original`, the original signal is added to the delayed signal of the current iteration.
+* `spectrumLevel`: Intensity spectrum level of the noise in dB SPL.
+* `dur`: Noise duration in seconds.
+* `rampDur`: Duration of the onset and offset ramps in seconds.
+* `channel`: Channel in which the noise will be generated (`mono`, 'right', 'left', 'diotic', 'dichotic').
+* `sf`: Sampling frequency in Hz.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
-* `snd`: 2-dimensional array of floats
-The array has dimensions (nSamples, 2).
-       
+##### Returns
 
-##### Examples:
+* `snd`: array with dimensions (nSamples, nChannels).
+
+##### Examples
 
 ```julia
-sil = makeSilence(dur=2, sf=48000)
+irn = IRN(delay=1/440, gain=1, iterations=6, configuration="add same",
+          spectrumLevel=25, duration=280, ramp=10, channel="diotic",
+          sf=48000, maxLevel=101)
 ```
 """ ->
-function makeSilence(;dur=1000, channel="mono", sf=48000)
-    nSamples = int(round(dur * sf))
-    if channel == "mono"
-        snd = zeros(nSamples, 1)
-    elseif channel == "diotic"
-        snd = zeros(nSamples, 2)
+
+function IRN(;delay::Real=0.001, gain::Real=1, iterations::Integer=6,
+             configuration::String="add same", spectrumLevel::Real=25,
+             dur::Real=1, rampDur::Real=0.01, channel::String="diotic",
+             sf::Real=48000, maxLevel::Real=101)
+
+    if in(channel, ["mono", "right", "left", "diotic", "dichotic"]) == false
+        error("`channel` must be one of `mono`, `right`, `left`, `diotic`, or `dichotic`")
     end
+    snd = broadbandNoise(spectrumLevel=spectrumLevel, dur=dur, rampDur=0,
+                         channel=channel, sf=sf, maxLevel=maxLevel)
+    if channel == "right"
+        ch = 2
+    elseif channel == "left"
+        ch = 1
+    else
+        ch = [1:size(snd)[2]]
+    end
+    snd = delayAdd!(snd, delay=delay, gain=gain, iterations=iterations,
+                   configuration=configuration, channel=ch, sf=sf)
+    snd = gate!(snd, rampDur=rampDur, sf=sf)
+        
     return snd
 end
+
 
 ####################################
 ## pureTone
@@ -752,6 +776,42 @@ function pureToneITDILD(;frequency::Real=1000, phase::Real=0, ITD::Real=0,
                      channel::String="right", sf::Real=48000, maxLevel::Real=101)
     IPD = ITDToIPD(ITD, frequency)
     snd = pureToneIPDILD(frequency=frequency, phase=phase, IPD=IPD, level=level, ILD=ILD, dur=dur, rampDur=rampDur, channel="mono", sf=sf, maxLevel=maxLevel)
+    return snd
+end
+
+##################################
+## silence
+##################################
+@doc doc"""
+Generate a silence.
+
+This function just fills an array with zeros for the
+desired duration.
+    
+##### Parameters:
+
+* `dur`: Duration of the silence in seconds.
+* `sf`: Samplig frequency in Hz.
+
+##### Returns:
+
+* `snd`: 2-dimensional array of floats
+The array has dimensions (nSamples, 2).
+       
+
+##### Examples:
+
+```julia
+sil = silence(dur=2, sf=48000)
+```
+""" ->
+function silence(;dur=1000, channel="mono", sf=48000)
+    nSamples = int(round(dur * sf))
+    if channel == "mono"
+        snd = zeros(nSamples, 1)
+    elseif channel == "diotic"
+        snd = zeros(nSamples, 2)
+    end
     return snd
 end
 

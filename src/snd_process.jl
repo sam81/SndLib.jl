@@ -89,7 +89,7 @@ function addSounds{T<:Real, P<:Real}(snd1::Array{T, 2}, snd2::Array{P, 2}; delay
             
     else
         seg1 = snd1
-        seg2 = makeSilence(dur=delay-snd1Duration, channel=ifelse(nChans==1, "mono", "diotic"), sf=sf)
+        seg2 = silence(dur=delay-snd1Duration, channel=ifelse(nChans==1, "mono", "diotic"), sf=sf)
         seg3 = snd2
         snd = vcat(seg1, seg2)
         snd = vcat(snd, seg3)
@@ -156,7 +156,7 @@ function delayAdd!{T<:Real, P<:Integer}(sig::Array{T,2}; delay::Real=0.01,
         original_sig = copy(sig)
     end
 
-    for ch=1:length(chans)
+    for ch in chans
         delayed_sig = zeros(nSamples, 1)
         en_input = sqrt(sum(sig[:,ch].^2))
         if configuration == "add same"
@@ -301,8 +301,8 @@ Impose onset and offset ramps to a sound.
 
 ##### Parameters:
 
-* `rampDur`: The duration of the ramps.
 * `sig`: The signal on which the ramps should be imposed.
+* `rampDur`: The duration of the ramps.
 * `sf`: The sampling frequency of 'sig'
 
 ##### Returns
