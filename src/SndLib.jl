@@ -32,7 +32,7 @@ ERBDistance,
 gate!, getRMS,
 IRN, ITDToIPD,
 makePink!, 
-pureTone, pureToneILD, pureToneIPD, pureToneIPDILD, pureToneITD, pureToneITDILD,
+phaseShift!, pureTone, pureToneILD, pureToneIPD, pureToneIPDILD, pureToneITD, pureToneITDILD,
 scaleLevel, silence, sound, steepNoise
 
 VERSION < v"0.4-" && using Docile

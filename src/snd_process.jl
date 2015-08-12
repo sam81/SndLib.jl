@@ -410,7 +410,89 @@ function ITDToIPD(ITD::Real, freq::Real)
     return IPD
 end
 
+#########################
+## phaseShift
+#########################
+@doc doc"""
+Shift the interaural phases of a sound within a given frequency region.
 
+##### Parameters
+
+* `sig`: Input signal.
+* `f1`: The start point of the frequency region to be
+        phase-shifted in hertz.
+* `f2`: The end point of the frequency region to be
+        phase-shifted in hertz.
+* `phaseShift`: The amount of phase shift in radians. 
+* `shiftType`: If `linear` the phase changes progressively
+        on a linear Hz scale from X to X+'phaseShift' from f1 to f2.
+        If 'step' 'phaseShift' is added as a constant to the
+        phases from f1 to f2.
+        If 'random' a random phase shift from 0 to `phaseShift`
+        is added to each frequency component from `f1` to `f2`.
+* `channel`: The channel(s) in which to apply the phase shift.
+* `sf`: The sampling frequency of the sound.
+        
+##### Returns
+
+* `out`: 2-dimensional array of floats
+
+##### Examples
+
+```julia
+noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
+channel="diotic", sf=48000, maxLevel=100)
+noise = phaseShift!(noise, 500, 600, phaseShift=pi,
+channel=2, sf=48000) #this generates a Dichotic Pitch
+```
+"""->
+
+function phaseShift!{T<:Real, P<:Integer}(sig::Array{T, 2}, f1::Real, f2::Real; phaseShift::Real=pi, shiftType::String="step", channel::Union(P, AbstractVector{P})=1, sf::Real=48000)
+    nSamples = size(sig)[1]
+    nChans = size(sig)[2]
+    fftPoints = nSamples#nextpow2(nSamples)
+    #snd = zeros(nSamples, 2)
+    nUniquePnts = ceil((fftPoints+1)/2)
+    freqArray1 = [0:nUniquePnts] * (sf / fftPoints)
+    freqArray2 = -flipud([1:(nUniquePnts-1)]) * (sf / fftPoints) #remove DC offset and nyquist
+    ## sh1 = where((freqArray1>f1) & (freqArray1<f2))
+    ## sh2 = where((freqArray2<-f1) & (freqArray2>-f2))
+    sh1 = find((freqArray1 .>= f1) & (freqArray1 .<= f2))
+    sh2 = find((freqArray2 .<= -f1) & (freqArray2 .>= -f2))
+
+    p1Start = 1; p1End = length(freqArray1)
+    p2Start = length(freqArray1)+1; p2End = fftPoints
+    #println(string(p1Start, " ", p1End, " ", p2Start, " ", p2End))
+
+    if shiftType == "linear"
+        phaseShiftArray1 = linspace(0, phaseShift, length(sh1))
+        phaseShiftArray2 = - linspace(phaseShift, 0, length(sh2))
+    elseif shiftType == "step"
+        phaseShiftArray1 = float([phaseShift for ll=1:length(sh1)])
+        phaseShiftArray2 = -float([phaseShift for ll=1:length(sh1)])
+    elseif shiftType == "random"
+        phaseShiftArray1 = rand(length(sh1))*phaseShift
+        phaseShiftArray2 = -flipud(phaseShiftArray1)
+    end
+
+    for c=1:length(channel)
+        ch = channel[c]
+        x = fft(sig[:, ch])#, fftPoints)
+        x1 = x[p1Start:p1End]
+        x2 = x[p2Start:p2End]
+        x1mag = abs(x1); x2mag = abs(x2)
+        x1Phase =  angle(x1); x2Phase =  angle(x2);
+        x1Phase[sh1] = x1Phase[sh1] + phaseShiftArray1
+        x2Phase[sh2] =  x2Phase[sh2] + phaseShiftArray2
+        x1 = x1mag .* (cos(x1Phase) + (1im * sin(x1Phase)))
+        x2 = x2mag .* (cos(x2Phase) + (1im * sin(x2Phase)))
+        x = vcat(x1, x2)
+        x = real(ifft(x))
+        sig[:, ch] = x[1:nSamples]
+    end
+
+    return sig
+end
 
 ###############################
 ## makePink!
@@ -418,7 +500,7 @@ end
 @doc doc"""
 Convert a white noise into a pink noise.
 
-The spectrum level of the pink noise at the frequency "ref"
+The spectrum level of the pink noise at the frequency `ref`
 will be equal to the spectrum level of the white noise input
 to the function.
 
