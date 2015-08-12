@@ -40,11 +40,11 @@ Add or concatenate two sounds.
 ##### Examples
 
 ```julia
-snd1 = pureTone(frequency=440, phase=0, level=65, duration=180,
-ramp=10, channel="right", sf=48000, maxLevel=100)
-snd2 = pureTone(frequency=880, phase=0, level=65, duration=180,
-ramp=10, channel="right", sf=48000, maxLevel=100)
-snd = addSounds(snd1=snd1, snd2=snd2, delay=1, sf=48000)
+snd1 = pureTone(frequency=440, phase=0, level=65, dur=1,
+rampDur=0.01, channel="right", sf=48000, maxLevel=100)
+snd2 = pureTone(frequency=880, phase=0, level=65, dur=1,
+rampDur=0.01, channel="right", sf=48000, maxLevel=100)
+snd = addSounds(snd1, snd2, delay=1, sf=48000)
 ```
 """ ->
 
@@ -126,10 +126,10 @@ If 'add original', the original signal is added to delayed signal of the current
 ##### Examples
 
 ```julia
-noise = broadbandNoise(spectrumLevel=40, duration=180, ramp=10,
-channel="diotic", fs=48000, maxLevel=100)
-irn = delayAdd(noise, delay=1/440, gain=1, iterations=6, configuration="add same", channel=[1,2], fs=48000)
-
+noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
+channel="diotic", sf=48000, maxLevel=100)
+irn = delayAdd!(noise, delay=1/440, gain=1, iterations=6, configuration="add same", channel=[1,2], sf=48000)
+```
 """ ->
 
 function delayAdd!{T<:Real, P<:Integer}(sig::Array{T,2}; delay::Real=0.01,
@@ -224,16 +224,19 @@ This function uses internally 'scipy.signal.firwin2'.
 ##### Examples
 
 ```julia
-noise = broadbandNoise(spectrumLevel=40, duration=180, ramp=10,
+noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
      channel="diotic", sf=48000, maxLevel=100)
-lpNoise = fir2Filt(f1=0, f2=0, f3=1000, f4=1200, 
-     snd=noise, sf=48000) #lowpass filter
-hpNoise = fir2Filt(f1=0, f2=0, f3=24000, f4=26000, 
-     snd=noise, sf=48000) #highpass filter
-bpNoise = fir2Filt(f1=400, f2=600, f3=4000, f4=4400, 
-.     snd=noise, sf=48000) #bandpass filter
-```   
-
+lpNoise = fir2Filt!(0, 0, 1000, 1200, 
+     noise, nTaps=256, sf=48000) #lowpass filter
+noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
+     channel="diotic", sf=48000, maxLevel=100)
+hpNoise = fir2Filt!(0, 0, 2400, 2600, 
+     noise, nTaps=256, sf=48000) #highpass filter
+noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
+     channel="diotic", sf=48000, maxLevel=100)
+bpNoise = fir2Filt!(400, 600, 4000, 4400, 
+     noise, nTaps=256, sf=48000) #bandpass filter
+```
 """ ->
 function fir2Filt!{T<:Real}(f1::Real, f2::Real, f3::Real, f4::Real, snd::Array{T, 2}; nTaps::Integer=256, sf::Real=48000)
 
@@ -314,9 +317,8 @@ Impose onset and offset ramps to a sound.
 ```julia
 noise = broadbandNoise(spectrumLevel=40, dur=2, rampDur=0,
 channel="diotic", sf=48000, maxLevel=100)
-gate!(sig=noise, rampDur=0.01, sf=48000)
+gate!(noise, rampDur=0.01, sf=48000)
 ```
-
 """ ->
 function gate!{T<:Real}(sig::Array{T, 2}; rampDur::Real=0.01, sf::Real=48000)
 
@@ -350,14 +352,13 @@ for the RMS across all channels.
 ##### Examples
 
 ```julia
-pt = pureTone(frequency=440, phase=0, level=65, duration=180,
-     rampDur=10, channel="right", fs=48000, maxLevel=100)
+pt = pureTone(frequency=440, phase=0, level=65, dur=1,
+     rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 getRMS(pt, 1)
 getRMS(pt, 2)
 getRMS(pt, "each")
 getRMS(pt, "all")
 ```
-
 """ ->
 function getRMS{T<:Real}(sig::Array{T,2}, channel::Union(String, Integer))
     RMS = (FloatingPoint)[]
@@ -400,7 +401,6 @@ itd = 300 #microseconds
 itd = 300/1000000 #convert to seconds
 ITDToIPD(itd, 1000)
 ```
-
 """ ->
 
 function ITDToIPD(ITD::Real, freq::Real)
@@ -439,7 +439,7 @@ to the function.
 ```julia
 noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
 channel="diotic", sf=48000, maxLevel=100)
-noise = makePink(noise, sf=48000, ref=1000)
+noise = makePink!(noise, sf=48000, ref=1000)
 ```
 """ ->
 
@@ -484,9 +484,9 @@ Increase or decrease the amplitude of a sound signal.
 ##### Examples:
 
 ```julia
-noise = broadbandNoise(spectrumLevel=40, duration=180, ramp=10,
+noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
 channel="diotic", sf=48000, maxLevel=100)
-noise = scale(sig=noise, level=-10) #reduce level by 10 dB
+noise = scaleLevel(noise, level=-10) #reduce level by 10 dB
 ```
 """ ->
 

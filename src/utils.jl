@@ -48,7 +48,7 @@ freqFromCentInterval(100, [1, 1.5, 2])
 ```
 """ ->
 function freqFromCentInterval{T<:Real, P<:Real}(f1::Union(T, AbstractVector{T}), deltaCent::Union(P, AbstractVector{P}))
-    f2 = f1*2^(deltaCent/1200)
+    f2 = f1*2.^(deltaCent/1200)
     return f2
 end
 

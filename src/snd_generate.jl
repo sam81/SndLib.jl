@@ -47,9 +47,10 @@ Generate an amplitude modulated tone.
 ##### Examples:
 
 ```julia
-snd = AMTone(carrierFreq=1000, AMFreq=20, AMDepth=1, carrierPhase=0, AMPhase,
-level=65, dur=1, rampDur=0.01, channel="diotic", sf=48000, maxLevel=100)
-```    
+snd = AMTone(carrierFreq=1000, AMFreq=20, AMDepth=1, carrierPhase=0,
+AMPhase=0, level=65, dur=1, rampDur=0.01, channel="diotic", sf=48000,
+maxLevel=100)
+```
 """ ->
 
 function AMTone(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
@@ -122,10 +123,10 @@ modulation phase.
 ##### Examples:
 
 ```julia
-snd = AMToneIPD(carrierFreq=1000, AMFreq=20, AMDepth=1, carrierPhase=0, AMPhase,
-carrierIPD=0, AMIPD=pi/2,
-level=65, dur=1, rampDur=0.01, channel="diotic", sf=48000, maxLevel=100)
-```    
+snd = AMToneIPD(carrierFreq=1000, AMFreq=20, AMDepth=1, carrierPhase=0,
+AMPhase=0, carrierIPD=0, AMIPD=pi/2, level=65, dur=1, rampDur=0.01,
+channel="diotic", sf=48000, maxLevel=100)
+```
 """ ->
 
 function AMToneIPD(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
@@ -456,7 +457,7 @@ If `add original`, the original signal is added to the delayed signal of the cur
 
 ```julia
 irn = IRN(delay=1/440, gain=1, iterations=6, configuration="add same",
-          spectrumLevel=25, duration=280, ramp=10, channel="diotic",
+          spectrumLevel=25, dur=1, rampDur=0.01, channel="diotic",
           sf=48000, maxLevel=101)
 ```
 """ ->
@@ -511,8 +512,8 @@ Synthetise a pure tone.
 ##### Examples:
 
 ```julia
-pt = pureTone(frequency=440, phase=0, level=65, duration=180,
-ramp=10, channel="right", sf=48000, maxLevel=100)
+pt = pureTone(frequency=440, phase=0, level=65, dur=1,
+rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 """ ->
 function pureTone(;frequency::Real=1000, phase::Real=0, level::Real=65,
@@ -581,8 +582,8 @@ Synthetise a pure tone with an interaural level difference.
 ##### Examples:
 
 ```julia
-pt = pureToneILD(frequency=440, phase=0, level=65, ILD=10, duration=180,
-ramp=10, channel="right", sf=48000, maxLevel=100)
+pt = pureToneILD(frequency=440, phase=0, level=65, ILD=10, dur=1,
+rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 """ ->
 
@@ -630,8 +631,8 @@ Synthetise a pure tone with an interaural phase difference.
 ##### Examples:
 
 ```julia
-pt = pureToneIPD(frequency=440, phase=0, IPD=pi/2, level=65, duration=180,
-ramp=10, channel="right", sf=48000, maxLevel=100)
+pt = pureToneIPD(frequency=440, phase=0, IPD=pi/2, level=65, dur=1,
+rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 """ ->
 
@@ -676,8 +677,8 @@ Synthetise a pure tone with an interaural time difference.
 ##### Examples:
 
 ```julia
-pt = pureToneITD(frequency=440, phase=0, ITD=0.004/1000, level=65, duration=180,
-ramp=10, channel="right", sf=48000, maxLevel=100)
+pt = pureToneITD(frequency=440, phase=0, ITD=0.004/1000, level=65, dur=1,
+rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 """ ->
 
@@ -717,8 +718,8 @@ Synthetise a pure tone with an interaural phase and interaural level difference.
 ##### Examples:
 
 ```julia
-pt = pureToneIPDILD(frequency=440, phase=0, IPD=pi/2, level=65, ILD=10, duration=180,
-ramp=10, channel="right", sf=48000, maxLevel=100)
+pt = pureToneIPDILD(frequency=440, phase=0, IPD=pi/2, level=65, ILD=10,
+dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 """ ->
 
@@ -766,8 +767,8 @@ Synthetise a pure tone with an interaural time and interaural level difference.
 ##### Examples:
 
 ```julia
-pt = pureToneITDILD(frequency=440, phase=0, ITD=0.004/1000, level=65, ILD=10, duration=180,
-ramp=10, channel="right", sf=48000, maxLevel=100)
+pt = pureToneITDILD(frequency=440, phase=0, ITD=0.004/1000, level=65,
+ILD=10, dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 """ ->
 
@@ -840,8 +841,8 @@ sinusoids.
 ##### Examples:
 
 ```julia
-nbNoise = steepNoise(frequency=440, frequency2=660, level=65,
-dur=180, rampDur=10, channel="right", sf=48000, maxLevel=100)
+nbNoise = steepNoise(frequency1=440, frequency2=660, level=65,
+dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 
 """ ->
