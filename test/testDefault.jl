@@ -1,0 +1,15 @@
+using SndLib
+
+AMTone()
+AMToneIPD()
+broadbandNoise()
+complexTone()
+IRN()
+pureTone()
+pureToneILD()
+pureToneIPD()
+pureToneITD()
+pureToneIPDILD()
+pureToneITDILD()
+silence()
+steepNoise()
