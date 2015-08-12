@@ -30,7 +30,7 @@ delayAdd!,
 fir2Filt!, freqFromCentInterval, freqFromERBInterval,
 ERBDistance,
 gate!, getRMS,
-IRN, ITDToIPD,
+intNCyclesFreq, IRN, ITDToIPD,
 makePink!, 
 phaseShift!, pureTone, pureToneILD, pureToneIPD, pureToneIPDILD, pureToneITD, pureToneITDILD,
 scaleLevel, silence, sound, steepNoise

@@ -29,13 +29,14 @@ Generate an amplitude modulated tone.
 ##### Examples:
 
 ```julia
-snd = AMTone(carrierFreq=1000, AMFreq=20, AMDepth=1, carrierPhase=0, AMPhase,
-level=65, dur=1, rampDur=0.01, channel="diotic", sf=48000, maxLevel=100)
-```    
+snd = AMTone(carrierFreq=1000, AMFreq=20, AMDepth=1, carrierPhase=0,
+AMPhase=0, level=65, dur=1, rampDur=0.01, channel="diotic", sf=48000,
+maxLevel=100)
+```
 
 
 *source:*
-[SndLib/src/snd_generate.jl:53](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:54](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -67,14 +68,44 @@ modulation phase.
 ##### Examples:
 
 ```julia
-snd = AMToneIPD(carrierFreq=1000, AMFreq=20, AMDepth=1, carrierPhase=0, AMPhase,
-carrierIPD=0, AMIPD=pi/2,
-level=65, dur=1, rampDur=0.01, channel="diotic", sf=48000, maxLevel=100)
-```    
+snd = AMToneIPD(carrierFreq=1000, AMFreq=20, AMDepth=1, carrierPhase=0,
+AMPhase=0, carrierIPD=0, AMIPD=pi/2, level=65, dur=1, rampDur=0.01,
+channel="diotic", sf=48000, maxLevel=100)
+```
 
 
 *source:*
-[SndLib/src/snd_generate.jl:129](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:130](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+
+---
+
+<a id="method__erbdistance.1" class="lexicon_definition"></a>
+#### ERBDistance(f1::Real, f2::Real) [¶](#method__erbdistance.1)
+Compute the distance in equivalent rectangular bandwiths (ERBs)
+between the frequencies `f1` and `f2`.
+
+##### Parameters
+
+* `f1`: frequency 1 in Hz
+* `f2`: frequency 2 in Hz
+
+##### Returns
+
+* `deltaERB`: distance between f1 and f2 in ERBs.
+
+##### References
+
+.. [GM] Glasberg, B. R., & Moore, B. C. J. (1990). Derivation of auditory filter shapes from notched-noise data. Hear. Res., 47(1-2), 103–38.
+
+##### Examples
+
+```julia
+ERBDistance(1000, 1200)
+```
+
+
+*source:*
+[SndLib/src/utils.jl:147](file:///home/sam/.julia/v0.3/SndLib/src/utils.jl)
 
 ---
 
@@ -105,13 +136,13 @@ If `add original`, the original signal is added to the delayed signal of the cur
 
 ```julia
 irn = IRN(delay=1/440, gain=1, iterations=6, configuration="add same",
-          spectrumLevel=25, duration=280, ramp=10, channel="diotic",
+          spectrumLevel=25, dur=1, rampDur=0.01, channel="diotic",
           sf=48000, maxLevel=101)
 ```
 
 
 *source:*
-[SndLib/src/snd_generate.jl:462](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:463](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -139,9 +170,8 @@ ITDToIPD(itd, 1000)
 ```
 
 
-
 *source:*
-[SndLib/src/snd_process.jl:407](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:404](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -163,11 +193,11 @@ Add or concatenate two sounds.
 ##### Examples
 
 ```julia
-snd1 = pureTone(frequency=440, phase=0, level=65, duration=180,
-ramp=10, channel="right", sf=48000, maxLevel=100)
-snd2 = pureTone(frequency=880, phase=0, level=65, duration=180,
-ramp=10, channel="right", sf=48000, maxLevel=100)
-snd = addSounds(snd1=snd1, snd2=snd2, delay=1, sf=48000)
+snd1 = pureTone(frequency=440, phase=0, level=65, dur=1,
+rampDur=0.01, channel="right", sf=48000, maxLevel=100)
+snd2 = pureTone(frequency=880, phase=0, level=65, dur=1,
+rampDur=0.01, channel="right", sf=48000, maxLevel=100)
+snd = addSounds(snd1, snd2, delay=1, sf=48000)
 ```
 
 
@@ -205,7 +235,7 @@ noise = broadbandNoise(spectrumLevel=20, dur=180, rampDur=10,
 
 
 *source:*
-[SndLib/src/snd_generate.jl:185](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:186](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -275,7 +305,7 @@ Synthetise a complex tone.
 
 
 *source:*
-[SndLib/src/snd_generate.jl:294](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:295](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -300,22 +330,19 @@ If 'add original', the original signal is added to delayed signal of the current
 
 ##### References
 
-.. [YPS1996] Yost, W. A., Patterson, R., & Sheft, S. (1996). A time domain
-description for the pitch strength of iterated rippled noise.
-J. Acoust. Soc. Am., 99(2), 1066–78. 
+.. [YPS1996] Yost, W. A., Patterson, R., & Sheft, S. (1996). A time domain description for the pitch strength of iterated rippled noise. J. Acoust. Soc. Am., 99(2), 1066–78. 
 
 ##### Examples
 
 ```julia
-noise = broadbandNoise(spectrumLevel=40, duration=180, ramp=10,
-channel="diotic", fs=48000, maxLevel=100)
-irn = delayAdd(noise, delay=1/440, gain=1, iterations=6, configuration="add same", channel=[1,2], fs=48000)
+noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
+channel="diotic", sf=48000, maxLevel=100)
+irn = delayAdd!(noise, delay=1/440, gain=1, iterations=6, configuration="add same", channel=[1,2], sf=48000)
 ```
 
 
-
 *source:*
-[SndLib/src/snd_process.jl:136](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:133](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -360,16 +387,19 @@ This function uses internally 'scipy.signal.firwin2'.
 ##### Examples
 
 ```julia
-noise = broadbandNoise(spectrumLevel=40, duration=180, ramp=10,
+noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
      channel="diotic", sf=48000, maxLevel=100)
-lpNoise = fir2Filt(f1=0, f2=0, f3=1000, f4=1200, 
-     snd=noise, sf=48000) #lowpass filter
-hpNoise = fir2Filt(f1=0, f2=0, f3=24000, f4=26000, 
-     snd=noise, sf=48000) #highpass filter
-bpNoise = fir2Filt(f1=400, f2=600, f3=4000, f4=4400, 
-     snd=noise, sf=48000) #bandpass filter
-```   
-
+lpNoise = fir2Filt!(0, 0, 1000, 1200, 
+     noise, nTaps=256, sf=48000) #lowpass filter
+noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
+     channel="diotic", sf=48000, maxLevel=100)
+hpNoise = fir2Filt!(0, 0, 2400, 2600, 
+     noise, nTaps=256, sf=48000) #highpass filter
+noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
+     channel="diotic", sf=48000, maxLevel=100)
+bpNoise = fir2Filt!(400, 600, 4000, 4400, 
+     noise, nTaps=256, sf=48000) #bandpass filter
+```
 
 
 *source:*
@@ -378,7 +408,7 @@ bpNoise = fir2Filt(f1=400, f2=600, f3=4000, f4=4400,
 ---
 
 <a id="method__freqfromcentinterval.1" class="lexicon_definition"></a>
-#### freqFromCentInterval{T<:Real, P<:Real}(f1::Union(AbstractArray{T<:Real, 1}, T<:Real), deltaCent::Union(AbstractArray{P<:Real, 1}, P<:Real)) [¶](#method__freqfromcentinterval.1)
+#### freqFromCentInterval{T<:Real, P<:Real}(f1::Union(T<:Real, AbstractArray{T<:Real, 1}), deltaCent::Union(AbstractArray{P<:Real, 1}, P<:Real)) [¶](#method__freqfromcentinterval.1)
 Compute the frequency, in Hz, corresponding to a distance,
 in equivalent cents of `deltaCents` from `f1`.
 
@@ -409,7 +439,7 @@ freqFromCentInterval(100, [1, 1.5, 2])
 ---
 
 <a id="method__freqfromerbinterval.1" class="lexicon_definition"></a>
-#### freqFromERBInterval{T<:Real, P<:Real}(f1::Union(AbstractArray{T<:Real, 1}, T<:Real), deltaERB::Union(AbstractArray{P<:Real, 1}, P<:Real)) [¶](#method__freqfromerbinterval.1)
+#### freqFromERBInterval{T<:Real, P<:Real}(f1::Union(T<:Real, AbstractArray{T<:Real, 1}), deltaERB::Union(AbstractArray{P<:Real, 1}, P<:Real)) [¶](#method__freqfromerbinterval.1)
 Compute the frequency, in Hz, corresponding to a distance,
 in equivalent rectangular bandwidths (ERBs), of `deltaERB` from `f1`.
 
@@ -462,13 +492,12 @@ Impose onset and offset ramps to a sound.
 ```julia
 noise = broadbandNoise(spectrumLevel=40, dur=2, rampDur=0,
 channel="diotic", sf=48000, maxLevel=100)
-gate!(sig=noise, rampDur=0.01, sf=48000)
+gate!(noise, rampDur=0.01, sf=48000)
 ```
 
 
-
 *source:*
-[SndLib/src/snd_process.jl:323](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:322](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -489,8 +518,8 @@ for the RMS across all channels.
 ##### Examples
 
 ```julia
-pt = pureTone(frequency=440, phase=0, level=65, duration=180,
-     rampDur=10, channel="right", fs=48000, maxLevel=100)
+pt = pureTone(frequency=440, phase=0, level=65, dur=1,
+     rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 getRMS(pt, 1)
 getRMS(pt, 2)
 getRMS(pt, "each")
@@ -498,9 +527,8 @@ getRMS(pt, "all")
 ```
 
 
-
 *source:*
-[SndLib/src/snd_process.jl:364](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:362](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -508,7 +536,7 @@ getRMS(pt, "all")
 #### makePink!{T<:Real}(sig::Array{T<:Real, 2}) [¶](#method__makepink.1)
 Convert a white noise into a pink noise.
 
-The spectrum level of the pink noise at the frequency "ref"
+The spectrum level of the pink noise at the frequency `ref`
 will be equal to the spectrum level of the white noise input
 to the function.
 
@@ -529,12 +557,52 @@ to the function.
 ```julia
 noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
 channel="diotic", sf=48000, maxLevel=100)
-noise = makePink(noise, sf=48000, ref=1000)
+noise = makePink!(noise, sf=48000, ref=1000)
 ```
 
 
 *source:*
-[SndLib/src/snd_process.jl:447](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:526](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+
+---
+
+<a id="method__phaseshift.1" class="lexicon_definition"></a>
+#### phaseShift!{T<:Real}(sig::Array{T<:Real, 2}, f1::Real, f2::Real) [¶](#method__phaseshift.1)
+Shift the interaural phases of a sound within a given frequency region.
+
+##### Parameters
+
+* `sig`: Input signal.
+* `f1`: The start point of the frequency region to be
+        phase-shifted in hertz.
+* `f2`: The end point of the frequency region to be
+        phase-shifted in hertz.
+* `phaseShift`: The amount of phase shift in radians. 
+* `shiftType`: If `linear` the phase changes progressively
+        on a linear Hz scale from X to X+'phaseShift' from f1 to f2.
+        If 'step' 'phaseShift' is added as a constant to the
+        phases from f1 to f2.
+        If 'random' a random phase shift from 0 to `phaseShift`
+        is added to each frequency component from `f1` to `f2`.
+* `channel`: The channel(s) in which to apply the phase shift.
+* `sf`: The sampling frequency of the sound.
+        
+##### Returns
+
+* `out`: 2-dimensional array of floats
+
+##### Examples
+
+```julia
+noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
+channel="diotic", sf=48000, maxLevel=100)
+noise = phaseShift!(noise, 500, 600, phaseShift=pi,
+channel=2, sf=48000) #this generates a Dichotic Pitch
+```
+
+
+*source:*
+[SndLib/src/snd_process.jl:448](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -561,13 +629,13 @@ Synthetise a pure tone.
 ##### Examples:
 
 ```julia
-pt = pureTone(frequency=440, phase=0, level=65, duration=180,
-ramp=10, channel="right", sf=48000, maxLevel=100)
+pt = pureTone(frequency=440, phase=0, level=65, dur=1,
+rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 
 
 *source:*
-[SndLib/src/snd_generate.jl:517](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:518](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -594,13 +662,13 @@ Synthetise a pure tone with an interaural level difference.
 ##### Examples:
 
 ```julia
-pt = pureToneILD(frequency=440, phase=0, level=65, ILD=10, duration=180,
-ramp=10, channel="right", sf=48000, maxLevel=100)
+pt = pureToneILD(frequency=440, phase=0, level=65, ILD=10, dur=1,
+rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 
 
 *source:*
-[SndLib/src/snd_generate.jl:587](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:588](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -627,13 +695,13 @@ Synthetise a pure tone with an interaural phase difference.
 ##### Examples:
 
 ```julia
-pt = pureToneIPD(frequency=440, phase=0, IPD=pi/2, level=65, duration=180,
-ramp=10, channel="right", sf=48000, maxLevel=100)
+pt = pureToneIPD(frequency=440, phase=0, IPD=pi/2, level=65, dur=1,
+rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 
 
 *source:*
-[SndLib/src/snd_generate.jl:636](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:637](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -661,13 +729,13 @@ Synthetise a pure tone with an interaural phase and interaural level difference.
 ##### Examples:
 
 ```julia
-pt = pureToneIPDILD(frequency=440, phase=0, IPD=pi/2, level=65, ILD=10, duration=180,
-ramp=10, channel="right", sf=48000, maxLevel=100)
+pt = pureToneIPDILD(frequency=440, phase=0, IPD=pi/2, level=65, ILD=10,
+dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 
 
 *source:*
-[SndLib/src/snd_generate.jl:723](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:724](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -694,13 +762,13 @@ Synthetise a pure tone with an interaural time difference.
 ##### Examples:
 
 ```julia
-pt = pureToneITD(frequency=440, phase=0, ITD=0.004/1000, level=65, duration=180,
-ramp=10, channel="right", sf=48000, maxLevel=100)
+pt = pureToneITD(frequency=440, phase=0, ITD=0.004/1000, level=65, dur=1,
+rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 
 
 *source:*
-[SndLib/src/snd_generate.jl:682](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:683](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -728,13 +796,13 @@ Synthetise a pure tone with an interaural time and interaural level difference.
 ##### Examples:
 
 ```julia
-pt = pureToneITDILD(frequency=440, phase=0, ITD=0.004/1000, level=65, ILD=10, duration=180,
-ramp=10, channel="right", sf=48000, maxLevel=100)
+pt = pureToneITDILD(frequency=440, phase=0, ITD=0.004/1000, level=65,
+ILD=10, dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 
 
 *source:*
-[SndLib/src/snd_generate.jl:772](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:773](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -754,14 +822,14 @@ Increase or decrease the amplitude of a sound signal.
 ##### Examples:
 
 ```julia
-noise = broadbandNoise(spectrumLevel=40, duration=180, ramp=10,
+noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
 channel="diotic", sf=48000, maxLevel=100)
-noise = scale(sig=noise, level=-10) #reduce level by 10 dB
+noise = scaleLevel(noise, level=-10) #reduce level by 10 dB
 ```
 
 
 *source:*
-[SndLib/src/snd_process.jl:494](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:573](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -791,7 +859,7 @@ sil = silence(dur=2, sf=48000)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:807](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:808](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -808,7 +876,7 @@ Windows is not currently supported.
 
 
 *source:*
-[SndLib/src/snd_process.jl:518](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:597](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -825,7 +893,7 @@ Windows is not currently supported.
 
 
 *source:*
-[SndLib/src/snd_process.jl:518](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:597](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -842,7 +910,7 @@ Windows is not currently supported.
 
 
 *source:*
-[SndLib/src/snd_process.jl:518](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:597](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -869,44 +937,12 @@ sinusoids.
 ##### Examples:
 
 ```julia
-nbNoise = steepNoise(frequency=440, frequency2=660, level=65,
-dur=180, rampDur=10, channel="right", sf=48000, maxLevel=100)
+nbNoise = steepNoise(frequency1=440, frequency2=660, level=65,
+dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 
 
 
 *source:*
-[SndLib/src/snd_generate.jl:847](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
-
-## Internal
-
----
-
-<a id="method__erbdistance.1" class="lexicon_definition"></a>
-#### ERBDistance(f1::Real, f2::Real) [¶](#method__erbdistance.1)
-Compute the distance in equivalent rectangular bandwiths (ERBs)
-between the frequencies `f1` and `f2`.
-
-##### Parameters
-
-* `f1`: frequency 1 in Hz
-* `f2`: frequency 2 in Hz
-
-##### Returns
-
-* `deltaERB`: distance between f1 and f2 in ERBs.
-
-##### References
-
-.. [GM] Glasberg, B. R., & Moore, B. C. J. (1990). Derivation of auditory filter shapes from notched-noise data. Hear. Res., 47(1-2), 103–38.
-
-##### Examples
-
-```julia
-ERBDistance(1000, 1200)
-```
-
-
-*source:*
-[SndLib/src/utils.jl:147](file:///home/sam/.julia/v0.3/SndLib/src/utils.jl)
+[SndLib/src/snd_generate.jl:848](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 

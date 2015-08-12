@@ -30,7 +30,7 @@ Add or concatenate two sounds.
 
 * `snd1`: First sound.
 * `snd2`: Second sound.
-* `delay`: Delay in seconds between the onset of 'snd1' and the onset of 'snd2'
+* `delay`: Delay in seconds between the onset of `snd1` and the onset of `snd2`
 * `sf`: Sampling frequency in hertz of the two sounds.
 
 ##### Returns
@@ -110,8 +110,8 @@ Delay and add algorithm for the generation of iterated rippled noise.
 * `delay`: delay in seconds
 * `gain`: The gain to apply to the delayed signal
 * `iterations`: The number of iterations of the delay-add cycle
-* `configuration`: If 'add same', the output of iteration N-1 is added to delayed signal of the current iteration.
-If 'add original', the original signal is added to delayed signal of the current iteration.
+* `configuration`: If `add same`, the output of iteration N-1 is added to delayed signal of the current iteration.
+If `add original`, the original signal is added to delayed signal of the current iteration.
 * `channel`: a number or a vector of numbers indicating to which columns of `sig` the delay and add process should be applied
 * `sf`: Sampling frequency in Hz.
 
@@ -189,8 +189,8 @@ Filter signal with a fir2 filter.
 
 This function designs and applies a fir2 filter to a sound.
 The frequency response of the ideal filter will transition
-from 0 to 1 between 'f1' and 'f2', and from 1 to zero
-between 'f3' and 'f4'. The frequencies must be given in
+from 0 to 1 between `f1` and `f2`, and from 1 to zero
+between `f3` and `f4`. The frequencies must be given in
 increasing order.
 
 ##### Parameters:
@@ -205,7 +205,7 @@ increasing order.
         for the high-frequency cutoff ends. 
 * `snd`: The sound to be filtered.
 * `nTaps`: Number of filter taps.
-* `sf`: Sampling frequency of 'snd'.
+* `sf`: Sampling frequency of `snd`.
 
 ##### Returns:
 
@@ -213,12 +213,11 @@ increasing order.
 
 ##### Notes:
 
-If 'f1' and 'f2' are zero the filter will be low pass.
-If 'f3' and 'f4' are equal to or greater than the nyquist
+If `f1` and `f2` are zero the filter will be low pass.
+If `f3` and `f4` are equal to or greater than the nyquist
 frequency (sf/2) the filter will be high pass.
 In the other cases the filter will be band pass.
 
-The order of the filter (number of taps) is fixed at 256.
 This function uses internally 'scipy.signal.firwin2'.
        
 ##### Examples
@@ -306,7 +305,7 @@ Impose onset and offset ramps to a sound.
 
 * `sig`: The signal on which the ramps should be imposed.
 * `rampDur`: The duration of the ramps.
-* `sf`: The sampling frequency of 'sig'
+* `sf`: The sampling frequency of `sig`
 
 ##### Returns
 
@@ -425,10 +424,10 @@ Shift the interaural phases of a sound within a given frequency region.
         phase-shifted in hertz.
 * `phaseShift`: The amount of phase shift in radians. 
 * `shiftType`: If `linear` the phase changes progressively
-        on a linear Hz scale from X to X+'phaseShift' from f1 to f2.
-        If 'step' 'phaseShift' is added as a constant to the
+        on a linear Hz scale from X to X+`phaseShift` from f1 to f2.
+        If `step` `phaseShift` is added as a constant to the
         phases from f1 to f2.
-        If 'random' a random phase shift from 0 to `phaseShift`
+        If `random` a random phase shift from 0 to `phaseShift`
         is added to each frequency component from `f1` to `f2`.
 * `channel`: The channel(s) in which to apply the phase shift.
 * `sf`: The sampling frequency of the sound.
@@ -453,8 +452,8 @@ function phaseShift!{T<:Real, P<:Integer}(sig::Array{T, 2}, f1::Real, f2::Real; 
     fftPoints = nSamples#nextpow2(nSamples)
     #snd = zeros(nSamples, 2)
     nUniquePnts = ceil((fftPoints+1)/2)
-    freqArray1 = [0:nUniquePnts] * (sf / fftPoints)
-    freqArray2 = -flipud([1:(nUniquePnts-1)]) * (sf / fftPoints) #remove DC offset and nyquist
+    freqArray1 = collect(0:nUniquePnts) * (sf / fftPoints)
+    freqArray2 = -flipdim(collect(1:(nUniquePnts-1)), 1) * (sf / fftPoints) #remove DC offset and nyquist
     ## sh1 = where((freqArray1>f1) & (freqArray1<f2))
     ## sh2 = where((freqArray2<-f1) & (freqArray2>-f2))
     sh1 = find((freqArray1 .>= f1) & (freqArray1 .<= f2))
@@ -472,7 +471,7 @@ function phaseShift!{T<:Real, P<:Integer}(sig::Array{T, 2}, f1::Real, f2::Real; 
         phaseShiftArray2 = -float([phaseShift for ll=1:length(sh1)])
     elseif shiftType == "random"
         phaseShiftArray1 = rand(length(sh1))*phaseShift
-        phaseShiftArray2 = -flipud(phaseShiftArray1)
+        phaseShiftArray2 = -flipdim(phaseShiftArray1, 1)
     end
 
     for c=1:length(channel)

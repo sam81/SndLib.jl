@@ -262,17 +262,17 @@ Synthetise a complex tone.
 ##### Parameters:
 
 * `F0`: Tone fundamental frequency in hertz.
-* `harmPhase : one of 'sine', 'cosine', 'alternating', 'random', 'schroeder'
+* `harmPhase : one of `sine`, `cosine`, `alternating`, `random`, `schroeder`
         Phase relationship between the partials of the complex tone.
 * `lowHarm`: Lowest harmonic component number.
 * `highHarm`: Highest harmonic component number.
 * `stretch`: Harmonic stretch in %F0. Increase each harmonic frequency by a fixed value
-        that is equal to (F0*stretch)/100. If 'stretch' is different than
+        that is equal to (F0*stretch)/100. If `stretch` is different than
         zero, an inhanmonic complex tone will be generated.
 * `level`: The level of each partial in dB SPL.
 * `dur`: Tone duration in seconds.
 * `rampDur`: Duration of the onset and offset ramps in seconds.
-* `channel`: 'right', 'left', 'diotic', 'odd right' or 'odd left'.
+* `channel`: `right`, `left`, `diotic`, `odd right` or `odd left`.
         Channel in which the tone will be generated. If `channel`
         if `odd right`, odd numbered harmonics will be presented
         to the right channel and even number harmonics to the left
@@ -445,7 +445,7 @@ If `add original`, the original signal is added to the delayed signal of the cur
 * `spectrumLevel`: Intensity spectrum level of the noise in dB SPL.
 * `dur`: Noise duration in seconds.
 * `rampDur`: Duration of the onset and offset ramps in seconds.
-* `channel`: Channel in which the noise will be generated (`mono`, 'right', 'left', 'diotic', 'dichotic').
+* `channel`: Channel in which the noise will be generated (`mono`, `right`, `left`, `diotic`, `dichotic`).
 * `sf`: Sampling frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
@@ -500,7 +500,7 @@ Synthetise a pure tone.
 * `level`: Tone level in dB SPL.
 * `dur`: Tone duration in seconds.
 * `ramp`: Duration of the onset and offset ramps in seconds.
-* `channel`: Channel in which the tone will be generated.  ('right', 'left' or 'diotic')
+* `channel`: Channel in which the tone will be generated.  (`right`, `left` or `diotic`)
 * `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
@@ -571,7 +571,7 @@ Synthetise a pure tone with an interaural level difference.
 * `ILD`: Interaural level difference in dB SPL.
 * `dur`: Tone duration in seconds.
 * `ramp`: Duration of the onset and offset ramps in seconds.
-* `channel`: Channel in which the ILD will be applied.  ('right' or 'left')
+* `channel`: Channel in which the ILD will be applied.  (`right` or `left`)
 * `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
@@ -620,7 +620,7 @@ Synthetise a pure tone with an interaural phase difference.
 * `level`: Tone level in dB SPL.
 * `dur`: Tone duration in seconds.
 * `ramp`: Duration of the onset and offset ramps in seconds.
-* `channel`: Channel in which the tone IPD will be applied.  ('right' or 'left')
+* `channel`: Channel in which the tone IPD will be applied.  (`right` or `left`)
 * `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
@@ -666,7 +666,7 @@ Synthetise a pure tone with an interaural time difference.
 * `level`: Tone level in dB SPL.
 * `dur`: Tone duration in seconds.
 * `ramp`: Duration of the onset and offset ramps in seconds.
-* `channel`: Channel in which the ITD will be applied.  ('right' or 'left')
+* `channel`: Channel in which the ITD will be applied.  (`right` or `left`)
 * `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
@@ -707,7 +707,7 @@ Synthetise a pure tone with an interaural phase and interaural level difference.
 * `ILD`: Interaural level difference in dB SPL.
 * `dur`: Tone duration in seconds.
 * `ramp`: Duration of the onset and offset ramps in seconds.
-* `channel`: Channel in which the ILD will be applied.  ('right' or 'left')
+* `channel`: Channel in which the ILD will be applied.  (`right` or `left`)
 * `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
@@ -756,7 +756,7 @@ Synthetise a pure tone with an interaural time and interaural level difference.
 * `ILD`: Interaural level difference in dB SPL.
 * `dur`: Tone duration in seconds.
 * `ramp`: Duration of the onset and offset ramps in seconds.
-* `channel`: Channel in which the ILD will be applied.  ('right' or 'left')
+* `channel`: Channel in which the ILD will be applied.  (`right` or `left`)
 * `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
@@ -830,7 +830,7 @@ sinusoids.
 * `level`: Noise spectrum level.
 * `dur`: Tone duration in seconds.
 * `rampDur`: Duration of the onset and offset ramps in seconds.
-* `channel`: 'right', 'left' or 'diotic'. Channel in which the tone will be generated.
+* `channel`: `right`, `left` or `diotic`. Channel in which the tone will be generated.
 * `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 

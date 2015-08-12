@@ -153,3 +153,33 @@ function ERBDistance(f1::Real, f2::Real)
     return deltaERB
 end
  
+###################
+## intNCyclesFreq
+###################
+@doc doc"""
+
+Compute the frequency closest to 'freq' that has an integer number
+of cycles for the given sound duration.
+
+##### Parameters
+
+* `frequency`: Frequency in hertz.
+* `dur` : Duration of the sound, in seconds.
+
+##### Returns
+
+* `adjFreq`: float
+       
+##### Examples
+
+```julia
+intNCyclesFreq(2.1, 1000)
+intNCyclesFreq(2, 1000)
+```
+
+"""->
+function intNCyclesFreq(freq::Real, dur::Real)    
+    adjFreq = round(freq*dur)/dur
+    
+    return adjFreq
+end
