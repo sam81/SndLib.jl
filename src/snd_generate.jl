@@ -134,12 +134,12 @@ function AMToneIPD(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
                 dur::Real=1, rampDur::Real=0.01, channel::String="right",
                 sf::Real=48000, maxLevel::Real=101)
 
-    fixed = AMTone(carrierFreq=carrierFreq, AMFreq=AMfreq, AMDepth=AMDepth,
+    fixed = AMTone(carrierFreq=carrierFreq, AMFreq=AMFreq, AMDepth=AMDepth,
                 carrierPhase=carrierPhase, AMPhase=AMPhase, level=level,
                 dur=dur, rampDur=rampDur, channel="mono",
                 sf=sf, maxLevel=maxLevel)
 
-    shifted = AMTone(carrierFreq=carrierFreq, AMFreq=AMfreq, AMDepth=AMDepth,
+    shifted = AMTone(carrierFreq=carrierFreq, AMFreq=AMFreq, AMDepth=AMDepth,
                    carrierPhase=carrierPhase+carrierIPD, AMPhase=AMPhase+AMIPD, level=level,
                    dur=dur, rampDur=rampDur, channel="mono",
                    sf=sf, maxLevel=maxLevel)
@@ -303,7 +303,7 @@ function complexTone(;F0::Real=220, harmPhase::String="sine", lowHarm::Integer=1
     amp = 10^((level - maxLevel) / 20)
     stretchHz = (F0*stretch)/100
     
-    nSamples = int(round((duration-rampDur*2) * sf))
+    nSamples = int(round((dur-rampDur*2) * sf))
     nRamp = int(round(rampDur * sf))
     nTot = nSamples + (nRamp * 2)
 
@@ -394,9 +394,9 @@ function complexTone(;F0::Real=220, harmPhase::String="sine", lowHarm::Integer=1
 
     if channel == "mono" || channel == "right" || channel == "left" || channel == "diotic"
         snd_mono = zeros(nTot, 1)
-        snd_mono[1:nRamp, 2]                     = amp * ((1-cos(pi * timeRamp/nRamp))/2) .* tone[1:nRamp]
-        snd_mono[nRamp+1:nRamp+nSamples, 2]        = amp * tone[nRamp+1:nRamp+nSamples]
-        snd_mono[nRamp+nSamples+1:nTot, 2] = amp * ((1+cos(pi * timeRamp/nRamp))/2) .* tone[nRamp+nSamples+1:nTot]
+        snd_mono[1:nRamp, 1]                     = amp * ((1-cos(pi * timeRamp/nRamp))/2) .* tone[1:nRamp]
+        snd_mono[nRamp+1:nRamp+nSamples, 1]        = amp * tone[nRamp+1:nRamp+nSamples]
+        snd_mono[nRamp+nSamples+1:nTot, 1] = amp * ((1+cos(pi * timeRamp/nRamp))/2) .* tone[nRamp+nSamples+1:nTot]
     end
     if channel == "mono"
         snd = snd_mono

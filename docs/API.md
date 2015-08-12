@@ -78,6 +78,43 @@ level=65, dur=1, rampDur=0.01, channel="diotic", sf=48000, maxLevel=100)
 
 ---
 
+<a id="method__irn.1" class="lexicon_definition"></a>
+#### IRN() [¶](#method__irn.1)
+
+Generate an iterated rippled noise
+
+##### Parameters
+
+* `delay`: delay in seconds
+* `gain`: The gain to apply to the delayed signal
+* `iterations`: The number of iterations of the delay-add cycle
+* `configuration`: If `add same`, the output of iteration N-1 is added to delayed signal of the current iteration.
+If `add original`, the original signal is added to the delayed signal of the current iteration.
+* `spectrumLevel`: Intensity spectrum level of the noise in dB SPL.
+* `dur`: Noise duration in seconds.
+* `rampDur`: Duration of the onset and offset ramps in seconds.
+* `channel`: Channel in which the noise will be generated (`mono`, 'right', 'left', 'diotic', 'dichotic').
+* `sf`: Sampling frequency in Hz.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
+
+##### Returns
+
+* `snd`: array with dimensions (nSamples, nChannels).
+
+##### Examples
+
+```julia
+irn = IRN(delay=1/440, gain=1, iterations=6, configuration="add same",
+          spectrumLevel=25, duration=280, ramp=10, channel="diotic",
+          sf=48000, maxLevel=101)
+```
+
+
+*source:*
+[SndLib/src/snd_generate.jl:462](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+
+---
+
 <a id="method__itdtoipd.1" class="lexicon_definition"></a>
 #### ITDToIPD(ITD::Real, freq::Real) [¶](#method__itdtoipd.1)
 
@@ -104,7 +141,7 @@ ITDToIPD(itd, 1000)
 
 
 *source:*
-[SndLib/src/snd_process.jl:404](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:407](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -263,7 +300,9 @@ If 'add original', the original signal is added to delayed signal of the current
 
 ##### References
 
-.. [YPS1996] Yost, W. A., Patterson, R., & Sheft, S. (1996). A time domain description for the pitch strength of iterated rippled noise. J. Acoust. Soc. Am., 99(2), 1066–78. 
+.. [YPS1996] Yost, W. A., Patterson, R., & Sheft, S. (1996). A time domain
+description for the pitch strength of iterated rippled noise.
+J. Acoust. Soc. Am., 99(2), 1066–78. 
 
 ##### Examples
 
@@ -271,11 +310,12 @@ If 'add original', the original signal is added to delayed signal of the current
 noise = broadbandNoise(spectrumLevel=40, duration=180, ramp=10,
 channel="diotic", fs=48000, maxLevel=100)
 irn = delayAdd(noise, delay=1/440, gain=1, iterations=6, configuration="add same", channel=[1,2], fs=48000)
+```
 
 
 
 *source:*
-[SndLib/src/snd_process.jl:133](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:136](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -327,18 +367,18 @@ lpNoise = fir2Filt(f1=0, f2=0, f3=1000, f4=1200,
 hpNoise = fir2Filt(f1=0, f2=0, f3=24000, f4=26000, 
      snd=noise, sf=48000) #highpass filter
 bpNoise = fir2Filt(f1=400, f2=600, f3=4000, f4=4400, 
-.     snd=noise, sf=48000) #bandpass filter
+     snd=noise, sf=48000) #bandpass filter
 ```   
 
 
 
 *source:*
-[SndLib/src/snd_process.jl:237](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:240](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
 <a id="method__freqfromcentinterval.1" class="lexicon_definition"></a>
-#### freqFromCentInterval{T<:Real, P<:Real}(f1::Union(AbstractArray{T<:Real, 1}, T<:Real), deltaCent::Union(P<:Real, AbstractArray{P<:Real, 1})) [¶](#method__freqfromcentinterval.1)
+#### freqFromCentInterval{T<:Real, P<:Real}(f1::Union(AbstractArray{T<:Real, 1}, T<:Real), deltaCent::Union(AbstractArray{P<:Real, 1}, P<:Real)) [¶](#method__freqfromcentinterval.1)
 Compute the frequency, in Hz, corresponding to a distance,
 in equivalent cents of `deltaCents` from `f1`.
 
@@ -369,7 +409,7 @@ freqFromCentInterval(100, [1, 1.5, 2])
 ---
 
 <a id="method__freqfromerbinterval.1" class="lexicon_definition"></a>
-#### freqFromERBInterval{T<:Real, P<:Real}(f1::Union(AbstractArray{T<:Real, 1}, T<:Real), deltaERB::Union(P<:Real, AbstractArray{P<:Real, 1})) [¶](#method__freqfromerbinterval.1)
+#### freqFromERBInterval{T<:Real, P<:Real}(f1::Union(AbstractArray{T<:Real, 1}, T<:Real), deltaERB::Union(AbstractArray{P<:Real, 1}, P<:Real)) [¶](#method__freqfromerbinterval.1)
 Compute the frequency, in Hz, corresponding to a distance,
 in equivalent rectangular bandwidths (ERBs), of `deltaERB` from `f1`.
 
@@ -409,8 +449,8 @@ Impose onset and offset ramps to a sound.
 
 ##### Parameters:
 
-* `rampDur`: The duration of the ramps.
 * `sig`: The signal on which the ramps should be imposed.
+* `rampDur`: The duration of the ramps.
 * `sf`: The sampling frequency of 'sig'
 
 ##### Returns
@@ -428,7 +468,7 @@ gate!(sig=noise, rampDur=0.01, sf=48000)
 
 
 *source:*
-[SndLib/src/snd_process.jl:320](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:323](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -460,7 +500,7 @@ getRMS(pt, "all")
 
 
 *source:*
-[SndLib/src/snd_process.jl:361](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:364](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -494,37 +534,7 @@ noise = makePink(noise, sf=48000, ref=1000)
 
 
 *source:*
-[SndLib/src/snd_process.jl:444](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
-
----
-
-<a id="method__makesilence.1" class="lexicon_definition"></a>
-#### makeSilence() [¶](#method__makesilence.1)
-Generate a silence.
-
-This function just fills an array with zeros for the
-desired duration.
-    
-##### Parameters:
-
-* `dur`: Duration of the silence in seconds.
-* `sf`: Samplig frequency in Hz.
-
-##### Returns:
-
-* `snd`: 2-dimensional array of floats
-The array has dimensions (nSamples, 2).
-       
-
-##### Examples:
-
-```julia
-sil = makeSilence(dur=2, sf=48000)
-```
-
-
-*source:*
-[SndLib/src/snd_generate.jl:454](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_process.jl:447](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -557,7 +567,7 @@ ramp=10, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:493](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:517](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -590,7 +600,7 @@ ramp=10, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:563](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:587](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -623,7 +633,7 @@ ramp=10, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:612](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:636](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -657,7 +667,7 @@ ramp=10, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:699](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:723](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -690,7 +700,7 @@ ramp=10, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:658](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:682](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -724,7 +734,7 @@ ramp=10, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:748](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:772](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -751,7 +761,37 @@ noise = scale(sig=noise, level=-10) #reduce level by 10 dB
 
 
 *source:*
-[SndLib/src/snd_process.jl:491](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:494](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+
+---
+
+<a id="method__silence.1" class="lexicon_definition"></a>
+#### silence() [¶](#method__silence.1)
+Generate a silence.
+
+This function just fills an array with zeros for the
+desired duration.
+    
+##### Parameters:
+
+* `dur`: Duration of the silence in seconds.
+* `sf`: Samplig frequency in Hz.
+
+##### Returns:
+
+* `snd`: 2-dimensional array of floats
+The array has dimensions (nSamples, 2).
+       
+
+##### Examples:
+
+```julia
+sil = silence(dur=2, sf=48000)
+```
+
+
+*source:*
+[SndLib/src/snd_generate.jl:807](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -768,7 +808,7 @@ Windows is not currently supported.
 
 
 *source:*
-[SndLib/src/snd_process.jl:515](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:518](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -785,7 +825,7 @@ Windows is not currently supported.
 
 
 *source:*
-[SndLib/src/snd_process.jl:515](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:518](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -802,7 +842,7 @@ Windows is not currently supported.
 
 
 *source:*
-[SndLib/src/snd_process.jl:515](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:518](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -836,7 +876,7 @@ dur=180, rampDur=10, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:787](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:847](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ## Internal
 
