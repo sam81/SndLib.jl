@@ -142,7 +142,7 @@ function delayAdd!{T<:Real, P<:Integer}(sig::Array{T,2}; delay::Real=0.01,
     #configuration::String="add same"; sf::Real=48000;
     #channel = [1,2]
     #delay in seconds
-    delayPnt = round(delay * sf)
+    delayPnt = round(Int, delay * sf)
     nChans = size(sig)[2]
     nSamples = length(sig[:,1])
     if channel == "all"
@@ -322,8 +322,8 @@ gate!(noise, rampDur=0.01, sf=48000)
 """ ->
 function gate!{T<:Real}(sig::Array{T, 2}; rampDur::Real=0.01, sf::Real=48000)
 
-    nRamp = int(round(rampDur * sf))
-    timeRamp = [0:nRamp-1] 
+    nRamp = round(Int, rampDur * sf)
+    timeRamp = collect(0:nRamp-1)
     nTot = length(sig[:,1])
     nStartSecondRamp = nTot - nRamp
 

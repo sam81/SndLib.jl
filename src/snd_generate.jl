@@ -63,12 +63,12 @@ function AMTone(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
     end
     amp = 10^((level - maxLevel) / 20)
 
-    nSamples = int(round((dur-rampDur*2) * sf))
-    nRamp = int(round(rampDur * sf))
+    nSamples = round(Int, (dur-rampDur*2) * sf)
+    nRamp = round(Int, rampDur * sf)
     nTot = nSamples + (nRamp * 2)
 
-    timeAll = [0:nTot-1] / sf
-    timeRamp = [0:nRamp-1]
+    timeAll = collect(0:nTot-1) / sf
+    timeRamp = collect(0:nRamp-1)
 
     snd_mono = zeros(nTot, 1)
     snd_mono[1:nRamp, 1] = amp * (1+AMDepth*sin(2*pi*AMFreq*timeAll[1:nRamp]+AMPhase)) .* ((1-cos(pi* timeRamp/nRamp))/2) .* sin(2*pi*carrierFreq * timeAll[1:nRamp] + carrierPhase)
@@ -202,12 +202,12 @@ function broadbandNoise(;spectrumLevel::Real=20, dur::Real=1, rampDur::Real=0.01
     end
 
     amp = sqrt(sf/2)*(10^((spectrumLevel - maxLevel) / 20))
-    nSamples = int(round((dur-rampDur*2) * sf))
-    nRamp = int(round(rampDur * sf))
+    nSamples = round(Int, (dur-rampDur*2) * sf)
+    nRamp = round(Int, rampDur * sf)
     nTot = nSamples + (nRamp * 2)
 
-    timeAll = [0:nTot-1] ./ sf
-    timeRamp = [0:nRamp-1]
+    timeAll = collect(0:nTot-1) ./ sf
+    timeRamp = collect(0:nRamp-1)
 
     snd_mono = zeros(nTot, 1)
     noise = (rand(nTot) + rand(nTot)) - (rand(nTot) + rand(nTot))
@@ -304,12 +304,12 @@ function complexTone(;F0::Real=220, harmPhase::String="sine", lowHarm::Integer=1
     amp = 10^((level - maxLevel) / 20)
     stretchHz = (F0*stretch)/100
     
-    nSamples = int(round((dur-rampDur*2) * sf))
-    nRamp = int(round(rampDur * sf))
+    nSamples = round(Int, (dur-rampDur*2) * sf)
+    nRamp = round(Int, rampDur * sf)
     nTot = nSamples + (nRamp * 2)
 
-    timeAll = [0:nTot-1] / sf
-    timeRamp = [0:nRamp-1]
+    timeAll = collect(0:nTot-1) / sf
+    timeRamp = collect(0:nRamp-1)
 
     if channel == "mono"
         snd_mono = zeros(nTot, 1)
@@ -477,7 +477,7 @@ function IRN(;delay::Real=0.001, gain::Real=1, iterations::Integer=6,
     elseif channel == "left"
         ch = 1
     else
-        ch = [1:size(snd)[2]]
+        ch = collect(1:size(snd)[2])
     end
     snd = delayAdd!(snd, delay=delay, gain=gain, iterations=iterations,
                    configuration=configuration, channel=ch, sf=sf)
@@ -526,12 +526,12 @@ function pureTone(;frequency::Real=1000, phase::Real=0, level::Real=65,
     end
 
     amp = 10^((level - maxLevel) / 20)   
-    nSamples = int(round((dur-rampDur*2) * sf))
-    nRamp = int(round(rampDur * sf))
+    nSamples = round(Int, (dur-rampDur*2) * sf)
+    nRamp = round(Int, rampDur * sf)
     nTot = nSamples + (nRamp * 2)
 
-    timeAll = [0:nTot-1] ./ sf
-    timeRamp = [0:nRamp-1]
+    timeAll = collect(0:nTot-1) ./ sf
+    timeRamp = collect(0:nRamp-1)
 
     if channel == "mono"
         snd = zeros((nTot, 1))
@@ -807,7 +807,7 @@ sil = silence(dur=2, sf=48000)
 ```
 """ ->
 function silence(;dur=1000, channel="mono", sf=48000)
-    nSamples = int(round(dur * sf))
+    nSamples = round(Int, dur * sf)
     if channel == "mono"
         snd = zeros(nSamples, 1)
     elseif channel == "diotic"
@@ -852,8 +852,8 @@ function steepNoise(;frequency1=900, frequency2=1000, level=50, dur=1, rampDur=0
         error("Sound duration cannot be less than total duration of ramps")
     end
 
-    nSamples = int(round((dur-rampDur*2) * sf))
-    nRamp = int(round(rampDur * sf))
+    nSamples = round(Int, (dur-rampDur*2) * sf)
+    nRamp = round(Int, rampDur * sf)
     nTot = nSamples + (nRamp * 2)
 
     spacing = 1 / dur
@@ -865,8 +865,8 @@ function steepNoise(;frequency1=900, frequency2=1000, level=50, dur=1, rampDur=0
     # RMS = 10^(SL/20) * sqrt(NHz) where NHz is the spacing between harmonics
     amp =  10^((level - maxLevel) / 20) * sqrt((frequency2 - frequency1) / components)
     
-    timeAll = [0:nTot-1] / sf
-    timeRamp = [0:nRamp-1]
+    timeAll = collect(0:nTot-1) / sf
+    timeRamp = collect(0:nRamp-1)
     
     if channel == "mono"
         snd = zeros((nTot, 1))
