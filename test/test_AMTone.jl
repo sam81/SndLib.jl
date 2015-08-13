@@ -15,11 +15,11 @@ level = 65
 dur = 1
 rampDur = 0.01
 
-channelOpts = ["right", "left", "diotic", "mono"]
+channelOpts = ["mono", "right", "left", "diotic"]
 
 for channel in channelOpts
 
-    snd = AMTone(carrierFreq=frequency, AMFreq=AMFreq, AMDepth=AMDepth, carrierPhase=phase, AMPhase=AMPhase, level=level, dur=duration, rampDur=rampDur, channel=channel, sf=sf, maxLevel=maxLevel)
+    snd = AMTone(carrierFreq=frequency, AMFreq=AMFreq, AMDepth=AMDepth, carrierPhase=phase, AMPhase=AMPhase, level=level, dur=dur, rampDur=rampDur, channel=channel, sf=sf, maxLevel=maxLevel)
     wavwrite(snd, wavDir*"AMTone_"*channel*".wav", Fs=sf, nbits=nbits)
 end
 

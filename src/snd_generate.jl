@@ -446,19 +446,23 @@ Synthetise a complex Huggings Pitch.
         will be equal to `spectrumLevel` at 1 kHz.
 * `bandwidth`: Bandwidth of the frequency regions in which the
         phase transitions occurr.
-* `bandwidthUnit`: `Hz`, `Cent`, or `ERB`. Defines whether the bandwith of the decorrelated bands is expressed
-        in hertz (Hz), cents (Cent), or equivalent rectangular bandwidths (ERB).
+* `bandwidthUnit`: `Hz`, `Cent`, or `ERB`. Defines whether the bandwith of
+  the decorrelated bands is expressed in hertz (Hz), cents (Cent), or
+  equivalent rectangular bandwidths (ERB).
 * `dichoticDifference`: `IPD linear`, `IPD stepped`, `IPD random`, `ITD`.
-        Selects whether the decorrelation in the target regions will be achieved
-        by applying an interaural phase shift that increases linearly in the transition regions
-        (`IPD linear`), a costant interaural phase shift (`IPD stepped`),
-        a costant interaural time difference (ITD), or a random IPD shift (`IPD random`).
-* `dichoticDifferenceValue`: For `IPD linear` this is the phase difference between the start and the end
-        of each transition region, in radians.
-        For `IPD stepped`, this is the phase offset, in radians, between the correlated
-        and the uncorrelated regions.
-        For `ITD` this is the ITD in the transition region, in seconds.
-        For `IPD random`, this is the range of phase shift randomization in the uncorrelated regions.
+   Selects whether the decorrelation in the target regions will be achieved
+   by applying an interaural phase shift that increases linearly in the
+   transition regions
+   (`IPD linear`), a costant interaural phase shift (`IPD stepped`),
+   a costant interaural time difference (ITD), or a random IPD shift
+   (`IPD random`).
+* `dichoticDifferenceValue`: For `IPD linear` this is the phase difference
+   between the start and the end of each transition region, in radians.
+   For `IPD stepped`, this is the phase offset, in radians, between
+   the correlated and the uncorrelated regions.
+   For `ITD` this is the ITD in the transition region, in seconds.
+   For `IPD random`, this is the range of phase shift randomization
+   in the uncorrelated regions.
 * `phaseRelationship`: `NoSpi` or `NpiSo`. If `NoSpi`, the phase of the regions within each frequency band will
         be shifted. If `NpiSo`, the phase of the regions between each
         frequency band will be shifted.
@@ -488,7 +492,7 @@ References
 hp = hugginsPitch(F0=300, lowHarm=1, highHarm=3, spectrumLevel=45,
 bandwidth=100, bandwidthUnit="Hz", dichoticDifference="IPD stepped",
 dichoticDifferenceValue=pi, phaseRelationship="NoSpi", stretch=0,
-noiseType="White", dur=0.4, rampDur=0.01, sf=48000, maxLevel=101)
+noiseType="white", dur=0.4, rampDur=0.01, sf=48000, maxLevel=101)
 ```
     
 """->
@@ -964,8 +968,8 @@ sinusoids.
 
 ##### Parameters:
 
-* `frequency1`: Start frequency of the noise.
-* `frequency2`: End frequency of the noise.
+* `f1`: Start frequency of the noise.
+* `f2`: End frequency of the noise.
 * `level`: Noise spectrum level.
 * `dur`: Tone duration in seconds.
 * `rampDur`: Duration of the onset and offset ramps in seconds.
@@ -980,12 +984,12 @@ sinusoids.
 ##### Examples:
 
 ```julia
-nbNoise = steepNoise(frequency1=440, frequency2=660, level=65,
+nbNoise = steepNoise(f1=440, f2=660, level=65,
 dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 
 """ ->
-function steepNoise(;frequency1=900, frequency2=1000, level=50, dur=1, rampDur=0.01, channel="diotic", sf=48000, maxLevel=101)
+function steepNoise(;f1=900, f2=1000, level=50, dur=1, rampDur=0.01, channel="diotic", sf=48000, maxLevel=101)
     
     if dur < rampDur*2
         error("Sound duration cannot be less than total duration of ramps")
@@ -996,34 +1000,28 @@ function steepNoise(;frequency1=900, frequency2=1000, level=50, dur=1, rampDur=0
     nTot = nSamples + (nRamp * 2)
 
     spacing = 1 / dur
-    components = 1 + floor((frequency2 - frequency1) / spacing)
+    components = 1 + floor((f2 - f1) / spacing)
     # SL = 10*log10(A^2/NHz) 
     # SL/10 = log10(A^2/NHz)
     # 10^(SL/10) = A^2/NHz
     # A^2 = 10^(SL/10) * NHz
     # RMS = 10^(SL/20) * sqrt(NHz) where NHz is the spacing between harmonics
-    amp =  10^((level - maxLevel) / 20) * sqrt((frequency2 - frequency1) / components)
+    amp =  10^((level - maxLevel) / 20) * sqrt((f2 - f1) / components)
     
     timeAll = collect(0:nTot-1) / sf
     timeRamp = collect(0:nRamp-1)
     
     if channel == "mono"
-        snd = zeros((nTot, 1))
+        snd = zeros(nTot, 1)
     else
-        snd = zeros((nTot, 2))
+        snd = zeros(nTot, 2)
     end
 
     noise= zeros(nTot)
-    for f=frequency1:spacing:frequency2
+    for f=f1:spacing:f2
         radFreq = 2 * pi * f 
         phase = rand() * 2 * pi
         noise = noise + sin(phase + (radFreq * timeAll))
-    end
-
-    if channel == "mono"
-        snd = zeros((nTot, 1))
-    else
-        snd = zeros((nTot, 2))
     end
 
     snd_mono = zeros(nTot, 1)
@@ -1041,7 +1039,7 @@ function steepNoise(;frequency1=900, frequency2=1000, level=50, dur=1, rampDur=0
         snd[:,2] = snd_mono
     elseif channel == "dichotic"
         noise2= zeros(nTot)
-        for f=frequency1:spacing:frequency2
+        for f=f1:spacing:f2
             radFreq = 2 * pi * f 
             phase = rand() * 2 * pi
             noise2 = noise2 + sin(phase + (radFreq * timeAll))

@@ -546,8 +546,8 @@ function phaseShift!{T<:Real, P<:Integer}(sig::Array{T, 2}, f1::Real, f2::Real; 
         phaseShiftArray1 = linspace(0, phaseShift, length(sh1))
         phaseShiftArray2 = - linspace(phaseShift, 0, length(sh2))
     elseif shiftType == "step"
-        phaseShiftArray1 = float([phaseShift for ll=1:length(sh1)])
-        phaseShiftArray2 = -float([phaseShift for ll=1:length(sh1)])
+        phaseShiftArray1 = [float(phaseShift) for ll=1:length(sh1)]
+        phaseShiftArray2 = [float(-phaseShift) for ll=1:length(sh1)]
     elseif shiftType == "random"
         phaseShiftArray1 = rand(length(sh1))*phaseShift
         phaseShiftArray2 = -flipdim(phaseShiftArray1, 1)
@@ -612,7 +612,7 @@ function makePink!{T<:Real}(sig::Array{T, 2}; sf::Real=48000, ref::Real=1000)
     for i=1:nChans
         x = rfft(sig[:,i])
         n = length(x)
-        idx = [1:n]#arange(1, len(x))
+        idx = collect(1:n)#arange(1, len(x))
         mag = zeros(n)
         mag[1:n] = abs(x[1:n]) .* sqrt(ref./idx)
         mag[1] = abs(x[1])
