@@ -138,10 +138,10 @@ function delayAdd!{T<:Real, P<:Integer}(sig::Array{T,2}; delay::Real=0.01,
                                         channel::Union(P, AbstractVector{P})=[1:size(sig)[2]],
                                         sf::Real=48000)
 
-    #delay::Real=0.01; gain::Real=1; iterations::Integer=1;
-    #configuration::String="add same"; sf::Real=48000;
-    #channel = [1,2]
-    #delay in seconds
+    if in(configuration, ["add same", "add original"]) == false
+        error("`configuration` must be either 'add same', or 'add original'")
+    end
+
     delayPnt = round(Int, delay * sf)
     nChans = size(sig)[2]
     nSamples = length(sig[:,1])
@@ -409,6 +409,10 @@ channel="left", sf=48000) #this generates a Dichotic Pitch
 """->
 function ITDShift!{T<:Real}(sig::Array{T,2}, f1::Real, f2::Real; ITD::Real=300/1000000, channel::String="left", sf::Real=48000)
 
+    if in(channel, ["right", "left"]) == false
+        error("Channel must be one of 'right', or 'left'")
+    end
+
     nSamples = size(sig)[1]
     fftPoints = nSamples#nextpow2(nSamples)
     nUniquePnts = ceil((fftPoints+1)/2)
@@ -527,6 +531,11 @@ channel=2, sf=48000) #this generates a Dichotic Pitch
 """->
 
 function phaseShift!{T<:Real, P<:Integer}(sig::Array{T, 2}, f1::Real, f2::Real; phaseShift::Real=pi, shiftType::String="step", channel::Union(P, AbstractVector{P})=1, sf::Real=48000)
+
+    if in(shiftType, ["linear", "random", "step"]) == false
+        error("`shiftType`must be one of 'linear', 'random', 'step'")
+    end
+    
     nSamples = size(sig)[1]
     nChans = size(sig)[2]
     fftPoints = nSamples#nextpow2(nSamples)
