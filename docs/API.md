@@ -124,7 +124,7 @@ If `add original`, the original signal is added to the delayed signal of the cur
 * `spectrumLevel`: Intensity spectrum level of the noise in dB SPL.
 * `dur`: Noise duration in seconds.
 * `rampDur`: Duration of the onset and offset ramps in seconds.
-* `channel`: Channel in which the noise will be generated (`mono`, 'right', 'left', 'diotic', 'dichotic').
+* `channel`: Channel in which the noise will be generated (`mono`, `right`, `left`, `diotic`, `dichotic`).
 * `sf`: Sampling frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
@@ -142,12 +142,46 @@ irn = IRN(delay=1/440, gain=1, iterations=6, configuration="add same",
 
 
 *source:*
-[SndLib/src/snd_generate.jl:463](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:602](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+
+---
+
+<a id="method__itdshift.1" class="lexicon_definition"></a>
+#### ITDShift!{T<:Real}(sig::Array{T<:Real, 2}, f1::Real, f2::Real) [¶](#method__itdshift.1)
+Set the ITD of a sound within the frequency region bounded by `f1` and `f2`
+
+##### Parameters
+
+* `sig`: Input signal.
+* `f1`: The start point in Hertz of the frequency region in which
+        to apply the ITD.
+* `f2`: The end point in Hertz of the frequency region in which 
+        to apply the ITD.
+* `ITD`: The amount of ITD shift in seconds
+* `channel`: `right` or `left`. The channel in which to apply the shift.
+* `sf`: The sampling frequency of the sound.
+        
+##### Returns
+
+* `out` : 2-dimensional array of floats
+
+##### Examples
+
+```julia
+noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
+     channel="diotic", sf=48000, maxLevel=100)
+hp = ITDShift!(noise, 500, 600, ITD=300/1000000,
+channel="left", sf=48000) #this generates a Dichotic Pitch
+```
+
+
+*source:*
+[SndLib/src/snd_process.jl:409](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
 <a id="method__itdtoipd.1" class="lexicon_definition"></a>
-#### ITDToIPD(ITD::Real, freq::Real) [¶](#method__itdtoipd.1)
+#### ITDToIPD{T<:Real}(ITD::Real, freq::Union(T<:Real, AbstractArray{T<:Real, 1})) [¶](#method__itdtoipd.1)
 
 Convert an interaural time difference to an equivalent interaural
 phase difference for a given frequency.
@@ -171,7 +205,7 @@ ITDToIPD(itd, 1000)
 
 
 *source:*
-[SndLib/src/snd_process.jl:404](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:483](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -183,7 +217,7 @@ Add or concatenate two sounds.
 
 * `snd1`: First sound.
 * `snd2`: Second sound.
-* `delay`: Delay in seconds between the onset of 'snd1' and the onset of 'snd2'
+* `delay`: Delay in seconds between the onset of `snd1` and the onset of `snd2`
 * `sf`: Sampling frequency in hertz of the two sounds.
 
 ##### Returns
@@ -272,17 +306,17 @@ Synthetise a complex tone.
 ##### Parameters:
 
 * `F0`: Tone fundamental frequency in hertz.
-* `harmPhase : one of 'sine', 'cosine', 'alternating', 'random', 'schroeder'
+* `harmPhase : one of `sine`, `cosine`, `alternating`, `random`, `schroeder`
         Phase relationship between the partials of the complex tone.
 * `lowHarm`: Lowest harmonic component number.
 * `highHarm`: Highest harmonic component number.
 * `stretch`: Harmonic stretch in %F0. Increase each harmonic frequency by a fixed value
-        that is equal to (F0*stretch)/100. If 'stretch' is different than
+        that is equal to (F0*stretch)/100. If `stretch` is different than
         zero, an inhanmonic complex tone will be generated.
 * `level`: The level of each partial in dB SPL.
 * `dur`: Tone duration in seconds.
 * `rampDur`: Duration of the onset and offset ramps in seconds.
-* `channel`: 'right', 'left', 'diotic', 'odd right' or 'odd left'.
+* `channel`: `right`, `left`, `diotic`, `odd right` or `odd left`.
         Channel in which the tone will be generated. If `channel`
         if `odd right`, odd numbered harmonics will be presented
         to the right channel and even number harmonics to the left
@@ -319,8 +353,8 @@ Delay and add algorithm for the generation of iterated rippled noise.
 * `delay`: delay in seconds
 * `gain`: The gain to apply to the delayed signal
 * `iterations`: The number of iterations of the delay-add cycle
-* `configuration`: If 'add same', the output of iteration N-1 is added to delayed signal of the current iteration.
-If 'add original', the original signal is added to delayed signal of the current iteration.
+* `configuration`: If `add same`, the output of iteration N-1 is added to delayed signal of the current iteration.
+If `add original`, the original signal is added to delayed signal of the current iteration.
 * `channel`: a number or a vector of numbers indicating to which columns of `sig` the delay and add process should be applied
 * `sf`: Sampling frequency in Hz.
 
@@ -352,8 +386,8 @@ Filter signal with a fir2 filter.
 
 This function designs and applies a fir2 filter to a sound.
 The frequency response of the ideal filter will transition
-from 0 to 1 between 'f1' and 'f2', and from 1 to zero
-between 'f3' and 'f4'. The frequencies must be given in
+from 0 to 1 between `f1` and `f2`, and from 1 to zero
+between `f3` and `f4`. The frequencies must be given in
 increasing order.
 
 ##### Parameters:
@@ -368,7 +402,7 @@ increasing order.
         for the high-frequency cutoff ends. 
 * `snd`: The sound to be filtered.
 * `nTaps`: Number of filter taps.
-* `sf`: Sampling frequency of 'snd'.
+* `sf`: Sampling frequency of `snd`.
 
 ##### Returns:
 
@@ -376,12 +410,11 @@ increasing order.
 
 ##### Notes:
 
-If 'f1' and 'f2' are zero the filter will be low pass.
-If 'f3' and 'f4' are equal to or greater than the nyquist
+If `f1` and `f2` are zero the filter will be low pass.
+If `f3` and `f4` are equal to or greater than the nyquist
 frequency (sf/2) the filter will be high pass.
 In the other cases the filter will be band pass.
 
-The order of the filter (number of taps) is fixed at 256.
 This function uses internally 'scipy.signal.firwin2'.
        
 ##### Examples
@@ -403,7 +436,7 @@ bpNoise = fir2Filt!(400, 600, 4000, 4400,
 
 
 *source:*
-[SndLib/src/snd_process.jl:240](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:239](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -481,7 +514,7 @@ Impose onset and offset ramps to a sound.
 
 * `sig`: The signal on which the ramps should be imposed.
 * `rampDur`: The duration of the ramps.
-* `sf`: The sampling frequency of 'sig'
+* `sf`: The sampling frequency of `sig`
 
 ##### Returns
 
@@ -497,12 +530,12 @@ gate!(noise, rampDur=0.01, sf=48000)
 
 
 *source:*
-[SndLib/src/snd_process.jl:322](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:321](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
 <a id="method__getrms.1" class="lexicon_definition"></a>
-#### getRMS{T<:Real}(sig::Array{T<:Real, 2}, channel::Union(String, Integer)) [¶](#method__getrms.1)
+#### getRMS{T<:Real}(sig::Array{T<:Real, 2}, channel::Union(Integer, String)) [¶](#method__getrms.1)
 Compute the root mean square (RMS) value of the signal.
 
 ##### Parameters
@@ -528,7 +561,104 @@ getRMS(pt, "all")
 
 
 *source:*
-[SndLib/src/snd_process.jl:362](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:361](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+
+---
+
+<a id="method__hugginspitch.1" class="lexicon_definition"></a>
+#### hugginsPitch() [¶](#method__hugginspitch.1)
+
+Synthetise a complex Huggings Pitch.
+
+##### Parameters
+
+* `F0`: The centre frequency of the F0 of the complex in hertz.
+* `lowHarm`: Lowest harmonic component number.
+* `highHarm`: Highest harmonic component number.
+* `spectrumLevel`: The spectrum level of the noise from which
+        the Huggins pitch is derived in dB SPL.
+        If `noiseType` is `pink`, the spectrum level
+        will be equal to `spectrumLevel` at 1 kHz.
+* `bandwidth`: Bandwidth of the frequency regions in which the
+        phase transitions occurr.
+* `bandwidthUnit`: `Hz`, `Cent`, or `ERB`. Defines whether the bandwith of the decorrelated bands is expressed
+        in hertz (Hz), cents (Cent), or equivalent rectangular bandwidths (ERB).
+* `dichoticDifference`: `IPD linear`, `IPD stepped`, `IPD random`, `ITD`.
+        Selects whether the decorrelation in the target regions will be achieved
+        by applying an interaural phase shift that increases linearly in the transition regions
+        (`IPD linear`), a costant interaural phase shift (`IPD stepped`),
+        a costant interaural time difference (ITD), or a random IPD shift (`IPD random`).
+* `dichoticDifferenceValue`: For `IPD linear` this is the phase difference between the start and the end
+        of each transition region, in radians.
+        For `IPD stepped`, this is the phase offset, in radians, between the correlated
+        and the uncorrelated regions.
+        For `ITD` this is the ITD in the transition region, in seconds.
+        For `IPD random`, this is the range of phase shift randomization in the uncorrelated regions.
+* `phaseRelationship`: `NoSpi` or `NpiSo`. If `NoSpi`, the phase of the regions within each frequency band will
+        be shifted. If `NpiSo`, the phase of the regions between each
+        frequency band will be shifted.
+* `stretch`: Harmonic stretch in %`F0`. Increase each harmonic frequency by a fixed value
+        that is equal to (F0*stretch)/100. If `stretch` is different than
+        zero, an inhanmonic complex tone will be generated.
+* `noiseType`: `white` or `pink`. The type of noise used to derive the Huggins Pitch.
+* `dur`: Complex duration (excluding ramps) in seconds.
+* `rampDur`: Duration of the onset and offset ramps in seconds.
+* `sf`: Samplig frequency in Hz.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
+
+##### Returns
+
+* `snd`: 2-dimensional array of floats.
+        The array has dimensions (nSamples, nChannels).
+
+References
+
+.. [CH] Cramer, E. M., & Huggins, W. H. (1958). Creation of Pitch through Binaural Interaction. J. Acoust. Soc. Am., 30(5), 413. 
+.. [AS] Akeroyd, M. A., & Summerfield, a Q. (2000). The lateralization of simple dichotic pitches. J. Acoust. Soc. Am., 108(1), 316–334.
+.. [ZH] Zhang, P. X., & Hartmann, W. M. (2008). Lateralization of Huggins pitch. J. Acoust. Soc. Am., 124(6), 3873–87. 
+
+##### Examples
+
+```julia
+hp = hugginsPitch(F0=300, lowHarm=1, highHarm=3, spectrumLevel=45,
+bandwidth=100, bandwidthUnit="Hz", dichoticDifference="IPD stepped",
+dichoticDifferenceValue=pi, phaseRelationship="NoSpi", stretch=0,
+noiseType="White", duration=0.4, ramp=0.01, sf=48000, maxLevel=101)
+```
+    
+
+
+*source:*
+[SndLib/src/snd_generate.jl:494](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+
+---
+
+<a id="method__intncyclesfreq.1" class="lexicon_definition"></a>
+#### intNCyclesFreq(freq::Real, dur::Real) [¶](#method__intncyclesfreq.1)
+
+Compute the frequency closest to 'freq' that has an integer number
+of cycles for the given sound duration.
+
+##### Parameters
+
+* `frequency`: Frequency in hertz.
+* `dur` : Duration of the sound, in seconds.
+
+##### Returns
+
+* `adjFreq`: float
+       
+##### Examples
+
+```julia
+intNCyclesFreq(2.1, 1000)
+intNCyclesFreq(2, 1000)
+```
+
+
+
+*source:*
+[SndLib/src/utils.jl:180](file:///home/sam/.julia/v0.3/SndLib/src/utils.jl)
 
 ---
 
@@ -562,7 +692,7 @@ noise = makePink!(noise, sf=48000, ref=1000)
 
 
 *source:*
-[SndLib/src/snd_process.jl:526](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:604](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -579,10 +709,10 @@ Shift the interaural phases of a sound within a given frequency region.
         phase-shifted in hertz.
 * `phaseShift`: The amount of phase shift in radians. 
 * `shiftType`: If `linear` the phase changes progressively
-        on a linear Hz scale from X to X+'phaseShift' from f1 to f2.
-        If 'step' 'phaseShift' is added as a constant to the
+        on a linear Hz scale from X to X+`phaseShift` from f1 to f2.
+        If `step` `phaseShift` is added as a constant to the
         phases from f1 to f2.
-        If 'random' a random phase shift from 0 to `phaseShift`
+        If `random` a random phase shift from 0 to `phaseShift`
         is added to each frequency component from `f1` to `f2`.
 * `channel`: The channel(s) in which to apply the phase shift.
 * `sf`: The sampling frequency of the sound.
@@ -602,7 +732,7 @@ channel=2, sf=48000) #this generates a Dichotic Pitch
 
 
 *source:*
-[SndLib/src/snd_process.jl:448](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:527](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -617,7 +747,7 @@ Synthetise a pure tone.
 * `level`: Tone level in dB SPL.
 * `dur`: Tone duration in seconds.
 * `ramp`: Duration of the onset and offset ramps in seconds.
-* `channel`: Channel in which the tone will be generated.  ('right', 'left' or 'diotic')
+* `channel`: Channel in which the tone will be generated.  (`right`, `left` or `diotic`)
 * `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
@@ -635,7 +765,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:518](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:657](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -651,7 +781,7 @@ Synthetise a pure tone with an interaural level difference.
 * `ILD`: Interaural level difference in dB SPL.
 * `dur`: Tone duration in seconds.
 * `ramp`: Duration of the onset and offset ramps in seconds.
-* `channel`: Channel in which the ILD will be applied.  ('right' or 'left')
+* `channel`: Channel in which the ILD will be applied.  (`right` or `left`)
 * `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
@@ -668,7 +798,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:588](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:727](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -684,7 +814,7 @@ Synthetise a pure tone with an interaural phase difference.
 * `level`: Tone level in dB SPL.
 * `dur`: Tone duration in seconds.
 * `ramp`: Duration of the onset and offset ramps in seconds.
-* `channel`: Channel in which the tone IPD will be applied.  ('right' or 'left')
+* `channel`: Channel in which the tone IPD will be applied.  (`right` or `left`)
 * `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
@@ -701,7 +831,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:637](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:776](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -718,7 +848,7 @@ Synthetise a pure tone with an interaural phase and interaural level difference.
 * `ILD`: Interaural level difference in dB SPL.
 * `dur`: Tone duration in seconds.
 * `ramp`: Duration of the onset and offset ramps in seconds.
-* `channel`: Channel in which the ILD will be applied.  ('right' or 'left')
+* `channel`: Channel in which the ILD will be applied.  (`right` or `left`)
 * `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
@@ -735,7 +865,7 @@ dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:724](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:863](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -751,7 +881,7 @@ Synthetise a pure tone with an interaural time difference.
 * `level`: Tone level in dB SPL.
 * `dur`: Tone duration in seconds.
 * `ramp`: Duration of the onset and offset ramps in seconds.
-* `channel`: Channel in which the ITD will be applied.  ('right' or 'left')
+* `channel`: Channel in which the ITD will be applied.  (`right` or `left`)
 * `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
@@ -768,7 +898,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:683](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:822](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -785,7 +915,7 @@ Synthetise a pure tone with an interaural time and interaural level difference.
 * `ILD`: Interaural level difference in dB SPL.
 * `dur`: Tone duration in seconds.
 * `ramp`: Duration of the onset and offset ramps in seconds.
-* `channel`: Channel in which the ILD will be applied.  ('right' or 'left')
+* `channel`: Channel in which the ILD will be applied.  (`right` or `left`)
 * `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
@@ -802,7 +932,7 @@ ILD=10, dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:773](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:912](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -829,7 +959,7 @@ noise = scaleLevel(noise, level=-10) #reduce level by 10 dB
 
 
 *source:*
-[SndLib/src/snd_process.jl:573](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:651](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -859,7 +989,7 @@ sil = silence(dur=2, sf=48000)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:808](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:947](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -876,7 +1006,7 @@ Windows is not currently supported.
 
 
 *source:*
-[SndLib/src/snd_process.jl:597](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:675](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -893,7 +1023,7 @@ Windows is not currently supported.
 
 
 *source:*
-[SndLib/src/snd_process.jl:597](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:675](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -910,7 +1040,7 @@ Windows is not currently supported.
 
 
 *source:*
-[SndLib/src/snd_process.jl:597](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:675](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -926,7 +1056,7 @@ sinusoids.
 * `level`: Noise spectrum level.
 * `dur`: Tone duration in seconds.
 * `rampDur`: Duration of the onset and offset ramps in seconds.
-* `channel`: 'right', 'left' or 'diotic'. Channel in which the tone will be generated.
+* `channel`: `right`, `left` or `diotic`. Channel in which the tone will be generated.
 * `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
@@ -944,5 +1074,5 @@ dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:848](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:987](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 

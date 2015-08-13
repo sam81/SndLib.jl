@@ -427,6 +427,145 @@ function complexTone(;F0::Real=220, harmPhase::String="sine", lowHarm::Integer=1
     return snd
 end
 
+################################
+## hugginsPitch
+################################
+
+@doc doc"""
+
+Synthetise a complex Huggings Pitch.
+
+##### Parameters
+
+* `F0`: The centre frequency of the F0 of the complex in hertz.
+* `lowHarm`: Lowest harmonic component number.
+* `highHarm`: Highest harmonic component number.
+* `spectrumLevel`: The spectrum level of the noise from which
+        the Huggins pitch is derived in dB SPL.
+        If `noiseType` is `pink`, the spectrum level
+        will be equal to `spectrumLevel` at 1 kHz.
+* `bandwidth`: Bandwidth of the frequency regions in which the
+        phase transitions occurr.
+* `bandwidthUnit`: `Hz`, `Cent`, or `ERB`. Defines whether the bandwith of the decorrelated bands is expressed
+        in hertz (Hz), cents (Cent), or equivalent rectangular bandwidths (ERB).
+* `dichoticDifference`: `IPD linear`, `IPD stepped`, `IPD random`, `ITD`.
+        Selects whether the decorrelation in the target regions will be achieved
+        by applying an interaural phase shift that increases linearly in the transition regions
+        (`IPD linear`), a costant interaural phase shift (`IPD stepped`),
+        a costant interaural time difference (ITD), or a random IPD shift (`IPD random`).
+* `dichoticDifferenceValue`: For `IPD linear` this is the phase difference between the start and the end
+        of each transition region, in radians.
+        For `IPD stepped`, this is the phase offset, in radians, between the correlated
+        and the uncorrelated regions.
+        For `ITD` this is the ITD in the transition region, in seconds.
+        For `IPD random`, this is the range of phase shift randomization in the uncorrelated regions.
+* `phaseRelationship`: `NoSpi` or `NpiSo`. If `NoSpi`, the phase of the regions within each frequency band will
+        be shifted. If `NpiSo`, the phase of the regions between each
+        frequency band will be shifted.
+* `stretch`: Harmonic stretch in %`F0`. Increase each harmonic frequency by a fixed value
+        that is equal to (F0*stretch)/100. If `stretch` is different than
+        zero, an inhanmonic complex tone will be generated.
+* `noiseType`: `white` or `pink`. The type of noise used to derive the Huggins Pitch.
+* `dur`: Complex duration (excluding ramps) in seconds.
+* `rampDur`: Duration of the onset and offset ramps in seconds.
+* `sf`: Samplig frequency in Hz.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
+
+##### Returns
+
+* `snd`: 2-dimensional array of floats.
+        The array has dimensions (nSamples, nChannels).
+
+References
+
+.. [CH] Cramer, E. M., & Huggins, W. H. (1958). Creation of Pitch through Binaural Interaction. J. Acoust. Soc. Am., 30(5), 413. 
+.. [AS] Akeroyd, M. A., & Summerfield, a Q. (2000). The lateralization of simple dichotic pitches. J. Acoust. Soc. Am., 108(1), 316–334.
+.. [ZH] Zhang, P. X., & Hartmann, W. M. (2008). Lateralization of Huggins pitch. J. Acoust. Soc. Am., 124(6), 3873–87. 
+
+##### Examples
+
+```julia
+hp = hugginsPitch(F0=300, lowHarm=1, highHarm=3, spectrumLevel=45,
+bandwidth=100, bandwidthUnit="Hz", dichoticDifference="IPD stepped",
+dichoticDifferenceValue=pi, phaseRelationship="NoSpi", stretch=0,
+noiseType="White", dur=0.4, rampDur=0.01, sf=48000, maxLevel=101)
+```
+    
+"""->
+
+function hugginsPitch(;F0::Real=550, lowHarm::Int=1, highHarm::Int=1,
+                      spectrumLevel::Real=30, bandwidth::Real=1,
+                      bandwidthUnit::String="ERB", dichoticDifference::String="IPD stepped",
+                      dichoticDifferenceValue::Real=pi, phaseRelationship::String="NoSpi",
+                      stretch::Real=0, noiseType::String="white", dur::Real=1, rampDur::Real=0.01,
+                      sf::Real=48000, maxLevel::Real=101)
+
+    stretchHz = (F0*stretch)/100
+    nSamples = round(Int, dur * sf)
+    nRamp = round(Int, rampDur * sf)
+    nTot = nSamples + (nRamp * 2)
+    snd = zeros(nTot, 2)
+
+    noise = broadbandNoise(spectrumLevel=spectrumLevel, dur=dur, rampDur=0,
+                           channel="diotic", sf=sf, maxLevel=maxLevel)
+    if noiseType == "pink"
+        makePink!(noise, sf=sf, ref=1000)
+    end
+
+    cfs = collect(lowHarm:highHarm)*F0 #center frequencies
+    cfs = cfs + stretchHz
+    if phaseRelationship == "NoSpi"
+        if bandwidthUnit == "Hz"
+            shiftLo = cfs - (bandwidth/2)
+            shiftHi = cfs + (bandwidth/2)
+        elseif bandwidthUnit == "Cent"
+            shiftLo = cfs*2.^(-(bandwidth/2)/1200)
+            shiftHi = cfs*2.^((bandwidth/2)/1200)
+        elseif bandwidthUnit == "ERB"
+            shiftLo = freqFromERBInterval(cfs, -bandwidth/2)
+            shiftHi = freqFromERBInterval(cfs, bandwidth/2)
+        end
+    end
+    if phaseRelationship == "NpiSo"
+        nHarms = length(cfs)
+        shiftLo = zeros(nHarms+1)
+        shiftHi = zeros(nHarms+1)
+    
+        shiftLo[1] = 10
+        shiftHi[end] = sf/2
+        if bandwidthUnit == "Hz"
+            shiftLo[2:length(shiftLo)] = cfs + (bandwidth/2)
+            shiftHi[1:length(shiftHi)-1] = cfs - (bandwidth/2)
+        elseif bandwidthUnit == "Cent"
+            shiftLo[2:length(shiftLo)] = cfs*2.^((bandwidth/2)/1200)
+            shiftHi[1:length(shiftHi)-1] = cfs*2.^((bandwidth/2)/1200)
+        elseif bandwidthUnit == "ERB"
+            shiftLo[2:length(shiftLo)] = freqFromERBInterval(cfs, bandwidth/2)
+            shiftHi[1:length(shiftHi)-1] = freqFromERBInterval(cfs, -bandwidth/2)
+        end
+    end
+
+    for i=1:length(shiftLo)
+        if dichoticDifference == "IPD linear"
+            noise = phaseShift!(noise, shiftLo[i], shiftHi[i],
+                                phaseShift=dichoticDifferenceValue, shiftType="linear", channel=1, sf=sf)
+        elseif dichoticDifference == "IPD stepped"
+            noise = phaseShift!(noise, shiftLo[i], shiftHi[i],
+                               phaseShift=dichoticDifferenceValue, shiftType="step", channel=1, sf=sf)
+        elseif dichoticDifference == "IPD random"
+            noise = phaseShift!(noise, shiftLo[i], shiftHi[i],
+                               phaseShift=dichoticDifferenceValue, shiftType="random", channel=1, sf=sf)
+        elseif dichoticDifference == "ITD"
+            noise = ITDShift!(noise, shiftLo[i], shiftHi[i],
+                             ITD=dichoticDifferenceValue, channel="left", sf=sf)
+        end
+    end
+    noise = gate!(noise, rampDur=rampDur, sf=sf)    
+
+    return noise
+
+end
+
 #################################
 ## IRN
 #################################

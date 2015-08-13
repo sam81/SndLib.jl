@@ -376,6 +376,86 @@ function getRMS{T<:Real}(sig::Array{T,2}, channel::Union(String, Integer))
     return RMS
     end
 
+########################
+## ITDShift!
+########################
+
+@doc doc"""
+Set the ITD of a sound within the frequency region bounded by `f1` and `f2`
+
+##### Parameters
+
+* `sig`: Input signal.
+* `f1`: The start point in Hertz of the frequency region in which
+        to apply the ITD.
+* `f2`: The end point in Hertz of the frequency region in which 
+        to apply the ITD.
+* `ITD`: The amount of ITD shift in seconds
+* `channel`: `right` or `left`. The channel in which to apply the shift.
+* `sf`: The sampling frequency of the sound.
+        
+##### Returns
+
+* `out` : 2-dimensional array of floats
+
+##### Examples
+
+```julia
+noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
+     channel="diotic", sf=48000, maxLevel=100)
+hp = ITDShift!(noise, 500, 600, ITD=300/1000000,
+channel="left", sf=48000) #this generates a Dichotic Pitch
+```
+"""->
+function ITDShift!{T<:Real}(sig::Array{T,2}, f1::Real, f2::Real; ITD::Real=300/1000000, channel::String="left", sf::Real=48000)
+
+    nSamples = size(sig)[1]
+    fftPoints = nSamples#nextpow2(nSamples)
+    nUniquePnts = ceil((fftPoints+1)/2)
+    #compute the frequencies of the first half of the FFT
+    freqArray1 = collect(0:nUniquePnts) * (sf / fftPoints)
+    #remove DC offset and nyquist for the second half of the FFT
+    freqArray2 = -flipdim(collect(1:(nUniquePnts-1)),1) * (sf / fftPoints) 
+    #find the indexes of the frequencies for which to set the ITD for the first half of the FFT
+    sh1 = find((freqArray1 .>= f1) & (freqArray1 .<= f2))
+    #same as above for the second half of the FFT
+    sh2 = find((freqArray2 .<= -f1) & (freqArray2 .>= -f2))
+    #compute IPSs for the first half of the FFT
+    phaseShiftArray1 = ITDToIPD(ITD/1000000, freqArray1[sh1])
+    #same as above for the second half of the FFT
+    phaseShiftArray2 = ITDToIPD(ITD/1000000, freqArray2[sh2])
+    #get the indexes of the first half of the FFT
+    p1Start = 1; p1End = length(freqArray1)
+    #get the indexes of the second half of the FFT
+    p2Start = length(freqArray1)+1; p2End = fftPoints 
+        
+    if channel == "left"
+        x = fft(sig[:,1])#, fftPoints)
+    elseif channel == "right"
+        x = fft(sig[:,2])#, fftPoints)
+    end
+    
+    x1 = x[p1Start:p1End] #first half of the FFT
+    x2 = x[p2Start:p2End] #second half of the FFT
+    x1mag = abs(x1); x2mag = abs(x2) 
+    x1Phase =  angle(x1); x2Phase =  angle(x2);
+    x1Phase[sh1] = x1Phase[sh1] + phaseShiftArray1 #change phases
+    x2Phase[sh2] = x2Phase[sh2] + phaseShiftArray2
+    x1 = x1mag .* (cos(x1Phase) + (1im * sin(x1Phase))) #rebuild FFTs
+    x2 = x2mag .* (cos(x2Phase) + (1im * sin(x2Phase)))
+    x = vcat(x1, x2)
+    x = real(ifft(x)) #inverse transform to get the sound back
+    
+    if channel == "left"
+        sig[:,1] = x[1:nSamples]
+    elseif channel == "right"
+        sig[:,2] = x[1:nSamples]
+    end
+
+    return sig
+end
+
+
 #################################
 ## ITDToIPD
 #################################
@@ -402,15 +482,15 @@ ITDToIPD(itd, 1000)
 ```
 """ ->
 
-function ITDToIPD(ITD::Real, freq::Real)
+function ITDToIPD{T<:Real}(ITD::Real, freq::Union(T, AbstractVector{T}))
     
-    IPD = (ITD / (1/freq)) * 2 * pi
+    IPD = (ITD ./ (1./freq)) * 2 * pi
     
     return IPD
 end
 
 #########################
-## phaseShift
+## phaseShift!
 #########################
 @doc doc"""
 Shift the interaural phases of a sound within a given frequency region.
@@ -450,7 +530,6 @@ function phaseShift!{T<:Real, P<:Integer}(sig::Array{T, 2}, f1::Real, f2::Real; 
     nSamples = size(sig)[1]
     nChans = size(sig)[2]
     fftPoints = nSamples#nextpow2(nSamples)
-    #snd = zeros(nSamples, 2)
     nUniquePnts = ceil((fftPoints+1)/2)
     freqArray1 = collect(0:nUniquePnts) * (sf / fftPoints)
     freqArray2 = -flipdim(collect(1:(nUniquePnts-1)), 1) * (sf / fftPoints) #remove DC offset and nyquist
