@@ -62,7 +62,7 @@ function AMTone(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
         error("Sound duration cannot be less than total duration of ramps")
     end
     if in(channel, ["mono", "right", "left", "diotic"]) == false
-        error("Channel must be one of of 'mono', 'right', 'left', or 'diotic'")
+        error("`channel` must be one of 'mono', 'right', 'left', or 'diotic'")
     end
     amp = 10^((level - maxLevel) / 20)
 
@@ -142,7 +142,7 @@ function AMToneIPD(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
         error("Sound duration cannot be less than total duration of ramps")
     end
     if in(channel, ["right", "left"]) == false
-        error("Channel must be either 'right', or 'left'")
+        error("`channel` must be either 'right', or 'left'")
     end
 
     fixed = AMTone(carrierFreq=carrierFreq, AMFreq=AMFreq, AMDepth=AMDepth,
@@ -211,7 +211,7 @@ function broadbandNoise(;spectrumLevel::Real=20, dur::Real=1, rampDur::Real=0.01
         error("Sound duration cannot be less than total duration of ramps")
     end
     if in(channel, ["mono", "right", "left", "diotic", "dichotic"]) == false
-        error("Channel must be one of of 'mono', 'right', 'left', 'diotic', or 'dichotic'")
+        error("`channel` must be one of 'mono', 'right', 'left', 'diotic', or 'dichotic'")
     end
 
     amp = sqrt(sf/2)*(10^((spectrumLevel - maxLevel) / 20))
@@ -314,7 +314,7 @@ function complexTone(;F0::Real=220, harmPhase::String="sine", lowHarm::Integer=1
         error("Sound duration cannot be less than total duration of ramps")
     end
     if in(channel, ["mono", "right", "left", "diotic", "odd left", "odd right"]) == false
-        error("Channel must be one of of 'mono', 'right', 'left', 'diotic', 'odd left', 'odd right'")
+        error("`channel` must be one of 'mono', 'right', 'left', 'diotic', 'odd left', 'odd right'")
     end
     if in(harmPhase, ["sine", "cosine", "alternating", "random", "schroeder"]) == false
         error("`harmPhase` must be one of 'sine', 'cosine', 'alternating', 'random', 'schroeder'")
@@ -446,6 +446,86 @@ function complexTone(;F0::Real=220, harmPhase::String="sine", lowHarm::Integer=1
     return snd
 end
 
+############################
+## FMTone
+############################
+@doc doc"""
+Generate a frequency modulated tone.
+
+##### Parameters
+
+* `carrierFreq`: Carrier frequency in hertz. This is the frequency of the tone at FM zero crossing.
+* `MF`: Modulation frequency in Hz.
+* `MI`: Modulation index (MI), also called beta. The MI is equal to deltaF/fm, where
+        deltaF is the maximum deviation of the instantaneous frequency from
+        the carrier frequency.
+* `phase`: Starting phase in radians.
+* `level`: Tone level in dB SPL. 
+* `dur`: Tone duration in seconds.
+* `rampDur`: Duration of the onset and offset ramps in seconds.
+* `channel`: Channel in which the tone will be generated, `mono`, `right`,
+  `left` or `diotic`
+* `sf`: Samplig frequency in Hz.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of
+  amplitude 1.
+
+##### Returns
+
+* `snd`: 2-dimensional array of floats
+       
+Examples
+
+```julia
+snd = FMTone(carrierFreq=1000, MF=40, MI=1, phase=0, level=55, dur=1,
+     rampDur=0.01, channel="diotic", sf=48000, maxLevel=100)
+```
+"""->
+
+function FMTone(;carrierFreq::Real=1000, MF::Real=40, MI::Real=1, phase::Real=0,
+           level::Real=60, dur::Real=1, rampDur::Real=0.01, channel::String="diotic",
+           sf::Real=48000, maxLevel::Real=101)
+
+    if dur < rampDur*2
+        error("Sound duration cannot be less than total duration of ramps")
+    end
+    if in(channel, ["mono", "right", "left", "diotic"]) == false
+        error("`channel` must be one of 'mono', 'right', 'left', or 'diotic'")
+    end
+    
+    amp = 10^((level - maxLevel) / 20)
+    nSamples = round(Int, (dur-rampDur*2) * sf)
+    nRamp = round(Int, rampDur * sf)
+    nTot = nSamples + (nRamp * 2)
+
+    timeAll = collect(0:nTot-1) / sf
+    timeRamp = collect(0:nRamp-1) 
+
+    snd_mono = zeros(nTot, 1)
+    snd_mono[1:nRamp, 1] = amp * ((1-cos(pi * timeRamp/nRamp))/2) .* sin(2*pi*carrierFreq*timeAll[1:nRamp] + MI*sin(2*pi*MF * timeAll[1:nRamp] + phase))
+    snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * sin(2*pi*carrierFreq * timeAll[nRamp+1:nRamp+nSamples] +MI * sin(2*pi*MF * timeAll[nRamp+1:nRamp+nSamples] + phase))
+    snd_mono[nRamp+nSamples+1:nTot, 1] = amp * ((1+cos(pi * timeRamp/nRamp))/2) .* sin(2*pi*carrierFreq * timeAll[nRamp+nSamples+1:nTot]+MI*sin(2*pi*MF * timeAll[nRamp+nSamples+1:nTot] + phase))
+
+    if channel == "mono"
+        snd = zeros(nTot, 1)
+    else
+        snd = zeros(nTot, 2)
+    end
+
+    if channel == "mono"
+        snd[:,1] = snd_mono
+    elseif channel == "right"
+        snd[:,2] = snd_mono
+    elseif channel == "left"
+        snd[:,1] = snd_mono
+    elseif channel == "diotic"
+        snd[:,1] = snd_mono
+        snd[:,2] = snd_mono
+    end
+
+    return snd
+
+end
+
 ################################
 ## hugginsPitch
 ################################
@@ -543,7 +623,7 @@ function hugginsPitch(;F0::Real=550, lowHarm::Int=1, highHarm::Int=1,
     end
 
     stretchHz = (F0*stretch)/100
-    nSamples = round(Int, dur * sf)
+    nSamples = round(Int, (dur-rampDur*2) * sf)#nSamples = round(Int, dur * sf)
     nRamp = round(Int, rampDur * sf)
     nTot = nSamples + (nRamp * 2)
     snd = zeros(nTot, 2)
@@ -713,7 +793,7 @@ function pureTone(;frequency::Real=1000, phase::Real=0, level::Real=65,
         error("Sound duration cannot be less than total duration of ramps")
     end
     if in(channel, ["mono", "right", "left", "diotic"]) == false
-        error("Channel must be one of of 'mono', 'right', 'left', or 'diotic'")
+        error("`channel` must be one of 'mono', 'right', 'left', or 'diotic'")
     end
 
     amp = 10^((level - maxLevel) / 20)   
@@ -725,9 +805,9 @@ function pureTone(;frequency::Real=1000, phase::Real=0, level::Real=65,
     timeRamp = collect(0:nRamp-1)
 
     if channel == "mono"
-        snd = zeros((nTot, 1))
+        snd = zeros(nTot, 1)
     else
-        snd = zeros((nTot, 2))
+        snd = zeros(nTot, 2)
     end
 
     snd_mono = zeros(nTot, 1)
@@ -786,7 +866,7 @@ function pureToneILD(;frequency::Real=1000, phase::Real=0,
         error("Sound duration cannot be less than total duration of ramps")
     end
     if in(channel, ["right", "left"]) == false
-        error("Channel must be one of 'right', or 'left'")
+        error("`channel` must be one of 'right', or 'left'")
     end
 
 
@@ -842,7 +922,7 @@ function pureToneIPD(;frequency::Real=1000, phase::Real=0, IPD::Real=0,
         error("Sound duration cannot be less than total duration of ramps")
     end
     if in(channel, ["right", "left"]) == false
-        error("Channel must be one of 'right', or 'left'")
+        error("`channel` must be one of 'right', or 'left'")
     end
 
 
@@ -896,7 +976,7 @@ function pureToneITD(;frequency::Real=1000, phase::Real=0, ITD::Real=0,
         error("Sound duration cannot be less than total duration of ramps")
     end
     if in(channel, ["right", "left"]) == false
-        error("Channel must be one of 'right', or 'left'")
+        error("`channel` must be one of 'right', or 'left'")
     end
 
 
@@ -945,7 +1025,7 @@ function pureToneIPDILD(;frequency::Real=1000, phase::Real=0, IPD::Real=0,
         error("Sound duration cannot be less than total duration of ramps")
     end
     if in(channel, ["right", "left"]) == false
-        error("Channel must be one of 'right', or 'left'")
+        error("`channel` must be one of 'right', or 'left'")
     end
 
     fixed = pureTone(frequency=frequency, phase=phase, level=level, dur=dur, rampDur=rampDur, channel="mono", sf=sf, maxLevel=maxLevel)
@@ -1001,7 +1081,7 @@ function pureToneITDILD(;frequency::Real=1000, phase::Real=0, ITD::Real=0,
         error("Sound duration cannot be less than total duration of ramps")
     end
     if in(channel, ["right", "left"]) == false
-        error("Channel must be one of 'right', or 'left'")
+        error("`channel` must be one of 'right', or 'left'")
     end
 
 
@@ -1041,7 +1121,7 @@ sil = silence(dur=2, sf=48000)
 function silence(;dur=1, channel="mono", sf=48000)
     nSamples = round(Int, dur * sf)
     if in(channel, ["mono", "diotic"]) == false
-        error("Channel must be one of 'mono', or 'diotic'")
+        error("`channel` must be one of 'mono', or 'diotic'")
     end
 
     if channel == "mono"
@@ -1088,7 +1168,7 @@ function steepNoise(;f1=900, f2=1000, level=50, dur=1, rampDur=0.01, channel="di
         error("Sound duration cannot be less than total duration of ramps")
     end
     if in(channel, ["mono", "right", "left", "diotic", "dichotic"]) == false
-        error("Channel must be one of 'mono', 'right', 'left', 'diotic', or 'dichotic'")
+        error("`channel` must be one of 'mono', 'right', 'left', 'diotic', or 'dichotic'")
     end
 
 

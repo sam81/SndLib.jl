@@ -70,12 +70,12 @@ modulation phase.
 ```julia
 snd = AMToneIPD(carrierFreq=1000, AMFreq=20, AMDepth=1, carrierPhase=0,
 AMPhase=0, carrierIPD=0, AMIPD=pi/2, level=65, dur=1, rampDur=0.01,
-channel="diotic", sf=48000, maxLevel=100)
+channel="right", sf=48000, maxLevel=100)
 ```
 
 
 *source:*
-[SndLib/src/snd_generate.jl:130](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:133](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -106,6 +106,44 @@ ERBDistance(1000, 1200)
 
 *source:*
 [SndLib/src/utils.jl:147](file:///home/sam/.julia/v0.3/SndLib/src/utils.jl)
+
+---
+
+<a id="method__fmtone.1" class="lexicon_definition"></a>
+#### FMTone() [¶](#method__fmtone.1)
+Generate a frequency modulated tone.
+
+##### Parameters
+
+* `carrierFreq`: Carrier frequency in hertz. This is the frequency of the tone at FM zero crossing.
+* `MF`: Modulation frequency in Hz.
+* `MI`: Modulation index (MI), also called beta. The MI is equal to deltaF/fm, where
+        deltaF is the maximum deviation of the instantaneous frequency from
+        the carrier frequency.
+* `phase`: Starting phase in radians.
+* `level`: Tone level in dB SPL. 
+* `dur`: Tone duration in seconds.
+* `rampDur`: Duration of the onset and offset ramps in seconds.
+* `channel`: Channel in which the tone will be generated, `mono`, `right`,
+  `left` or `diotic`
+* `sf`: Samplig frequency in Hz.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of
+  amplitude 1.
+
+##### Returns
+
+* `snd`: 2-dimensional array of floats
+       
+Examples
+
+```julia
+snd = FMTone(carrierFreq=1000, MF=40, MI=1, phase=0, level=55, dur=1,
+     rampDur=0.01, channel="diotic", sf=48000, maxLevel=100)
+```
+
+
+*source:*
+[SndLib/src/snd_generate.jl:482](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -142,7 +180,7 @@ irn = IRN(delay=1/440, gain=1, iterations=6, configuration="add same",
 
 
 *source:*
-[SndLib/src/snd_generate.jl:602](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:724](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -181,7 +219,7 @@ channel="left", sf=48000) #this generates a Dichotic Pitch
 ---
 
 <a id="method__itdtoipd.1" class="lexicon_definition"></a>
-#### ITDToIPD{T<:Real}(ITD::Real, freq::Union(T<:Real, AbstractArray{T<:Real, 1})) [¶](#method__itdtoipd.1)
+#### ITDToIPD{T<:Real}(ITD::Real, freq::Union(AbstractArray{T<:Real, 1}, T<:Real)) [¶](#method__itdtoipd.1)
 
 Convert an interaural time difference to an equivalent interaural
 phase difference for a given frequency.
@@ -205,7 +243,7 @@ ITDToIPD(itd, 1000)
 
 
 *source:*
-[SndLib/src/snd_process.jl:483](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:487](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -269,7 +307,7 @@ noise = broadbandNoise(spectrumLevel=20, dur=180, rampDur=10,
 
 
 *source:*
-[SndLib/src/snd_generate.jl:186](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:196](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -339,7 +377,7 @@ Synthetise a complex tone.
 
 
 *source:*
-[SndLib/src/snd_generate.jl:295](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:308](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -441,7 +479,7 @@ bpNoise = fir2Filt!(400, 600, 4000, 4400,
 ---
 
 <a id="method__freqfromcentinterval.1" class="lexicon_definition"></a>
-#### freqFromCentInterval{T<:Real, P<:Real}(f1::Union(T<:Real, AbstractArray{T<:Real, 1}), deltaCent::Union(AbstractArray{P<:Real, 1}, P<:Real)) [¶](#method__freqfromcentinterval.1)
+#### freqFromCentInterval{T<:Real, P<:Real}(f1::Union(AbstractArray{T<:Real, 1}, T<:Real), deltaCent::Union(AbstractArray{P<:Real, 1}, P<:Real)) [¶](#method__freqfromcentinterval.1)
 Compute the frequency, in Hz, corresponding to a distance,
 in equivalent cents of `deltaCents` from `f1`.
 
@@ -472,7 +510,7 @@ freqFromCentInterval(100, [1, 1.5, 2])
 ---
 
 <a id="method__freqfromerbinterval.1" class="lexicon_definition"></a>
-#### freqFromERBInterval{T<:Real, P<:Real}(f1::Union(T<:Real, AbstractArray{T<:Real, 1}), deltaERB::Union(AbstractArray{P<:Real, 1}, P<:Real)) [¶](#method__freqfromerbinterval.1)
+#### freqFromERBInterval{T<:Real, P<:Real}(f1::Union(AbstractArray{T<:Real, 1}, T<:Real), deltaERB::Union(AbstractArray{P<:Real, 1}, P<:Real)) [¶](#method__freqfromerbinterval.1)
 Compute the frequency, in Hz, corresponding to a distance,
 in equivalent rectangular bandwidths (ERBs), of `deltaERB` from `f1`.
 
@@ -581,19 +619,23 @@ Synthetise a complex Huggings Pitch.
         will be equal to `spectrumLevel` at 1 kHz.
 * `bandwidth`: Bandwidth of the frequency regions in which the
         phase transitions occurr.
-* `bandwidthUnit`: `Hz`, `Cent`, or `ERB`. Defines whether the bandwith of the decorrelated bands is expressed
-        in hertz (Hz), cents (Cent), or equivalent rectangular bandwidths (ERB).
+* `bandwidthUnit`: `Hz`, `Cent`, or `ERB`. Defines whether the bandwith of
+  the decorrelated bands is expressed in hertz (Hz), cents (Cent), or
+  equivalent rectangular bandwidths (ERB).
 * `dichoticDifference`: `IPD linear`, `IPD stepped`, `IPD random`, `ITD`.
-        Selects whether the decorrelation in the target regions will be achieved
-        by applying an interaural phase shift that increases linearly in the transition regions
-        (`IPD linear`), a costant interaural phase shift (`IPD stepped`),
-        a costant interaural time difference (ITD), or a random IPD shift (`IPD random`).
-* `dichoticDifferenceValue`: For `IPD linear` this is the phase difference between the start and the end
-        of each transition region, in radians.
-        For `IPD stepped`, this is the phase offset, in radians, between the correlated
-        and the uncorrelated regions.
-        For `ITD` this is the ITD in the transition region, in seconds.
-        For `IPD random`, this is the range of phase shift randomization in the uncorrelated regions.
+   Selects whether the decorrelation in the target regions will be achieved
+   by applying an interaural phase shift that increases linearly in the
+   transition regions
+   (`IPD linear`), a costant interaural phase shift (`IPD stepped`),
+   a costant interaural time difference (ITD), or a random IPD shift
+   (`IPD random`).
+* `dichoticDifferenceValue`: For `IPD linear` this is the phase difference
+   between the start and the end of each transition region, in radians.
+   For `IPD stepped`, this is the phase offset, in radians, between
+   the correlated and the uncorrelated regions.
+   For `ITD` this is the ITD in the transition region, in seconds.
+   For `IPD random`, this is the range of phase shift randomization
+   in the uncorrelated regions.
 * `phaseRelationship`: `NoSpi` or `NpiSo`. If `NoSpi`, the phase of the regions within each frequency band will
         be shifted. If `NpiSo`, the phase of the regions between each
         frequency band will be shifted.
@@ -623,13 +665,13 @@ References
 hp = hugginsPitch(F0=300, lowHarm=1, highHarm=3, spectrumLevel=45,
 bandwidth=100, bandwidthUnit="Hz", dichoticDifference="IPD stepped",
 dichoticDifferenceValue=pi, phaseRelationship="NoSpi", stretch=0,
-noiseType="White", duration=0.4, ramp=0.01, sf=48000, maxLevel=101)
+noiseType="white", dur=0.4, rampDur=0.01, sf=48000, maxLevel=101)
 ```
     
 
 
 *source:*
-[SndLib/src/snd_generate.jl:494](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:597](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -692,7 +734,7 @@ noise = makePink!(noise, sf=48000, ref=1000)
 
 
 *source:*
-[SndLib/src/snd_process.jl:604](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:613](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -732,7 +774,7 @@ channel=2, sf=48000) #this generates a Dichotic Pitch
 
 
 *source:*
-[SndLib/src/snd_process.jl:527](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:531](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -765,7 +807,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:657](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:786](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -798,7 +840,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:727](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:859](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -831,7 +873,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:776](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:916](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -865,7 +907,7 @@ dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:863](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:1019](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -898,7 +940,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:822](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:970](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -932,7 +974,7 @@ ILD=10, dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:912](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:1075](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -959,7 +1001,7 @@ noise = scaleLevel(noise, level=-10) #reduce level by 10 dB
 
 
 *source:*
-[SndLib/src/snd_process.jl:651](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:660](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -989,7 +1031,7 @@ sil = silence(dur=2, sf=48000)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:947](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:1120](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -1006,7 +1048,7 @@ Windows is not currently supported.
 
 
 *source:*
-[SndLib/src/snd_process.jl:675](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:684](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -1023,7 +1065,7 @@ Windows is not currently supported.
 
 
 *source:*
-[SndLib/src/snd_process.jl:675](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:684](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -1040,7 +1082,7 @@ Windows is not currently supported.
 
 
 *source:*
-[SndLib/src/snd_process.jl:675](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
+[SndLib/src/snd_process.jl:684](file:///home/sam/.julia/v0.3/SndLib/src/snd_process.jl)
 
 ---
 
@@ -1051,12 +1093,12 @@ sinusoids.
 
 ##### Parameters:
 
-* `frequency1`: Start frequency of the noise.
-* `frequency2`: End frequency of the noise.
+* `f1`: Start frequency of the noise.
+* `f2`: End frequency of the noise.
 * `level`: Noise spectrum level.
 * `dur`: Tone duration in seconds.
 * `rampDur`: Duration of the onset and offset ramps in seconds.
-* `channel`: `right`, `left` or `diotic`. Channel in which the tone will be generated.
+* `channel`: `mono`, `right`, `left` or `diotic`. Channel in which the tone will be generated.
 * `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
@@ -1067,12 +1109,12 @@ sinusoids.
 ##### Examples:
 
 ```julia
-nbNoise = steepNoise(frequency1=440, frequency2=660, level=65,
+nbNoise = steepNoise(f1=440, f2=660, level=65,
 dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 
 
 
 *source:*
-[SndLib/src/snd_generate.jl:987](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:1164](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
