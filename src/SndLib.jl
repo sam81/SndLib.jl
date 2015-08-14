@@ -23,7 +23,7 @@
 #SndLib.jls is a module to generate sounds in julia
 module SndLib
 
-export addSounds, AMTone, AMToneIPD,
+export addSounds, AMTone, AMToneIPD, asynchChord,
 broadbandNoise,
 centDistance, complexTone,
 delayAdd!,

@@ -49,8 +49,8 @@ snd = addSounds(snd1, snd2, delay=1, sf=48000)
 """ ->
 
 function addSounds{T<:Real, P<:Real}(snd1::Array{T, 2}, snd2::Array{P, 2}; delay::Real=0, sf::Real=48000)
-    nChans1 = size(snd1)[1]
-    nChans2 = size(snd2)[1]
+    nChans1 = size(snd1)[2]
+    nChans2 = size(snd2)[2]
     if nChans1 != nChans2
         error("snd1 and snd2 must have the same number of channels")
     end
@@ -65,7 +65,7 @@ function addSounds{T<:Real, P<:Real}(snd1::Array{T, 2}, snd2::Array{P, 2}; delay
 
     # Seg1           Seg2              Seg3
     
-    nSampSeg1 = round(delay * sf)
+    nSampSeg1 = round(Int, delay * sf)
     if nSampSeg1 < nSnd1
         nSampSeg2 = nSnd1 - nSampSeg1
         nSampSeg3 = nSnd2 - nSampSeg2

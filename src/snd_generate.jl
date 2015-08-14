@@ -166,6 +166,69 @@ function AMToneIPD(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
 end
 
 #############################
+## asynchChord
+#############################
+@doc doc"""
+Generate an asynchronous chord.
+
+This function will add a set of pure tones with a given
+stimulus onset asynchrony (SOA). The temporal order of the
+successive tones is random.
+
+##### Parameters
+
+* `freqs`: Frequencies of the chord components in hertz.
+* `levels`: Level of each chord component in dB SPL.
+* `phases`: Starting phase of each chord component.
+* `tonesDur`: Duration of the tones composing the chord in seconds.
+        All tones have the same duration.
+* `tonesRampDur`: Duration of the onset and offset ramps in seconds.
+        The total duration of the tones will be tonesDuration+ramp*2.
+* `tonesChannel`: Channel in which the tones will be generated, one of `mono`, `right`, `left` or `diotic`.
+* `SOA`: Onset asynchrony between the chord components.
+* `sf`: Samplig frequency in Hz.
+* `maxLevel`: float
+        Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
+
+##### Returns
+
+* `snd` : 2-dimensional array of floats
+       
+##### Examples
+
+```julia
+freqs = [250, 500, 1000]
+levels = [50, 50, 50]
+phases = [0, 0, 0]
+c1 = asynchChord(freqs=freqs, levels=levels, phases=phases,
+tonesDur=0.2, tonesRampDur=0.01, tonesChannel="diotic",
+SOA=0.06, sf=48000, maxLevel=100)
+```
+"""->
+
+function asynchChord{T<:Real}(;freqs::AbstractVector{T}=[200, 400], levels::AbstractVector{T}=[60, 60], phases::AbstractVector{T}=[0, 0], tonesDur::Real=0.2, tonesRampDur::Real=0.01, tonesChannel::String="diotic", SOA::Real=0.06, sf::Real=48000, maxLevel::Real=101)
+     
+    seq = collect(1:length(freqs))
+    shuffle!(seq)
+    i = 1
+    thisFreq = freqs[seq[i]]; thisLev = levels[seq[i]]; thisPhase = phases[seq[i]]
+    snd = pureTone(frequency=thisFreq, phase=thisPhase,
+                   level=thisLev, dur=tonesDur, rampDur=tonesRampDur,
+                   channel=tonesChannel, sf=sf, maxLevel=maxLevel)
+
+    for i=2:length(seq)
+        thisFreq = freqs[seq[i]]; thisLev = levels[seq[i]]; thisPhase = phases[seq[i]]
+        thisTone = pureTone(frequency=thisFreq, phase=thisPhase,
+                            level=thisLev, dur=tonesDur,
+                            rampDur=tonesRampDur,
+                            channel=tonesChannel, sf=sf, maxLevel=maxLevel)
+
+        snd = addSounds(snd, thisTone, delay=SOA*i, sf=sf)
+    end
+    return snd
+end
+
+#############################
 ## broadbandNoise
 #############################
 @doc doc"""

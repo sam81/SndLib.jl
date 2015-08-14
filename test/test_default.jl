@@ -2,6 +2,7 @@ using SndLib
 
 AMTone()
 AMToneIPD()
+asynchChord()
 broadbandNoise()
 complexTone()
 FMComplex2()
