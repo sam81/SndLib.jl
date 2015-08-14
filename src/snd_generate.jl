@@ -197,9 +197,9 @@ successive tones is random.
 ##### Examples
 
 ```julia
-freqs = [250, 500, 1000]
-levels = [50, 50, 50]
-phases = [0, 0, 0]
+freqs = [250, 500, 1000, 1500]
+levels = [50, 50, 50, 50]
+phases = [0, 0, 0, 0]
 c1 = asynchChord(freqs=freqs, levels=levels, phases=phases,
 tonesDur=0.2, tonesRampDur=0.01, tonesChannel="diotic",
 SOA=0.06, sf=48000, maxLevel=100)
@@ -508,6 +508,99 @@ function complexTone(;F0::Real=220, harmPhase::String="sine", lowHarm::Integer=1
 
     return snd
 end
+
+##############################
+## expAMNoise
+##############################
+@doc doc"""
+Generate a sinusoidally amplitude-modulated noise with an exponentially
+modulated AM frequency.
+
+##### Parameters
+
+* `carrierFreq`: Carrier AM frequency in hertz. 
+* `MF`: Amplitude modulation frequency in Hz.
+* `deltaCents`: AM frequency excursion in cents. The instataneous AM frequency of the noise will vary from `carrierFreq`**(-`deltaCents`/1200) to `carrierFreq`**(`deltaCents`/1200).
+* `MFPhase`: Starting phase of the AM modulation in radians.
+* `AMDepth`: Amplitude modulation depth.
+* `spectrumLevel`: Noise spectrum level in dB SPL. 
+* `dur`: Tone duration in seconds.
+* `rampDur`: Duration of the onset and offset ramps in seconds.
+* `channel`: Channel in which the noise will be generated, one of `right`, `left`, `diotic`, or `dichotic`.
+* `sf`: Samplig frequency in Hz.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of
+        amplitude 1.
+
+##### Returns
+
+* `snd` : 2-dimensional array of floats
+       
+##### Examples
+
+```julia
+snd = expAMNoise(carrierFreq=150, MF=2.4, deltaCents=1200, MFPhase=pi, AMDepth = 1,
+     spectrumLevel=24, dur=0.4, rampDur=0.01, channel="diotic", sf=48000, maxLevel=101)
+```
+
+"""->
+function expAMNoise(;carrierFreq::Real=150, MF::Real=2.4, deltaCents::Real=1200, MFPhase::Real=pi, AMDepth::Real=1, spectrumLevel::Real=30, dur::Real=0.4, rampDur::Real=0.01, channel::String="diotic", sf::Real=48000, maxLevel::Real=101)
+
+    if dur < rampDur*2
+        error("Sound duration cannot be less than total duration of ramps")
+    end
+    if in(channel, ["mono", "right", "left", "diotic", "dichotic"]) == false
+        error("`channel` must be one of 'mono', 'right', 'left', 'diotic', or 'dichotic'")
+    end
+
+    amp = sqrt(sf/2)*(10^((spectrumLevel - maxLevel) / 20))
+    nSamples = round(Int, (dur-rampDur*2) * sf)
+    nRamp = round(Int, rampDur * sf)
+    nTot = nSamples + (nRamp * 2)
+
+    timeAll = collect(0:nTot-1) / sf
+    timeRamp = collect(0:nRamp-1) 
+    noise = (rand(nTot) + rand(nTot)) - (rand(nTot) + rand(nTot))
+    RMS = sqrt(mean(noise.*noise))
+    #scale the noise so that the maxAmplitude goes from -1 to 1
+    #since A = RMS*sqrt(2)
+    scaled_noise = noise / (RMS * sqrt(2))
+
+    if channel == "dichotic"
+        noise2 = (rand(nTot) + rand(nTot)) - (rand(nTot) + rand(nTot))
+        RMS2 = sqrt(mean(noise.*noise))
+        scaled_noise2 = noise2 / (RMS2 * sqrt(2))
+    end
+
+    fArr = 2*pi*carrierFreq*2.^((deltaCents/1200)*cos(2*pi*MF*timeAll+MFPhase))
+    ang = (cumsum(fArr)/sf)
+    snd_mono = zeros(nTot, 1)
+    snd_mono[1:nRamp, 1] = amp * (1 + AMDepth*sin(ang[1:nRamp])) .* ((1-cos(pi * timeRamp/nRamp))/2) .* scaled_noise[1:nRamp]
+    snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * (1 + AMDepth*sin(ang[nRamp+1:nRamp+nSamples])) .* scaled_noise[nRamp+1:nRamp+nSamples]
+    snd_mono[nRamp+nSamples+1:nTot, 1] = amp * (1 + AMDepth*sin(ang[nRamp+nSamples+1:nTot])) .* ((1+cos(pi * timeRamp/nRamp))/2) .* scaled_noise[nRamp+nSamples+1:nTot]
+    
+    
+    if channel == "mono"
+        snd = snd_mono
+    else
+        snd = zeros(nTot, 2)
+    end
+    if channel == "right"
+        snd[:,2] = snd_mono
+    elseif channel == "left"
+        snd[:,1] = snd_mono
+    elseif channel == "diotic"
+        snd[:,1] = snd_mono
+        snd[:,2] = snd_mono
+    elseif channel == "dichotic"
+        snd[:,2] = snd_mono
+        snd[1:nRamp, 1] = amp * (1 + AMDepth*sin(ang[1:nRamp])) .* ((1-cos(pi * timeRamp/nRamp))/2) .* scaled_noise2[1:nRamp]
+        snd[nRamp+1:nRamp+nSamples, 1] = amp * (1 + AMDepth*sin(ang[nRamp+1:nRamp+nSamples])) .* scaled_noise2[nRamp+1:nRamp+nSamples]
+        snd[nRamp+nSamples+1:nTot, 1] = amp * (1 + AMDepth*sin(ang[nRamp+nSamples+1:nTot])) .* ((1+cos(pi * timeRamp/nRamp))/2) .* scaled_noise2[nRamp+nSamples+1:nTot]
+    end
+    
+    return snd
+end
+
 
 ####################################
 ## FMComplex2
@@ -935,7 +1028,7 @@ function hugginsPitch(;F0::Real=550, lowHarm::Int=1, highHarm::Int=1,
     end
 
     stretchHz = (F0*stretch)/100
-    nSamples = round(Int, (dur-rampDur*2) * sf)#nSamples = round(Int, dur * sf)
+    nSamples = round(Int, (dur-rampDur*2) * sf)
     nRamp = round(Int, rampDur * sf)
     nTot = nSamples + (nRamp * 2)
     snd = zeros(nTot, 2)

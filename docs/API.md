@@ -158,7 +158,7 @@ snd = FMComplex2(midF0=200, harmPhase="sine",
 
 
 *source:*
-[SndLib/src/snd_generate.jl:560](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:653](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -196,7 +196,7 @@ snd = FMTone(carrierFreq=1000, MF=40, MI=1, phase=0, level=55, dur=1,
 
 
 *source:*
-[SndLib/src/snd_generate.jl:794](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:887](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -233,7 +233,7 @@ irn = IRN(delay=1/440, gain=1, iterations=6, configuration="add same",
 
 
 *source:*
-[SndLib/src/snd_generate.jl:1036](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:1129](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -361,9 +361,9 @@ successive tones is random.
 ##### Examples
 
 ```julia
-freqs = [250, 500, 1000]
-levels = [50, 50, 50]
-phases = [0, 0, 0]
+freqs = [250, 500, 1000, 1500]
+levels = [50, 50, 50, 50]
+phases = [0, 0, 0, 0]
 c1 = asynchChord(freqs=freqs, levels=levels, phases=phases,
 tonesDur=0.2, tonesRampDur=0.01, tonesChannel="diotic",
 SOA=0.06, sf=48000, maxLevel=100)
@@ -515,6 +515,44 @@ irn = delayAdd!(noise, delay=1/440, gain=1, iterations=6, configuration="add sam
 
 ---
 
+<a id="method__expamnoise.1" class="lexicon_definition"></a>
+#### expAMNoise() [¶](#method__expamnoise.1)
+Generate a sinusoidally amplitude-modulated noise with an exponentially
+modulated AM frequency.
+
+##### Parameters
+
+* `carrierFreq`: Carrier AM frequency in hertz. 
+* `MF`: Amplitude modulation frequency in Hz.
+* `deltaCents`: AM frequency excursion in cents. The instataneous AM frequency of the noise will vary from `carrierFreq`**(-`deltaCents`/1200) to `carrierFreq`**(`deltaCents`/1200).
+* `MFPhase`: Starting phase of the AM modulation in radians.
+* `AMDepth`: Amplitude modulation depth.
+* `spectrumLevel`: Noise spectrum level in dB SPL. 
+* `dur`: Tone duration in seconds.
+* `rampDur`: Duration of the onset and offset ramps in seconds.
+* `channel`: Channel in which the noise will be generated, one of `right`, `left`, `diotic`, or `dichotic`.
+* `sf`: Samplig frequency in Hz.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of
+        amplitude 1.
+
+##### Returns
+
+* `snd` : 2-dimensional array of floats
+       
+##### Examples
+
+```julia
+snd = expAMNoise(carrierFreq=150, MF=2.4, deltaCents=1200, MFPhase=pi, AMDepth = 1,
+     spectrumLevel=24, dur=0.4, rampDur=0.01, channel="diotic", sf=48000, maxLevel=101)
+```
+
+
+
+*source:*
+[SndLib/src/snd_generate.jl:545](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+
+---
+
 <a id="method__fir2filt.1" class="lexicon_definition"></a>
 #### fir2Filt!{T<:Real}(f1::Real, f2::Real, f3::Real, f4::Real, snd::Array{T<:Real, 2}) [¶](#method__fir2filt.1)
 Filter signal with a fir2 filter.
@@ -576,7 +614,7 @@ bpNoise = fir2Filt!(400, 600, 4000, 4400,
 ---
 
 <a id="method__freqfromcentinterval.1" class="lexicon_definition"></a>
-#### freqFromCentInterval{T<:Real, P<:Real}(f1::Union(T<:Real, AbstractArray{T<:Real, 1}), deltaCent::Union(P<:Real, AbstractArray{P<:Real, 1})) [¶](#method__freqfromcentinterval.1)
+#### freqFromCentInterval{T<:Real, P<:Real}(f1::Union(T<:Real, AbstractArray{T<:Real, 1}), deltaCent::Union(AbstractArray{P<:Real, 1}, P<:Real)) [¶](#method__freqfromcentinterval.1)
 Compute the frequency, in Hz, corresponding to a distance,
 in equivalent cents of `deltaCents` from `f1`.
 
@@ -607,7 +645,7 @@ freqFromCentInterval(100, [1, 1.5, 2])
 ---
 
 <a id="method__freqfromerbinterval.1" class="lexicon_definition"></a>
-#### freqFromERBInterval{T<:Real, P<:Real}(f1::Union(T<:Real, AbstractArray{T<:Real, 1}), deltaERB::Union(P<:Real, AbstractArray{P<:Real, 1})) [¶](#method__freqfromerbinterval.1)
+#### freqFromERBInterval{T<:Real, P<:Real}(f1::Union(T<:Real, AbstractArray{T<:Real, 1}), deltaERB::Union(AbstractArray{P<:Real, 1}, P<:Real)) [¶](#method__freqfromerbinterval.1)
 Compute the frequency, in Hz, corresponding to a distance,
 in equivalent rectangular bandwidths (ERBs), of `deltaERB` from `f1`.
 
@@ -670,7 +708,7 @@ gate!(noise, rampDur=0.01, sf=48000)
 ---
 
 <a id="method__getrms.1" class="lexicon_definition"></a>
-#### getRMS{T<:Real}(sig::Array{T<:Real, 2}, channel::Union(String, Integer)) [¶](#method__getrms.1)
+#### getRMS{T<:Real}(sig::Array{T<:Real, 2}, channel::Union(Integer, String)) [¶](#method__getrms.1)
 Compute the root mean square (RMS) value of the signal.
 
 ##### Parameters
@@ -768,7 +806,7 @@ noiseType="white", dur=0.4, rampDur=0.01, sf=48000, maxLevel=101)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:909](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:1002](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -904,7 +942,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:1098](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:1191](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -937,7 +975,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:1171](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:1264](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -970,7 +1008,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:1228](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:1321](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -1004,7 +1042,7 @@ dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:1331](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:1424](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -1037,7 +1075,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:1282](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:1375](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -1071,7 +1109,7 @@ ILD=10, dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:1387](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:1480](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -1128,7 +1166,7 @@ sil = silence(dur=2, sf=48000)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:1432](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:1525](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
 ---
 
@@ -1213,5 +1251,5 @@ dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 
 *source:*
-[SndLib/src/snd_generate.jl:1476](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
+[SndLib/src/snd_generate.jl:1569](file:///home/sam/.julia/v0.3/SndLib/src/snd_generate.jl)
 
