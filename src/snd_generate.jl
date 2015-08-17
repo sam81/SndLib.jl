@@ -26,7 +26,7 @@
 @doc doc"""
 Generate an amplitude modulated tone.
 
-##### Parameters:
+##### Parameters
 
 * `carrierFreq`: Carrier frequency in hertz.
 * `AMFreq`:  Amplitude modulation frequency in Hz.
@@ -328,7 +328,6 @@ function broadbandNoise(;spectrumLevel::Real=20, dur::Real=1, rampDur::Real=0.01
     return snd
 end
 
-
 ############################
 ## complexTone
 ############################
@@ -521,7 +520,7 @@ modulated AM frequency.
 * `carrierFreq`: Carrier AM frequency in hertz. 
 * `MF`: Amplitude modulation frequency in Hz.
 * `deltaCents`: AM frequency excursion in cents. The instataneous AM frequency of the noise will vary from `carrierFreq`**(-`deltaCents`/1200) to `carrierFreq`**(`deltaCents`/1200).
-* `MFPhase`: Starting phase of the AM modulation in radians.
+* `FMPhase`: Starting phase of the AM modulation in radians.
 * `AMDepth`: Amplitude modulation depth.
 * `spectrumLevel`: Noise spectrum level in dB SPL. 
 * `dur`: Tone duration in seconds.
@@ -529,7 +528,7 @@ modulated AM frequency.
 * `channel`: Channel in which the noise will be generated, one of `right`, `left`, `diotic`, or `dichotic`.
 * `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of
-        amplitude 1.
+  amplitude 1.
 
 ##### Returns
 
@@ -538,12 +537,12 @@ modulated AM frequency.
 ##### Examples
 
 ```julia
-snd = expAMNoise(carrierFreq=150, MF=2.4, deltaCents=1200, MFPhase=pi, AMDepth = 1,
+snd = expAMNoise(carrierFreq=150, MF=2.4, deltaCents=1200, FMPhase=pi, AMDepth = 1,
      spectrumLevel=24, dur=0.4, rampDur=0.01, channel="diotic", sf=48000, maxLevel=101)
 ```
 
 """->
-function expAMNoise(;carrierFreq::Real=150, MF::Real=2.4, deltaCents::Real=1200, MFPhase::Real=pi, AMDepth::Real=1, spectrumLevel::Real=30, dur::Real=0.4, rampDur::Real=0.01, channel::String="diotic", sf::Real=48000, maxLevel::Real=101)
+function expAMNoise(;carrierFreq::Real=150, MF::Real=2.4, deltaCents::Real=1200, FMPhase::Real=pi, AMDepth::Real=1, spectrumLevel::Real=30, dur::Real=0.4, rampDur::Real=0.01, channel::String="diotic", sf::Real=48000, maxLevel::Real=101)
 
     if dur < rampDur*2
         error("Sound duration cannot be less than total duration of ramps")
@@ -571,14 +570,13 @@ function expAMNoise(;carrierFreq::Real=150, MF::Real=2.4, deltaCents::Real=1200,
         scaled_noise2 = noise2 / (RMS2 * sqrt(2))
     end
 
-    fArr = 2*pi*carrierFreq*2.^((deltaCents/1200)*cos(2*pi*MF*timeAll+MFPhase))
+    fArr = 2*pi*carrierFreq*2.^((deltaCents/1200)*cos(2*pi*MF*timeAll+FMPhase))
     ang = (cumsum(fArr)/sf)
     snd_mono = zeros(nTot, 1)
     snd_mono[1:nRamp, 1] = amp * (1 + AMDepth*sin(ang[1:nRamp])) .* ((1-cos(pi * timeRamp/nRamp))/2) .* scaled_noise[1:nRamp]
     snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * (1 + AMDepth*sin(ang[nRamp+1:nRamp+nSamples])) .* scaled_noise[nRamp+1:nRamp+nSamples]
     snd_mono[nRamp+nSamples+1:nTot, 1] = amp * (1 + AMDepth*sin(ang[nRamp+nSamples+1:nTot])) .* ((1+cos(pi * timeRamp/nRamp))/2) .* scaled_noise[nRamp+nSamples+1:nTot]
-    
-    
+      
     if channel == "mono"
         snd = snd_mono
     else
@@ -601,6 +599,72 @@ function expAMNoise(;carrierFreq::Real=150, MF::Real=2.4, deltaCents::Real=1200,
     return snd
 end
 
+###################################
+## expSinFMTone
+###################################
+@doc doc"""
+Generate a tone frequency modulated with an exponential sinusoid.
+
+##### Parameters
+
+* `carrierFreq`: Carrier frequency in hertz. 
+* `MF`: Modulation frequency in Hz.
+* `deltaCents`: Frequency excursion in cents. The instataneous frequency of the tone
+         will vary from `carrierFreq**(-deltaCents/1200)` to `carrierFreq**(deltaCents/1200)`.
+* `FMPhase`: Starting FM phase in radians.
+* `phase`: Starting phase in radians.
+* `level`: Tone level in dB SPL. 
+* `dur`: Tone duration in seconds.
+* `rampDur`: Duration of the onset and offset ramps in seconds.
+* `channel`: Channel in which the tone will be generated, one of "mono", `right`, `left` or `diotic`.
+* `sf`: Samplig frequency in Hz.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of
+        amplitude 1.
+
+##### Returns
+
+`snd` : 2-dimensional array of floats
+       
+##### Examples
+
+```julia
+snd = expSinFMTone(carrierFreq=1000, MF=40, deltaCents=1200, FMPhase=0, phase=0, level=55, 
+    dur=1, rampDur=0.01, channel="diotic", sf=48000, maxLevel=100)
+```
+"""->
+
+function expSinFMTone(;carrierFreq::Real=1000, MF::Real=40, deltaCents::Real=1200, FMPhase::Real=0, phase::Real=0, level::Real=60, dur::Real=1, rampDur::Real=0.01, channel::String="diotic", sf::Real=48000, maxLevel::Real=101)
+    amp = 10^((level - maxLevel) / 20)
+    nSamples = round(Int, (dur-rampDur*2) * sf)
+    nRamp = round(Int, rampDur * sf)
+    nTot = nSamples + (nRamp * 2)
+
+    timeAll = collect(0:nTot-1) / sf
+    timeRamp = collect(0:nRamp-1)
+    fArr = 2*pi*carrierFreq*2.^((deltaCents/1200)*cos(2*pi*MF*timeAll+FMPhase))
+    ang = (cumsum(fArr)/sf) + phase
+
+    snd_mono = zeros(nTot, 1)
+    snd_mono[1:nRamp, 1] = amp * ((1-cos(pi * timeRamp/nRamp))/2) .* sin(ang[1:nRamp])
+    snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * sin(ang[nRamp+1:nRamp+nSamples])
+    snd_mono[nRamp+nSamples+1:nTot, 1] = amp * ((1+cos(pi * timeRamp/nRamp))/2) .* sin(ang[nRamp+nSamples+1:nTot])
+    if channel == "mono"
+        snd = zeros(nTot, 1)
+    else
+        snd = zeros(nTot, 2)
+    end
+    if channel == "mono"
+        snd[:,1] = snd_mono
+    elseif channel == "right"
+        snd[:,2] = snd_mono
+    elseif channel == "left"
+        snd[:,1] = snd_mono
+    elseif channel == "diotic"
+        snd[:,1] = snd_mono
+        snd[:,2] = snd_mono
+    end
+    return snd
+end
 
 ####################################
 ## FMComplex2
