@@ -30,15 +30,18 @@ Generate an amplitude modulated tone.
 
 * `carrierFreq`: Carrier frequency in hertz.
 * `AMFreq`:  Amplitude modulation frequency in Hz.
-* `AMDepth`:  Amplitude modulation depth (a value of 1 corresponds to 100% modulation). 
+* `AMDepth`: Amplitude modulation depth (a value of 1 corresponds to 100%
+  modulation). 
 * `carrierPhase`: Starting phase in radians.
 * `AMPhase`: Starting AM phase in radians.
 * `level`: Tone level in dB SPL. 
 * `dur`: Tone duration in seconds.
 * `rampDur`: Duration of the onset and offset ramps in seconds.
-* `channel`: Channel in which the tone will be generated, one of `mono`, `right`, ``left`, or `diotic`.
+* `channel`: Channel in which the tone will be generated, one of `mono`, `right`,
+  `left`, or `diotic`.
 * `sf`: Samplig frequency in Hz.
-* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of
+  amplitude 1.
 
 ##### Returns:
 
@@ -537,12 +540,12 @@ modulated AM frequency.
 ##### Examples
 
 ```julia
-snd = expAMNoise(carrierFreq=150, MF=2.4, deltaCents=1200, FMPhase=pi, AMDepth = 1,
-     spectrumLevel=24, dur=0.4, rampDur=0.01, channel="diotic", sf=48000, maxLevel=101)
+snd = expAMNoise(carrierFreq=150, MF=2.5, deltaCents=600, FMPhase=pi, AMDepth = 1,
+     spectrumLevel=30, dur=0.4, rampDur=0.01, channel="diotic", sf=48000, maxLevel=101)
 ```
 
 """->
-function expAMNoise(;carrierFreq::Real=150, MF::Real=2.4, deltaCents::Real=1200, FMPhase::Real=pi, AMDepth::Real=1, spectrumLevel::Real=30, dur::Real=0.4, rampDur::Real=0.01, channel::String="diotic", sf::Real=48000, maxLevel::Real=101)
+function expAMNoise(;carrierFreq::Real=150, MF::Real=2.5, deltaCents::Real=600, FMPhase::Real=pi, AMDepth::Real=1, spectrumLevel::Real=30, dur::Real=0.4, rampDur::Real=0.01, channel::String="diotic", sf::Real=48000, maxLevel::Real=101)
 
     if dur < rampDur*2
         error("Sound duration cannot be less than total duration of ramps")
@@ -628,12 +631,14 @@ Generate a tone frequency modulated with an exponential sinusoid.
 ##### Examples
 
 ```julia
-snd = expSinFMTone(carrierFreq=1000, MF=40, deltaCents=1200, FMPhase=0, phase=0, level=55, 
-    dur=1, rampDur=0.01, channel="diotic", sf=48000, maxLevel=100)
+tone_peak = expSinFMTone(carrierFreq=450, MF=5, deltaCents=300, FMPhase=pi, phase=0, level=60, 
+    dur=0.2, rampDur=0.01, channel="diotic", sf=48000, maxLevel=101)
+tone_trough = expSinFMTone(carrierFreq=450, MF=5, deltaCents=300, FMPhase=0, phase=0, level=60, 
+    dur=0.2, rampDur=0.01, channel="diotic", sf=48000, maxLevel=101)
 ```
 """->
 
-function expSinFMTone(;carrierFreq::Real=1000, MF::Real=40, deltaCents::Real=1200, FMPhase::Real=0, phase::Real=0, level::Real=60, dur::Real=1, rampDur::Real=0.01, channel::String="diotic", sf::Real=48000, maxLevel::Real=101)
+function expSinFMTone(;carrierFreq::Real=450, MF::Real=5, deltaCents::Real=600, FMPhase::Real=pi, phase::Real=0, level::Real=60, dur::Real=0.2, rampDur::Real=0.01, channel::String="diotic", sf::Real=48000, maxLevel::Real=101)
     amp = 10^((level - maxLevel) / 20)
     nSamples = round(Int, (dur-rampDur*2) * sf)
     nRamp = round(Int, rampDur * sf)
@@ -706,23 +711,31 @@ starting and stopping at a chosen time after the tone onset.
 Examples
 
 ```julia
-snd = FMComplex2(midF0=200, harmPhase="sine",
+tone_up = FMComplex2(midF0=140, harmPhase="sine",
                  lowHarm=1, highHarm=10,
-                 level=60, dur=1, rampDur=0.01,
-                 MF=5, FMDepth=100, FMStartPhase=0,
-                 FMStartTime=0, FMDur=1,
+                 level=60, dur=0.45, rampDur=0.01,
+                 MF=1.25, FMDepth=40, FMStartPhase=1.5*pi,
+                 FMStartTime=0.025, FMDur=0.4,
+                 levelAdj=true, channel="diotic",
+                 sf=48000, maxLevel=101)
+tone_down = FMComplex2(midF0=140, harmPhase="sine",
+                 lowHarm=1, highHarm=10,
+                 level=60, dur=0.45, rampDur=0.01,
+                 MF=1.25, FMDepth=40, FMStartPhase=0.5*pi,
+                 FMStartTime=0.025, FMDur=0.4,
                  levelAdj=true, channel="diotic",
                  sf=48000, maxLevel=101)
 ```
 """->
 
-function FMComplex2(;midF0::Real=200, harmPhase::String="sine",
-                     lowHarm::Integer=1, highHarm::Integer=10,
-                     level::Real=60, dur::Real=1, rampDur::Real=0.01,
-                     MF::Real=5, FMDepth::Real=100, FMStartPhase::Real=0,
-                     FMStartTime::Real=0, FMDur::Real=1,
-                     levelAdj::Bool=true, channel::String="diotic",
-                     sf::Real=48000, maxLevel::Real=101)
+function FMComplex2(;midF0::Real=140, harmPhase::String="sine",
+                    lowHarm::Integer=1, highHarm::Integer=10,
+                    level::Real=60, dur::Real=0.45, rampDur::Real=0.01,
+                    MF::Real=1.25, FMDepth::Real=40,
+                    FMStartPhase::Real=1.5*pi,
+                    FMStartTime::Real=0.025, FMDur::Real=0.4,
+                    levelAdj::Bool=true, channel::String="diotic",
+                    sf::Real=48000, maxLevel::Real=101)
 
         
     if dur < rampDur*2
@@ -1048,11 +1061,11 @@ Synthetise a complex Huggings Pitch.
 * `snd`: 2-dimensional array of floats.
         The array has dimensions (nSamples, nChannels).
 
-References
+##### References
 
-.. [CH] Cramer, E. M., & Huggins, W. H. (1958). Creation of Pitch through Binaural Interaction. J. Acoust. Soc. Am., 30(5), 413. 
-.. [AS] Akeroyd, M. A., & Summerfield, a Q. (2000). The lateralization of simple dichotic pitches. J. Acoust. Soc. Am., 108(1), 316–334.
-.. [ZH] Zhang, P. X., & Hartmann, W. M. (2008). Lateralization of Huggins pitch. J. Acoust. Soc. Am., 124(6), 3873–87. 
+* [Cramer, E. M., & Huggins, W. H. (1958). Creation of Pitch through Binaural Interaction. J. Acoust. Soc. Am., 30(5), 413.](http://dx.doi.org/10.1121/1.1909628)
+* [Akeroyd, M. A., & Summerfield, a Q. (2000). The lateralization of simple dichotic pitches. J. Acoust. Soc. Am., 108(1), 316–334.](http://dx.doi.org/10.1121/1.429467)
+* [Zhang, P. X., & Hartmann, W. M. (2008). Lateralization of Huggins pitch. J. Acoust. Soc. Am., 124(6), 3873–87.](http://dx.doi.org/10.1121/1.2977683)
 
 ##### Examples
 
@@ -1284,8 +1297,9 @@ function pureTone(;frequency::Real=1000, phase::Real=0, level::Real=65,
     snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * sin(2*pi*frequency * timeAll[nRamp+1:nRamp+nSamples] + phase)
     snd_mono[nRamp+nSamples+1:nTot, 1] = amp * ((1 + cos(pi * timeRamp/nRamp))/2) .* sin(2*pi*frequency * timeAll[nRamp+nSamples+1:nTot] + phase)
     
-    
-    if channel == "right"
+    if channel == "mono"
+        snd[:,1] = snd_mono
+    elseif channel == "right"
         snd[:,2] = snd_mono
     elseif channel == "left"
         snd[:,1] = snd_mono
@@ -1328,7 +1342,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 """ ->
 
 function pureToneILD(;frequency::Real=1000, phase::Real=0,
-                     level::Real=65, ILD::Real=0, dur::Real=1, rampDur::Real=0.01,
+                     level::Real=65, ILD::Real=10, dur::Real=1, rampDur::Real=0.01,
                      channel::String="right", sf::Real=48000, maxLevel::Real=101)
 
     if dur < rampDur*2
@@ -1384,7 +1398,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 """ ->
 
-function pureToneIPD(;frequency::Real=1000, phase::Real=0, IPD::Real=0,
+function pureToneIPD(;frequency::Real=1000, phase::Real=0, IPD::Real=pi,
                      level::Real=65, dur::Real=1, rampDur::Real=0.01,
                      channel::String="right", sf::Real=48000, maxLevel::Real=101)
     if dur < rampDur*2
@@ -1395,8 +1409,11 @@ function pureToneIPD(;frequency::Real=1000, phase::Real=0, IPD::Real=0,
     end
 
 
-    fixed = pureTone(frequency=frequency, phase=phase, level=level, dur=dur, rampDur=rampDur, channel="mono", sf=sf, maxLevel=maxLevel)
-    shifted = pureTone(frequency=frequency, phase=phase+IPD, level=level, dur=dur, rampDur=rampDur, channel="mono", sf=sf, maxLevel=maxLevel)
+    fixed = pureTone(frequency=frequency, phase=phase, level=level, dur=dur,
+                     rampDur=rampDur, channel="mono", sf=sf, maxLevel=maxLevel)
+    shifted = pureTone(frequency=frequency, phase=phase+IPD, level=level,
+                       dur=dur, rampDur=rampDur, channel="mono", sf=sf,
+                       maxLevel=maxLevel)
     snd = zeros(size(fixed)[1], 2)
     if channel == "right"
         snd[:,1] = fixed
@@ -1433,7 +1450,7 @@ Synthetise a pure tone with an interaural time difference.
 ##### Examples:
 
 ```julia
-pt = pureToneITD(frequency=440, phase=0, ITD=0.004/1000, level=65, dur=1,
+pt = pureToneITD(frequency=440, phase=0, ITD=0.004/10, level=65, dur=1,
 rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 """ ->

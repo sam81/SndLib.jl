@@ -342,8 +342,8 @@ Compute the root mean square (RMS) value of the signal.
 
 * `sig`: The signal for which the RMS needs to be computed.
 * `channel`: Either an integer indicating the channel number,
-or `each` for a list of the RMS values in each channel, or `all`
-for the RMS across all channels.
+  `each` for a list of the RMS values in each channel, or `all`
+  for the RMS across all channels.
 ##### Returns
 
 * `RMS`: The RMS of `sig`
