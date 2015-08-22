@@ -964,8 +964,8 @@ snd = FMTone(carrierFreq=1000, MF=40, MI=1, phase=0, level=55, dur=1,
 """->
 
 function FMTone(;carrierFreq::Real=1000, MF::Real=40, MI::Real=1, phase::Real=0,
-           level::Real=60, dur::Real=1, rampDur::Real=0.01, channel::String="diotic",
-           sf::Real=48000, maxLevel::Real=101)
+                level::Real=60, dur::Real=1, rampDur::Real=0.01,
+                channel::String="diotic", sf::Real=48000, maxLevel::Real=101)
 
     if dur < rampDur*2
         error("Sound duration cannot be less than total duration of ramps")
@@ -1648,7 +1648,8 @@ dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 
 """ ->
-function steepNoise(;f1=900, f2=1000, level=50, dur=1, rampDur=0.01, channel="diotic", sf=48000, maxLevel=101)
+function steepNoise(;f1=900, f2=1000, level=50, dur=1, rampDur=0.01,
+                    channel="diotic", sf=48000, maxLevel=101)
     
     if dur < rampDur*2
         error("Sound duration cannot be less than total duration of ramps")
