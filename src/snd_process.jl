@@ -360,7 +360,7 @@ getRMS(pt, "all")
 ```
 """ ->
 function getRMS{T<:Real}(sig::Array{T,2}, channel::Union{AbstractString, Integer})
-    RMS = (FloatingPoint)[]
+    RMS = (AbstractFloat)[]
     if channel == "all"
         push!(RMS, sqrt(mean(sig.*sig)))
         #RMS = sqrt(mean(sig.*sig))
