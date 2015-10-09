@@ -58,7 +58,7 @@ maxLevel=100)
 
 function AMTone(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
                 carrierPhase::Real=0, AMPhase::Real=1.5*pi, level::Real=60,
-                dur::Real=1, rampDur::Real=0.01, channel::String="diotic",
+                dur::Real=1, rampDur::Real=0.01, channel::AbstractString="diotic",
                 sf::Real=48000, maxLevel::Real=101)
     
     if dur < rampDur*2
@@ -138,7 +138,7 @@ channel="right", sf=48000, maxLevel=100)
 function AMToneIPD(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
                 carrierPhase::Real=0, AMPhase::Real=1.5*pi, carrierIPD::Real=0,
                 AMIPD::Real=0, level::Real=60,
-                dur::Real=1, rampDur::Real=0.01, channel::String="right",
+                dur::Real=1, rampDur::Real=0.01, channel::AbstractString="right",
                 sf::Real=48000, maxLevel::Real=101)
 
     if dur < rampDur*2
@@ -209,7 +209,7 @@ SOA=0.06, sf=48000, maxLevel=100)
 ```
 """->
 
-function asynchChord{T<:Real}(;freqs::AbstractVector{T}=[200, 400], levels::AbstractVector{T}=[60, 60], phases::AbstractVector{T}=[0, 0], tonesDur::Real=0.2, tonesRampDur::Real=0.01, tonesChannel::String="diotic", SOA::Real=0.06, sf::Real=48000, maxLevel::Real=101)
+function asynchChord{T<:Real}(;freqs::AbstractVector{T}=[200, 400], levels::AbstractVector{T}=[60, 60], phases::AbstractVector{T}=[0, 0], tonesDur::Real=0.2, tonesRampDur::Real=0.01, tonesChannel::AbstractString="diotic", SOA::Real=0.06, sf::Real=48000, maxLevel::Real=101)
      
     seq = collect(1:length(freqs))
     shuffle!(seq)
@@ -261,7 +261,7 @@ noise = broadbandNoise(spectrumLevel=20, dur=180, rampDur=10,
 
 """ ->
 function broadbandNoise(;spectrumLevel::Real=20, dur::Real=1, rampDur::Real=0.01,
-                        channel::String="diotic", sf::Real=48000, maxLevel::Real=101)
+                        channel::AbstractString="diotic", sf::Real=48000, maxLevel::Real=101)
 
     ## Comments:
     ## The intensity spectrum level in dB is SL
@@ -371,8 +371,8 @@ Synthetise a complex tone.
 ```
 
 """ ->
-function complexTone(;F0::Real=220, harmPhase::String="sine", lowHarm::Integer=1, highHarm::Integer=10, stretch::Real=0,
-                     level::Real=60, dur::Real=1, rampDur::Real=0.01, channel::String="diotic", sf::Real=48000,
+function complexTone(;F0::Real=220, harmPhase::AbstractString="sine", lowHarm::Integer=1, highHarm::Integer=10, stretch::Real=0,
+                     level::Real=60, dur::Real=1, rampDur::Real=0.01, channel::AbstractString="diotic", sf::Real=48000,
                      maxLevel::Real=101)
     
     if dur < rampDur*2
@@ -545,7 +545,7 @@ snd = expAMNoise(carrierFreq=150, MF=2.5, deltaCents=600, FMPhase=pi, AMDepth = 
 ```
 
 """->
-function expAMNoise(;carrierFreq::Real=150, MF::Real=2.5, deltaCents::Real=600, FMPhase::Real=pi, AMDepth::Real=1, spectrumLevel::Real=30, dur::Real=0.4, rampDur::Real=0.01, channel::String="diotic", sf::Real=48000, maxLevel::Real=101)
+function expAMNoise(;carrierFreq::Real=150, MF::Real=2.5, deltaCents::Real=600, FMPhase::Real=pi, AMDepth::Real=1, spectrumLevel::Real=30, dur::Real=0.4, rampDur::Real=0.01, channel::AbstractString="diotic", sf::Real=48000, maxLevel::Real=101)
 
     if dur < rampDur*2
         error("Sound duration cannot be less than total duration of ramps")
@@ -638,7 +638,7 @@ tone_trough = expSinFMTone(carrierFreq=450, MF=5, deltaCents=300, FMPhase=0, pha
 ```
 """->
 
-function expSinFMTone(;carrierFreq::Real=450, MF::Real=5, deltaCents::Real=600, FMPhase::Real=pi, phase::Real=0, level::Real=60, dur::Real=0.2, rampDur::Real=0.01, channel::String="diotic", sf::Real=48000, maxLevel::Real=101)
+function expSinFMTone(;carrierFreq::Real=450, MF::Real=5, deltaCents::Real=600, FMPhase::Real=pi, phase::Real=0, level::Real=60, dur::Real=0.2, rampDur::Real=0.01, channel::AbstractString="diotic", sf::Real=48000, maxLevel::Real=101)
     amp = 10^((level - maxLevel) / 20)
     nSamples = round(Int, (dur-rampDur*2) * sf)
     nRamp = round(Int, rampDur * sf)
@@ -728,13 +728,13 @@ tone_down = FMComplex2(midF0=140, harmPhase="sine",
 ```
 """->
 
-function FMComplex2(;midF0::Real=140, harmPhase::String="sine",
+function FMComplex2(;midF0::Real=140, harmPhase::AbstractString="sine",
                     lowHarm::Integer=1, highHarm::Integer=10,
                     level::Real=60, dur::Real=0.45, rampDur::Real=0.01,
                     MF::Real=1.25, FMDepth::Real=40,
                     FMStartPhase::Real=1.5*pi,
                     FMStartTime::Real=0.025, FMDur::Real=0.4,
-                    levelAdj::Bool=true, channel::String="diotic",
+                    levelAdj::Bool=true, channel::AbstractString="diotic",
                     sf::Real=48000, maxLevel::Real=101)
 
         
@@ -965,7 +965,7 @@ snd = FMTone(carrierFreq=1000, MF=40, MI=1, phase=0, level=55, dur=1,
 
 function FMTone(;carrierFreq::Real=1000, MF::Real=40, MI::Real=1, phase::Real=0,
                 level::Real=60, dur::Real=1, rampDur::Real=0.01,
-                channel::String="diotic", sf::Real=48000, maxLevel::Real=101)
+                channel::AbstractString="diotic", sf::Real=48000, maxLevel::Real=101)
 
     if dur < rampDur*2
         error("Sound duration cannot be less than total duration of ramps")
@@ -1080,9 +1080,9 @@ noiseType="white", dur=0.4, rampDur=0.01, sf=48000, maxLevel=101)
 
 function hugginsPitch(;F0::Real=550, lowHarm::Int=1, highHarm::Int=1,
                       spectrumLevel::Real=30, bandwidth::Real=1,
-                      bandwidthUnit::String="ERB", dichoticDifference::String="IPD stepped",
-                      dichoticDifferenceValue::Real=pi, phaseRelationship::String="NoSpi",
-                      stretch::Real=0, noiseType::String="white", dur::Real=1, rampDur::Real=0.01,
+                      bandwidthUnit::AbstractString="ERB", dichoticDifference::AbstractString="IPD stepped",
+                      dichoticDifferenceValue::Real=pi, phaseRelationship::AbstractString="NoSpi",
+                      stretch::Real=0, noiseType::AbstractString="white", dur::Real=1, rampDur::Real=0.01,
                       sf::Real=48000, maxLevel::Real=101)
 
     if dur < rampDur*2
@@ -1206,8 +1206,8 @@ irn = IRN(delay=1/440, gain=1, iterations=6, configuration="add same",
 """ ->
 
 function IRN(;delay::Real=0.001, gain::Real=1, iterations::Integer=6,
-             configuration::String="add same", spectrumLevel::Real=25,
-             dur::Real=1, rampDur::Real=0.01, channel::String="diotic",
+             configuration::AbstractString="add same", spectrumLevel::Real=25,
+             dur::Real=1, rampDur::Real=0.01, channel::AbstractString="diotic",
              sf::Real=48000, maxLevel::Real=101)
 
     if dur < rampDur*2
@@ -1268,7 +1268,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 """ ->
 function pureTone(;frequency::Real=1000, phase::Real=0, level::Real=65,
                   dur::Real=1, rampDur::Real=0.01,
-                  channel::String="diotic", sf::Real=48000,
+                  channel::AbstractString="diotic", sf::Real=48000,
                   maxLevel::Real=101) 
     
     if dur < rampDur*2
@@ -1343,7 +1343,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 function pureToneILD(;frequency::Real=1000, phase::Real=0,
                      level::Real=65, ILD::Real=10, dur::Real=1, rampDur::Real=0.01,
-                     channel::String="right", sf::Real=48000, maxLevel::Real=101)
+                     channel::AbstractString="right", sf::Real=48000, maxLevel::Real=101)
 
     if dur < rampDur*2
         error("Sound duration cannot be less than total duration of ramps")
@@ -1400,7 +1400,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 function pureToneIPD(;frequency::Real=1000, phase::Real=0, IPD::Real=pi,
                      level::Real=65, dur::Real=1, rampDur::Real=0.01,
-                     channel::String="right", sf::Real=48000, maxLevel::Real=101)
+                     channel::AbstractString="right", sf::Real=48000, maxLevel::Real=101)
     if dur < rampDur*2
         error("Sound duration cannot be less than total duration of ramps")
     end
@@ -1457,7 +1457,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 function pureToneITD(;frequency::Real=1000, phase::Real=0, ITD::Real=0,
                      level::Real=65, dur::Real=1, rampDur::Real=0.01,
-                     channel::String="right", sf::Real=48000, maxLevel::Real=101)
+                     channel::AbstractString="right", sf::Real=48000, maxLevel::Real=101)
     if dur < rampDur*2
         error("Sound duration cannot be less than total duration of ramps")
     end
@@ -1506,7 +1506,7 @@ dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 function pureToneIPDILD(;frequency::Real=1000, phase::Real=0, IPD::Real=0,
                      level::Real=65, ILD::Real=0, dur::Real=1, rampDur::Real=0.01,
-                     channel::String="right", sf::Real=48000, maxLevel::Real=101)
+                     channel::AbstractString="right", sf::Real=48000, maxLevel::Real=101)
     if dur < rampDur*2
         error("Sound duration cannot be less than total duration of ramps")
     end
@@ -1562,7 +1562,7 @@ ILD=10, dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 
 function pureToneITDILD(;frequency::Real=1000, phase::Real=0, ITD::Real=0,
                      level::Real=65, ILD::Real=0, dur::Real=1, rampDur::Real=0.01,
-                     channel::String="right", sf::Real=48000, maxLevel::Real=101)
+                     channel::AbstractString="right", sf::Real=48000, maxLevel::Real=101)
     if dur < rampDur*2
         error("Sound duration cannot be less than total duration of ramps")
     end

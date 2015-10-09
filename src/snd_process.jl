@@ -134,8 +134,8 @@ irn = delayAdd!(noise, delay=1/440, gain=1, iterations=6, configuration="add sam
 
 function delayAdd!{T<:Real, P<:Integer}(sig::Array{T,2}; delay::Real=0.01,
                                         gain::Real=1, iterations::Integer=1,
-                                        configuration::String="add same",
-                                        channel::Union(P, AbstractVector{P})=[1:size(sig)[2]],
+                                        configuration::AbstractString="add same",
+                                        channel::Union{P, AbstractVector{P}}=[1:size(sig)[2]],
                                         sf::Real=48000)
 
     if in(configuration, ["add same", "add original"]) == false
@@ -359,7 +359,7 @@ getRMS(pt, "each")
 getRMS(pt, "all")
 ```
 """ ->
-function getRMS{T<:Real}(sig::Array{T,2}, channel::Union(String, Integer))
+function getRMS{T<:Real}(sig::Array{T,2}, channel::Union{AbstractString, Integer})
     RMS = (FloatingPoint)[]
     if channel == "all"
         push!(RMS, sqrt(mean(sig.*sig)))
@@ -407,7 +407,7 @@ hp = ITDShift!(noise, 500, 600, ITD=300/1000000,
 channel="left", sf=48000) #this generates a Dichotic Pitch
 ```
 """->
-function ITDShift!{T<:Real}(sig::Array{T,2}, f1::Real, f2::Real; ITD::Real=300/1000000, channel::String="left", sf::Real=48000)
+function ITDShift!{T<:Real}(sig::Array{T,2}, f1::Real, f2::Real; ITD::Real=300/1000000, channel::AbstractString="left", sf::Real=48000)
 
     if in(channel, ["right", "left"]) == false
         error("Channel must be one of 'right', or 'left'")
@@ -486,7 +486,7 @@ ITDToIPD(itd, 1000)
 ```
 """ ->
 
-function ITDToIPD{T<:Real}(ITD::Real, freq::Union(T, AbstractVector{T}))
+function ITDToIPD{T<:Real}(ITD::Real, freq::Union{T, AbstractVector{T}})
     
     IPD = (ITD ./ (1./freq)) * 2 * pi
     
@@ -530,7 +530,7 @@ channel=2, sf=48000) #this generates a Dichotic Pitch
 ```
 """->
 
-function phaseShift!{T<:Real, P<:Integer}(sig::Array{T, 2}, f1::Real, f2::Real; phaseShift::Real=pi, shiftType::String="step", channel::Union(P, AbstractVector{P})=1, sf::Real=48000)
+function phaseShift!{T<:Real, P<:Integer}(sig::Array{T, 2}, f1::Real, f2::Real; phaseShift::Real=pi, shiftType::AbstractString="step", channel::Union{P, AbstractVector{P}}=1, sf::Real=48000)
 
     if in(shiftType, ["linear", "random", "step"]) == false
         error("`shiftType`must be one of 'linear', 'random', 'step'")
