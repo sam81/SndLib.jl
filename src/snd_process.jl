@@ -1,6 +1,6 @@
 ## The MIT License (MIT)
 
-## Copyright (c) 2013-2015 Samuele Carcagno <sam.carcagno@gmail.com>
+## Copyright (c) 2013-2016 Samuele Carcagno <sam.carcagno@gmail.com>
 
 ## Permission is hereby granted, free of charge, to any person obtaining a copy
 ## of this software and associated documentation files (the "Software"), to deal
@@ -35,8 +35,8 @@ Add or concatenate two sounds.
 
 ##### Returns
 
-* `snd` : array with dimensions (nSamples, nChannels) 
-       
+* `snd` : array with dimensions (nSamples, nChannels)
+
 ##### Examples
 
 ```julia
@@ -46,7 +46,7 @@ snd2 = pureTone(frequency=880, phase=0, level=65, dur=1,
 rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 snd = addSounds(snd1, snd2, delay=1, sf=48000)
 ```
-""" ->
+"""->
 
 function addSounds{T<:Real, P<:Real}(snd1::Array{T, 2}, snd2::Array{P, 2}; delay::Real=0, sf::Real=48000)
     nChans1 = size(snd1)[2]
@@ -64,7 +64,7 @@ function addSounds{T<:Real, P<:Real}(snd1::Array{T, 2}, snd2::Array{P, 2}; delay
     #            ...............................
 
     # Seg1           Seg2              Seg3
-    
+
     nSampSeg1 = round(Int, delay * sf)
     if nSampSeg1 < nSnd1
         nSampSeg2 = nSnd1 - nSampSeg1
@@ -86,7 +86,7 @@ function addSounds{T<:Real, P<:Real}(snd1::Array{T, 2}, snd2::Array{P, 2}; delay
         if nSampSeg2 < nSnd2
             snd = vcat(snd, seg3)
         end
-            
+
     else
         seg1 = snd1
         seg2 = silence(dur=delay-snd1Duration, channel=ifelse(nChans==1, "mono", "diotic"), sf=sf)
@@ -94,7 +94,7 @@ function addSounds{T<:Real, P<:Real}(snd1::Array{T, 2}, snd2::Array{P, 2}; delay
         snd = vcat(seg1, seg2)
         snd = vcat(snd, seg3)
     end
-        
+
     return snd
 end
 
@@ -121,7 +121,7 @@ If `add original`, the original signal is added to delayed signal of the current
 
 ##### References
 
-.. [YPS1996] Yost, W. A., Patterson, R., & Sheft, S. (1996). A time domain description for the pitch strength of iterated rippled noise. J. Acoust. Soc. Am., 99(2), 1066–78. 
+.. [YPS1996] Yost, W. A., Patterson, R., & Sheft, S. (1996). A time domain description for the pitch strength of iterated rippled noise. J. Acoust. Soc. Am., 99(2), 1066–78.
 
 ##### Examples
 
@@ -130,7 +130,7 @@ noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
 channel="diotic", sf=48000, maxLevel=100)
 irn = delayAdd!(noise, delay=1/440, gain=1, iterations=6, configuration="add same", channel=[1,2], sf=48000)
 ```
-""" ->
+"""->
 
 function delayAdd!{T<:Real, P<:Integer}(sig::Array{T,2}; delay::Real=0.01,
                                         gain::Real=1, iterations::Integer=1,
@@ -196,13 +196,13 @@ increasing order.
 ##### Parameters:
 
 * `f1`: Frequency in hertz of the point at which the transition
-        for the low-frequency cutoff ends. 
+        for the low-frequency cutoff ends.
 * `f2`: Frequency in hertz of the point at which the transition
         for the low-frequency cutoff starts.
 * `f3`: Frequency in hertz of the point at which the transition
         for the high-frequency cutoff starts.
 * `f4`: Frequency in hertz of the point at which the transition
-        for the high-frequency cutoff ends. 
+        for the high-frequency cutoff ends.
 * `snd`: The sound to be filtered.
 * `nTaps`: Number of filter taps.
 * `sf`: Sampling frequency of `snd`.
@@ -219,24 +219,24 @@ frequency (sf/2) the filter will be high pass.
 In the other cases the filter will be band pass.
 
 This function uses internally 'scipy.signal.firwin2'.
-       
+
 ##### Examples
 
 ```julia
 noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
      channel="diotic", sf=48000, maxLevel=100)
-lpNoise = fir2Filt!(0, 0, 1000, 1200, 
+lpNoise = fir2Filt!(0, 0, 1000, 1200,
      noise, nTaps=256, sf=48000) #lowpass filter
 noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
      channel="diotic", sf=48000, maxLevel=100)
-hpNoise = fir2Filt!(0, 0, 2400, 2600, 
+hpNoise = fir2Filt!(0, 0, 2400, 2600,
      noise, nTaps=256, sf=48000) #highpass filter
 noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
      channel="diotic", sf=48000, maxLevel=100)
-bpNoise = fir2Filt!(400, 600, 4000, 4400, 
+bpNoise = fir2Filt!(400, 600, 4000, 4400,
      noise, nTaps=256, sf=48000) #bandpass filter
 ```
-""" ->
+"""->
 function fir2Filt!{T<:Real}(f1::Real, f2::Real, f3::Real, f4::Real, snd::Array{T, 2}; nTaps::Integer=256, sf::Real=48000)
 
     f1 = (f1 * 2) / sf
@@ -247,22 +247,22 @@ function fir2Filt!{T<:Real}(f1::Real, f2::Real, f3::Real, f4::Real, snd::Array{T
     if f2 == 0 #low pass
         f = [0, f3, f4, 1]
         m = [1, 1, 0.00003, 0]
-        
+
     elseif f3 < 1 #bandpass
         f = [0, f1, f2, ((f2+f3)/2), f3, f4, 1]
         m = [0, 0.00003, 1, 1, 1, 0.00003, 0]
-        
+
     else #high pass
         f = [0, f1, f2, 0.999999, 1] #scipy wants that gain at the Nyquist is 0
         m = [0, 0.00003, 1, 1, 0]
     end
-        
-    b = convert(Array{eltype(snd),1}, scisig.firwin2(nTaps,f,m))  
+
+    b = convert(Array{eltype(snd),1}, scisig.firwin2(nTaps,f,m))
     nChans = size(snd)[2]
     for i=1:nChans
         snd[:, i] = fftconvolve(snd[:,i], b, "same")
     end
-    
+
     return snd
 end
 
@@ -318,7 +318,7 @@ noise = broadbandNoise(spectrumLevel=40, dur=2, rampDur=0,
 channel="diotic", sf=48000, maxLevel=100)
 gate!(noise, rampDur=0.01, sf=48000)
 ```
-""" ->
+"""->
 function gate!{T<:Real}(sig::Array{T, 2}; rampDur::Real=0.01, sf::Real=48000)
 
     nRamp = round(Int, rampDur * sf)
@@ -358,7 +358,7 @@ getRMS(pt, 2)
 getRMS(pt, "each")
 getRMS(pt, "all")
 ```
-""" ->
+"""->
 function getRMS{T<:Real}(sig::Array{T,2}, channel::Union{AbstractString, Integer})
     RMS = (AbstractFloat)[]
     if channel == "all"
@@ -388,12 +388,12 @@ Set the ITD of a sound within the frequency region bounded by `f1` and `f2`
 * `sig`: Input signal.
 * `f1`: The start point in Hertz of the frequency region in which
         to apply the ITD.
-* `f2`: The end point in Hertz of the frequency region in which 
+* `f2`: The end point in Hertz of the frequency region in which
         to apply the ITD.
 * `ITD`: The amount of ITD shift in seconds
 * `channel`: `right` or `left`. The channel in which to apply the shift.
 * `sf`: The sampling frequency of the sound.
-        
+
 ##### Returns
 
 * `out` : 2-dimensional array of floats
@@ -419,7 +419,7 @@ function ITDShift!{T<:Real}(sig::Array{T,2}, f1::Real, f2::Real; ITD::Real=300/1
     #compute the frequencies of the first half of the FFT
     freqArray1 = collect(0:nUniquePnts) * (sf / fftPoints)
     #remove DC offset and nyquist for the second half of the FFT
-    freqArray2 = -flipdim(collect(1:(nUniquePnts-1)),1) * (sf / fftPoints) 
+    freqArray2 = -flipdim(collect(1:(nUniquePnts-1)),1) * (sf / fftPoints)
     #find the indexes of the frequencies for which to set the ITD for the first half of the FFT
     sh1 = find((freqArray1 .>= f1) & (freqArray1 .<= f2))
     #same as above for the second half of the FFT
@@ -431,17 +431,17 @@ function ITDShift!{T<:Real}(sig::Array{T,2}, f1::Real, f2::Real; ITD::Real=300/1
     #get the indexes of the first half of the FFT
     p1Start = 1; p1End = length(freqArray1)
     #get the indexes of the second half of the FFT
-    p2Start = length(freqArray1)+1; p2End = fftPoints 
-        
+    p2Start = length(freqArray1)+1; p2End = fftPoints
+
     if channel == "left"
         x = fft(sig[:,1])#, fftPoints)
     elseif channel == "right"
         x = fft(sig[:,2])#, fftPoints)
     end
-    
+
     x1 = x[p1Start:p1End] #first half of the FFT
     x2 = x[p2Start:p2End] #second half of the FFT
-    x1mag = abs(x1); x2mag = abs(x2) 
+    x1mag = abs(x1); x2mag = abs(x2)
     x1Phase =  angle(x1); x2Phase =  angle(x2);
     x1Phase[sh1] = x1Phase[sh1] + phaseShiftArray1 #change phases
     x2Phase[sh2] = x2Phase[sh2] + phaseShiftArray2
@@ -449,7 +449,7 @@ function ITDShift!{T<:Real}(sig::Array{T,2}, f1::Real, f2::Real; ITD::Real=300/1
     x2 = x2mag .* (cos(x2Phase) + (1im * sin(x2Phase)))
     x = vcat(x1, x2)
     x = real(ifft(x)) #inverse transform to get the sound back
-    
+
     if channel == "left"
         sig[:,1] = x[1:nSamples]
     elseif channel == "right"
@@ -475,7 +475,7 @@ phase difference for a given frequency.
 
 ##### Returns
 
-`ipd`: 
+`ipd`:
 
 ##### Examples
 
@@ -484,12 +484,12 @@ itd = 300 #microseconds
 itd = 300/1000000 #convert to seconds
 ITDToIPD(itd, 1000)
 ```
-""" ->
+"""->
 
 function ITDToIPD{T<:Real}(ITD::Real, freq::Union{T, AbstractVector{T}})
-    
+
     IPD = (ITD ./ (1./freq)) * 2 * pi
-    
+
     return IPD
 end
 
@@ -506,7 +506,7 @@ Shift the interaural phases of a sound within a given frequency region.
         phase-shifted in hertz.
 * `f2`: The end point of the frequency region to be
         phase-shifted in hertz.
-* `phaseShift`: The amount of phase shift in radians. 
+* `phaseShift`: The amount of phase shift in radians.
 * `shiftType`: If `linear` the phase changes progressively
         on a linear Hz scale from X to X+`phaseShift` from f1 to f2.
         If `step` `phaseShift` is added as a constant to the
@@ -515,7 +515,7 @@ Shift the interaural phases of a sound within a given frequency region.
         is added to each frequency component from `f1` to `f2`.
 * `channel`: The channel(s) in which to apply the phase shift.
 * `sf`: The sampling frequency of the sound.
-        
+
 ##### Returns
 
 * `out`: 2-dimensional array of floats
@@ -535,7 +535,7 @@ function phaseShift!{T<:Real, P<:Integer}(sig::Array{T, 2}, f1::Real, f2::Real; 
     if in(shiftType, ["linear", "random", "step"]) == false
         error("`shiftType`must be one of 'linear', 'random', 'step'")
     end
-    
+
     nSamples = size(sig)[1]
     nChans = size(sig)[2]
     fftPoints = nSamples#nextpow2(nSamples)
@@ -610,10 +610,10 @@ noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
 channel="diotic", sf=48000, maxLevel=100)
 noise = makePink!(noise, sf=48000, ref=1000)
 ```
-""" ->
+"""->
 
 function makePink!{T<:Real}(sig::Array{T, 2}; sf::Real=48000, ref::Real=1000)
-    
+
     nSamples = size(sig)[1]
     nChans = size(sig)[2]
     ref = 1 + (ref * nSamples/sf)
@@ -649,7 +649,7 @@ Increase or decrease the amplitude of a sound signal.
 ##### Returns:
 
 * `sig`: 2-dimensional array of floats
-       
+
 ##### Examples:
 
 ```julia
@@ -657,10 +657,10 @@ noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
 channel="diotic", sf=48000, maxLevel=100)
 noise = scaleLevel(noise, level=-10) #reduce level by 10 dB
 ```
-""" ->
+"""->
 
 function scaleLevel{T<:Real}(sig::Array{T, 2}; level::Real=10)
-    
+
     #10**(level/20) is the amplitude corresponding to level
     #by multiplying the amplitudes we're adding the decibels
     # 20*log10(a1*a2) = 20*log10(a1) + 20*log10(a2)
@@ -681,7 +681,7 @@ Windows is not currently supported.
 * `snd`: The sound to be played.
 * `sf`: The sampling frequency.
 
-""" ->
+"""->
 function sound{T<:Real}(snd::Array{T,2}, sf::Integer=48000, nbits::Integer=32)
     tmp = tempname()
     wavwrite(snd, tmp, Fs=sf, nbits=nbits)

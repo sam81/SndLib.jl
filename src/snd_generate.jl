@@ -1,6 +1,6 @@
 ## The MIT License (MIT)
 
-## Copyright (c) 2013-2015 Samuele Carcagno <sam.carcagno@gmail.com>
+## Copyright (c) 2013-2016 Samuele Carcagno <sam.carcagno@gmail.com>
 
 ## Permission is hereby granted, free of charge, to any person obtaining a copy
 ## of this software and associated documentation files (the "Software"), to deal
@@ -31,10 +31,10 @@ Generate an amplitude modulated tone.
 * `carrierFreq`: Carrier frequency in hertz.
 * `AMFreq`:  Amplitude modulation frequency in Hz.
 * `AMDepth`: Amplitude modulation depth (a value of 1 corresponds to 100%
-  modulation). 
+  modulation).
 * `carrierPhase`: Starting phase in radians.
 * `AMPhase`: Starting AM phase in radians.
-* `level`: Tone level in dB SPL. 
+* `level`: Tone level in dB SPL.
 * `dur`: Tone duration in seconds.
 * `rampDur`: Duration of the onset and offset ramps in seconds.
 * `channel`: Channel in which the tone will be generated, one of `mono`, `right`,
@@ -45,8 +45,8 @@ Generate an amplitude modulated tone.
 
 ##### Returns:
 
-* `snd`: array 
-       
+* `snd`: array
+
 ##### Examples:
 
 ```julia
@@ -54,13 +54,13 @@ snd = AMTone(carrierFreq=1000, AMFreq=20, AMDepth=1, carrierPhase=0,
 AMPhase=0, level=65, dur=1, rampDur=0.01, channel="diotic", sf=48000,
 maxLevel=100)
 ```
-""" ->
+"""->
 
 function AMTone(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
                 carrierPhase::Real=0, AMPhase::Real=1.5*pi, level::Real=60,
                 dur::Real=1, rampDur::Real=0.01, channel::AbstractString="diotic",
                 sf::Real=48000, maxLevel::Real=101)
-    
+
     if dur < rampDur*2
         error("Sound duration cannot be less than total duration of ramps")
     end
@@ -80,7 +80,7 @@ function AMTone(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
     snd_mono[1:nRamp, 1] = amp * (1+AMDepth*sin(2*pi*AMFreq*timeAll[1:nRamp]+AMPhase)) .* ((1-cos(pi* timeRamp/nRamp))/2) .* sin(2*pi*carrierFreq * timeAll[1:nRamp] + carrierPhase)
     snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * (1 + AMDepth*sin(2*pi*AMFreq*timeAll[nRamp+1:nRamp+nSamples]+AMPhase)) .* sin(2*pi*carrierFreq * timeAll[nRamp+1:nRamp+nSamples] + carrierPhase)
     snd_mono[nRamp+nSamples+1:nTot, 1] = amp * (1 + AMDepth*sin(2*pi*AMFreq*timeAll[nRamp+nSamples+1:nTot]+AMPhase)) .* ((1+cos(pi * timeRamp/nRamp))/2) .* sin(2*pi*carrierFreq * timeAll[nRamp+nSamples+1:nTot] + carrierPhase)
-    
+
     if channel == "mono"
         snd = snd_mono
     else
@@ -95,7 +95,7 @@ function AMTone(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
         snd[:,1] = snd_mono
         snd[:,2] = snd_mono
     end
-       
+
     return snd
 end
 
@@ -110,12 +110,12 @@ modulation phase.
 
 * `frequency`: Carrier frequency in hertz.
 * `AMFreq`:  Amplitude modulation frequency in Hz.
-* `AMDepth`:  Amplitude modulation depth (a value of 1 corresponds to 100% modulation). 
+* `AMDepth`:  Amplitude modulation depth (a value of 1 corresponds to 100% modulation).
 * `carrierPhase`: Starting phase in radians.
 * `AMPhase`: Starting AM phase in radians.
 * `carrierIPD`: IPD to apply to the carrier phase in radians.
 * `AMIPD`: IPD to apply to the AM phase in radians.
-* `level`: Tone level in dB SPL. 
+* `level`: Tone level in dB SPL.
 * `dur`: Tone duration in seconds.
 * `rampDur`: Duration of the onset and offset ramps in seconds.
 * `channel`: channel in which the IPD(s) will be applied (`right`, `left`).
@@ -124,8 +124,8 @@ modulation phase.
 
 ##### Returns:
 
-* `snd`: array 
-       
+* `snd`: array
+
 ##### Examples:
 
 ```julia
@@ -133,7 +133,7 @@ snd = AMToneIPD(carrierFreq=1000, AMFreq=20, AMDepth=1, carrierPhase=0,
 AMPhase=0, carrierIPD=0, AMIPD=pi/2, level=65, dur=1, rampDur=0.01,
 channel="right", sf=48000, maxLevel=100)
 ```
-""" ->
+"""->
 
 function AMToneIPD(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
                 carrierPhase::Real=0, AMPhase::Real=1.5*pi, carrierIPD::Real=0,
@@ -196,7 +196,7 @@ successive tones is random.
 ##### Returns
 
 * `snd` : 2-dimensional array of floats
-       
+
 ##### Examples
 
 ```julia
@@ -210,7 +210,7 @@ SOA=0.06, sf=48000, maxLevel=100)
 """->
 
 function asynchChord{T<:Real}(;freqs::AbstractVector{T}=[200, 400], levels::AbstractVector{T}=[60, 60], phases::AbstractVector{T}=[0, 0], tonesDur::Real=0.2, tonesRampDur::Real=0.01, tonesChannel::AbstractString="diotic", SOA::Real=0.06, sf::Real=48000, maxLevel::Real=101)
-     
+
     seq = collect(1:length(freqs))
     shuffle!(seq)
     i = 1
@@ -239,7 +239,7 @@ Synthetise a broadband noise.
 
 ##### Parameters:
 
-* `spectrumLevel`: Intensity spectrum level of the noise in dB SPL. 
+* `spectrumLevel`: Intensity spectrum level of the noise in dB SPL.
 * `dur`: Noise duration in seconds.
 * `rampDur`: Duration of the onset and offset ramps in seconds.
 * `channel`: Channel in which the noise will be generated (`mono`, `right`, `left`,
@@ -251,7 +251,7 @@ Synthetise a broadband noise.
 ##### Returns:
 
 * `snd` : array. The array has dimensions (nSamples, nCh).
-       
+
 ##### Examples:
 
 ```julia
@@ -259,7 +259,7 @@ noise = broadbandNoise(spectrumLevel=20, dur=180, rampDur=10,
          channel="diotic", sf=48000, maxLevel=100)
 ```
 
-""" ->
+"""->
 function broadbandNoise(;spectrumLevel::Real=20, dur::Real=1, rampDur::Real=0.01,
                         channel::AbstractString="diotic", sf::Real=48000, maxLevel::Real=101)
 
@@ -340,7 +340,7 @@ Synthetise a complex tone.
 ##### Parameters:
 
 * `F0`: Tone fundamental frequency in hertz.
-* `harmPhase : one of `sine`, `cosine`, `alternating`, `random`, `schroeder`
+* `harmPhase : one of `sine`, `cosine`, `alternating`, `random`, `schroeder-`, `schroeder+`
         Phase relationship between the partials of the complex tone.
 * `lowHarm`: Lowest harmonic component number.
 * `highHarm`: Highest harmonic component number.
@@ -370,24 +370,24 @@ Synthetise a complex tone.
          sf=48000, maxLevel=100)
 ```
 
-""" ->
+"""->
 function complexTone(;F0::Real=220, harmPhase::AbstractString="sine", lowHarm::Integer=1, highHarm::Integer=10, stretch::Real=0,
                      level::Real=60, dur::Real=1, rampDur::Real=0.01, channel::AbstractString="diotic", sf::Real=48000,
                      maxLevel::Real=101)
-    
+
     if dur < rampDur*2
         error("Sound duration cannot be less than total duration of ramps")
     end
     if in(channel, ["mono", "right", "left", "diotic", "odd left", "odd right"]) == false
         error("`channel` must be one of 'mono', 'right', 'left', 'diotic', 'odd left', 'odd right'")
     end
-    if in(harmPhase, ["sine", "cosine", "alternating", "random", "schroeder"]) == false
-        error("`harmPhase` must be one of 'sine', 'cosine', 'alternating', 'random', 'schroeder'")
+    if in(harmPhase, ["sine", "cosine", "alternating", "random", "schroeder-", "schroeder+"]) == false
+        error("`harmPhase` must be one of 'sine', 'cosine', 'alternating', 'random', 'schroeder-', 'schroeder+'")
     end
 
     amp = 10^((level - maxLevel) / 20)
     stretchHz = (F0*stretch)/100
-    
+
     nSamples = round(Int, (dur-rampDur*2) * sf)
     nRamp = round(Int, rampDur * sf)
     nTot = nSamples + (nRamp * 2)
@@ -449,9 +449,22 @@ function complexTone(;F0::Real=220, harmPhase::AbstractString="sine", lowHarm::I
                 end
             end
         end
-    elseif harmPhase == "schroeder"
+    elseif harmPhase == "schroeder-"
         for i=lowHarm:highHarm
-            phase = -pi * i * (i - 1) / highHarm
+            phase = -pi * i * (i - 1) / (highHarm-lowHarm+1)
+            if channel == "mono" || channel == "right" || channel == "left" || channel == "diotic"
+                tone = tone + sin(2 * pi * ((F0 * i)+stretchHz) * timeAll + phase)
+            elseif channel == "odd left" || channel == "odd right"
+                if i%2 > 0 #odd harmonic
+                    toneOdd = toneOdd + sin(2 * pi * ((F0 * i)+stretchHz) * timeAll + phase)
+                else
+                    toneEven = toneEven + sin(2 * pi * ((F0 * i)+stretchHz) * timeAll + phase)
+                end
+            end
+        end
+    elseif harmPhase == "schroeder+"
+        for i=lowHarm:highHarm
+            phase = pi * i * (i - 1) / (highHarm-lowHarm+1)
             if channel == "mono" || channel == "right" || channel == "left" || channel == "diotic"
                 tone = tone + sin(2 * pi * ((F0 * i)+stretchHz) * timeAll + phase)
             elseif channel == "odd left" || channel == "odd right"
@@ -520,12 +533,12 @@ modulated AM frequency.
 
 ##### Parameters
 
-* `carrierFreq`: Carrier AM frequency in hertz. 
+* `carrierFreq`: Carrier AM frequency in hertz.
 * `MF`: Amplitude modulation frequency in Hz.
 * `deltaCents`: AM frequency excursion in cents. The instataneous AM frequency of the noise will vary from `carrierFreq`**(-`deltaCents`/1200) to `carrierFreq`**(`deltaCents`/1200).
 * `FMPhase`: Starting phase of the AM modulation in radians.
 * `AMDepth`: Amplitude modulation depth.
-* `spectrumLevel`: Noise spectrum level in dB SPL. 
+* `spectrumLevel`: Noise spectrum level in dB SPL.
 * `dur`: Tone duration in seconds.
 * `rampDur`: Duration of the onset and offset ramps in seconds.
 * `channel`: Channel in which the noise will be generated, one of `right`, `left`, `diotic`, or `dichotic`.
@@ -536,7 +549,7 @@ modulated AM frequency.
 ##### Returns
 
 * `snd` : 2-dimensional array of floats
-       
+
 ##### Examples
 
 ```julia
@@ -560,7 +573,7 @@ function expAMNoise(;carrierFreq::Real=150, MF::Real=2.5, deltaCents::Real=600, 
     nTot = nSamples + (nRamp * 2)
 
     timeAll = collect(0:nTot-1) / sf
-    timeRamp = collect(0:nRamp-1) 
+    timeRamp = collect(0:nRamp-1)
     noise = (rand(nTot) + rand(nTot)) - (rand(nTot) + rand(nTot))
     RMS = sqrt(mean(noise.*noise))
     #scale the noise so that the maxAmplitude goes from -1 to 1
@@ -579,7 +592,7 @@ function expAMNoise(;carrierFreq::Real=150, MF::Real=2.5, deltaCents::Real=600, 
     snd_mono[1:nRamp, 1] = amp * (1 + AMDepth*sin(ang[1:nRamp])) .* ((1-cos(pi * timeRamp/nRamp))/2) .* scaled_noise[1:nRamp]
     snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * (1 + AMDepth*sin(ang[nRamp+1:nRamp+nSamples])) .* scaled_noise[nRamp+1:nRamp+nSamples]
     snd_mono[nRamp+nSamples+1:nTot, 1] = amp * (1 + AMDepth*sin(ang[nRamp+nSamples+1:nTot])) .* ((1+cos(pi * timeRamp/nRamp))/2) .* scaled_noise[nRamp+nSamples+1:nTot]
-      
+
     if channel == "mono"
         snd = snd_mono
     else
@@ -598,7 +611,7 @@ function expAMNoise(;carrierFreq::Real=150, MF::Real=2.5, deltaCents::Real=600, 
         snd[nRamp+1:nRamp+nSamples, 1] = amp * (1 + AMDepth*sin(ang[nRamp+1:nRamp+nSamples])) .* scaled_noise2[nRamp+1:nRamp+nSamples]
         snd[nRamp+nSamples+1:nTot, 1] = amp * (1 + AMDepth*sin(ang[nRamp+nSamples+1:nTot])) .* ((1+cos(pi * timeRamp/nRamp))/2) .* scaled_noise2[nRamp+nSamples+1:nTot]
     end
-    
+
     return snd
 end
 
@@ -610,13 +623,13 @@ Generate a tone frequency modulated with an exponential sinusoid.
 
 ##### Parameters
 
-* `carrierFreq`: Carrier frequency in hertz. 
+* `carrierFreq`: Carrier frequency in hertz.
 * `MF`: Modulation frequency in Hz.
 * `deltaCents`: Frequency excursion in cents. The instataneous frequency of the tone
          will vary from `carrierFreq**(-deltaCents/1200)` to `carrierFreq**(deltaCents/1200)`.
 * `FMPhase`: Starting FM phase in radians.
 * `phase`: Starting phase in radians.
-* `level`: Tone level in dB SPL. 
+* `level`: Tone level in dB SPL.
 * `dur`: Tone duration in seconds.
 * `rampDur`: Duration of the onset and offset ramps in seconds.
 * `channel`: Channel in which the tone will be generated, one of "mono", `right`, `left` or `diotic`.
@@ -627,13 +640,13 @@ Generate a tone frequency modulated with an exponential sinusoid.
 ##### Returns
 
 `snd` : 2-dimensional array of floats
-       
+
 ##### Examples
 
 ```julia
-tone_peak = expSinFMTone(carrierFreq=450, MF=5, deltaCents=300, FMPhase=pi, phase=0, level=60, 
+tone_peak = expSinFMTone(carrierFreq=450, MF=5, deltaCents=300, FMPhase=pi, phase=0, level=60,
     dur=0.2, rampDur=0.01, channel="diotic", sf=48000, maxLevel=101)
-tone_trough = expSinFMTone(carrierFreq=450, MF=5, deltaCents=300, FMPhase=0, phase=0, level=60, 
+tone_trough = expSinFMTone(carrierFreq=450, MF=5, deltaCents=300, FMPhase=0, phase=0, level=60,
     dur=0.2, rampDur=0.01, channel="diotic", sf=48000, maxLevel=101)
 ```
 """->
@@ -681,7 +694,7 @@ starting and stopping at a chosen time after the tone onset.
 ##### Parameters
 
 * `midF0`: F0 at the FM zero crossing
-* `harmPhase`: one of 'sine', 'cosine', 'alternating', 'random', 'schroeder'.
+* `harmPhase`: one of 'sine', 'cosine', 'alternating', 'random', 'schroeder-', 'schroeder+'.
         Phase relationship between the partials of the complex tone.
 * `lowHarm`: Lowest harmonic component number.
 * `highHarm`: Highest harmonic component number.
@@ -707,7 +720,7 @@ starting and stopping at a chosen time after the tone onset.
 ##### Returns
 
 * `snd`: 2-dimensional array of floats
-       
+
 Examples
 
 ```julia
@@ -737,7 +750,7 @@ function FMComplex2(;midF0::Real=140, harmPhase::AbstractString="sine",
                     levelAdj::Bool=true, channel::AbstractString="diotic",
                     sf::Real=48000, maxLevel::Real=101)
 
-        
+
     if dur < rampDur*2
         error("Sound duration cannot be less than total duration of ramps")
     end
@@ -747,11 +760,11 @@ function FMComplex2(;midF0::Real=140, harmPhase::AbstractString="sine",
     if in(channel, ["mono", "right", "left", "diotic", "odd left", "odd right"]) == false
         error("`channel` must be one of 'mono', 'right', 'left', 'diotic', 'odd left', 'odd right'")
     end
-    if in(harmPhase, ["sine", "cosine", "alternating", "random", "schroeder"]) == false
-        error("`harmPhase` must be one of 'sine', 'cosine', 'alternating', 'random', 'schroeder'")
+    if in(harmPhase, ["sine", "cosine", "alternating", "random", "schroeder-", "schroeder+"]) == false
+        error("`harmPhase` must be one of 'sine', 'cosine', 'alternating', 'random', 'schroeder-', 'schroeder+'")
     end
 
-    
+
     amp = 10^((level - maxLevel) / 20)
 
     fmStartPnt = round(Int, FMStartTime*sf) #sample where FM starts
@@ -759,7 +772,7 @@ function FMComplex2(;midF0::Real=140, harmPhase::AbstractString="sine",
     nSamples = round(Int, (dur-rampDur*2)* sf)
     nRamp = round(Int, rampDur * sf)
     nTot = nSamples + (nRamp * 2)
-    
+
     timeAll = collect(0:nTot-1) / sf
     timeRamp = collect(0:nRamp-1)
 
@@ -781,7 +794,7 @@ function FMComplex2(;midF0::Real=140, harmPhase::AbstractString="sine",
 
     startF0 = midF0 + FMDepthHz*sin(FMStartPhase)
     endF0 = midF0 + FMDepthHz*sin(FMStartPhase + nFMSamples*fmRadFreq)
-    
+
     if in(channel, ["mono", "right", "left", "diotic"])
         tone = zeros(nTot)
     elseif in(channel, ["odd left", "odd right"])
@@ -803,7 +816,7 @@ function FMComplex2(;midF0::Real=140, harmPhase::AbstractString="sine",
     #and the resulting integral is:
     #eq.4: PHI(t) = wc*t - (dw/wm)*cos(wm*t+phi)
     #this is what we're actually using below
-    
+
     for i=lowHarm:highHarm
         fArr = zeros(nTot)
         fArr[1:fmStartPnt] = startF0*i
@@ -846,8 +859,20 @@ function FMComplex2(;midF0::Real=140, harmPhase::AbstractString="sine",
                     toneEven = toneEven + sin(ang)
                 end
             end
-        elseif harmPhase == "schroeder"
-            phase = -pi * i * (i - 1) / highHarm
+        elseif harmPhase == "schroeder-"
+            phase = -pi * i * (i - 1) / (highHarm-lowHarm+1)
+            ang = cumsum(2*pi*fArr/sf + phase)
+            if in(channel, ["mono", "right", "left", "diotic"])
+                tone = tone + sin(ang)
+            elseif in(channel, ["odd left", "odd right"])
+                if i%2 > 0 #odd harmonic
+                    toneOdd = toneOdd + sin(ang)
+                else
+                    toneEven = toneEven + sin(ang)
+                end
+            end
+        elseif harmPhase == "schroeder+"
+            phase = pi * i * (i - 1) / (highHarm-lowHarm+1)
             ang = cumsum(2*pi*fArr/sf + phase)
             if in(channel, ["mono", "right", "left", "diotic"])
                 tone = tone + sin(ang)
@@ -882,13 +907,13 @@ function FMComplex2(;midF0::Real=140, harmPhase::AbstractString="sine",
             toneEven[1:fmStartPnt] = toneEven[1:fmStartPnt] * sqrt(((startF0Rad / (2*pi)) * (sf))/ midF0)
             toneEven[fmStartPnt+1:fmStartPnt+nFMSamples] = toneEven[fmStartPnt+1:fmStartPnt+nFMSamples]  .* sqrt((midF0 + (FMDepthHz * sin(FMStartPhase + (fmTime * fmRadFreq)))) / midF0)
             toneEven[fmStartPnt+nFMSamples+1:nTot] = toneEven[fmStartPnt+nFMSamples+1:nTot] .* sqrt(((endF0Rad / (2*pi)) * (sf))/ midF0)
-            
+
             toneOdd[1:fmStartPnt] = toneOdd[1:fmStartPnt] * sqrt(((startF0Rad / (2*pi)) .* (sf))/ midF0)
             toneOdd[fmStartPnt+1:fmStartPnt+nFMSamples] = toneOdd[fmStartPnt+1:fmStartPnt+nFMSamples] .* sqrt((midF0 + (FMDepthHz * sin(FMStartPhase + (fmTime * fmRadFreq)))) / midF0)
             toneOdd[fmStartPnt+nFMSamples+1:nTot] = toneOdd[fmStartPnt+nFMSamples+1:nTot] .* sqrt(((endF0Rad / (2*pi)) * (sf))/ midF0)
         end
     end
-#end of level correction -----------    
+#end of level correction -----------
     if channel == "mono"
         snd = zeros(nTot, 1)
     else
@@ -924,7 +949,7 @@ function FMComplex2(;midF0::Real=140, harmPhase::AbstractString="sine",
         snd[:,2] = toneOdd
         snd[:,1] = toneEven
     end
-        
+
     return snd
 end
 
@@ -942,7 +967,7 @@ Generate a frequency modulated tone.
         deltaF is the maximum deviation of the instantaneous frequency from
         the carrier frequency.
 * `phase`: Starting phase in radians.
-* `level`: Tone level in dB SPL. 
+* `level`: Tone level in dB SPL.
 * `dur`: Tone duration in seconds.
 * `rampDur`: Duration of the onset and offset ramps in seconds.
 * `channel`: Channel in which the tone will be generated, `mono`, `right`,
@@ -954,7 +979,7 @@ Generate a frequency modulated tone.
 ##### Returns
 
 * `snd`: 2-dimensional array of floats
-       
+
 Examples
 
 ```julia
@@ -973,14 +998,14 @@ function FMTone(;carrierFreq::Real=1000, MF::Real=40, MI::Real=1, phase::Real=0,
     if in(channel, ["mono", "right", "left", "diotic"]) == false
         error("`channel` must be one of 'mono', 'right', 'left', or 'diotic'")
     end
-    
+
     amp = 10^((level - maxLevel) / 20)
     nSamples = round(Int, (dur-rampDur*2) * sf)
     nRamp = round(Int, rampDur * sf)
     nTot = nSamples + (nRamp * 2)
 
     timeAll = collect(0:nTot-1) / sf
-    timeRamp = collect(0:nRamp-1) 
+    timeRamp = collect(0:nRamp-1)
 
     snd_mono = zeros(nTot, 1)
     snd_mono[1:nRamp, 1] = amp * ((1-cos(pi * timeRamp/nRamp))/2) .* sin(2*pi*carrierFreq*timeAll[1:nRamp] + MI*sin(2*pi*MF * timeAll[1:nRamp] + phase))
@@ -1075,7 +1100,7 @@ bandwidth=100, bandwidthUnit="Hz", dichoticDifference="IPD stepped",
 dichoticDifferenceValue=pi, phaseRelationship="NoSpi", stretch=0,
 noiseType="white", dur=0.4, rampDur=0.01, sf=48000, maxLevel=101)
 ```
-    
+
 """->
 
 function hugginsPitch(;F0::Real=550, lowHarm::Int=1, highHarm::Int=1,
@@ -1134,7 +1159,7 @@ function hugginsPitch(;F0::Real=550, lowHarm::Int=1, highHarm::Int=1,
         nHarms = length(cfs)
         shiftLo = zeros(nHarms+1)
         shiftHi = zeros(nHarms+1)
-    
+
         shiftLo[1] = 10
         shiftHi[end] = sf/2
         if bandwidthUnit == "Hz"
@@ -1164,7 +1189,7 @@ function hugginsPitch(;F0::Real=550, lowHarm::Int=1, highHarm::Int=1,
                              ITD=dichoticDifferenceValue, channel="left", sf=sf)
         end
     end
-    noise = gate!(noise, rampDur=rampDur, sf=sf)    
+    noise = gate!(noise, rampDur=rampDur, sf=sf)
 
     return noise
 
@@ -1203,7 +1228,7 @@ irn = IRN(delay=1/440, gain=1, iterations=6, configuration="add same",
           spectrumLevel=25, dur=1, rampDur=0.01, channel="diotic",
           sf=48000, maxLevel=101)
 ```
-""" ->
+"""->
 
 function IRN(;delay::Real=0.001, gain::Real=1, iterations::Integer=6,
              configuration::AbstractString="add same", spectrumLevel::Real=25,
@@ -1232,7 +1257,7 @@ function IRN(;delay::Real=0.001, gain::Real=1, iterations::Integer=6,
     snd = delayAdd!(snd, delay=delay, gain=gain, iterations=iterations,
                    configuration=configuration, channel=ch, sf=sf)
     snd = gate!(snd, rampDur=rampDur, sf=sf)
-        
+
     return snd
 end
 
@@ -1258,19 +1283,19 @@ Synthetise a pure tone.
 
 * `snd` : 2-dimensional array of floats
         The array has dimensions (nSamples, 2).
-       
+
 ##### Examples:
 
 ```julia
 pt = pureTone(frequency=440, phase=0, level=65, dur=1,
 rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
-""" ->
+"""->
 function pureTone(;frequency::Real=1000, phase::Real=0, level::Real=65,
                   dur::Real=1, rampDur::Real=0.01,
                   channel::AbstractString="diotic", sf::Real=48000,
-                  maxLevel::Real=101) 
-    
+                  maxLevel::Real=101)
+
     if dur < rampDur*2
         error("Sound duration cannot be less than total duration of ramps")
     end
@@ -1278,7 +1303,7 @@ function pureTone(;frequency::Real=1000, phase::Real=0, level::Real=65,
         error("`channel` must be one of 'mono', 'right', 'left', or 'diotic'")
     end
 
-    amp = 10^((level - maxLevel) / 20)   
+    amp = 10^((level - maxLevel) / 20)
     nSamples = round(Int, (dur-rampDur*2) * sf)
     nRamp = round(Int, rampDur * sf)
     nTot = nSamples + (nRamp * 2)
@@ -1296,7 +1321,7 @@ function pureTone(;frequency::Real=1000, phase::Real=0, level::Real=65,
     snd_mono[1:nRamp, 1] = amp * ((1 - cos(pi * timeRamp/nRamp))/2) .* sin(2*pi*frequency * timeAll[1:nRamp] + phase)
     snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * sin(2*pi*frequency * timeAll[nRamp+1:nRamp+nSamples] + phase)
     snd_mono[nRamp+nSamples+1:nTot, 1] = amp * ((1 + cos(pi * timeRamp/nRamp))/2) .* sin(2*pi*frequency * timeAll[nRamp+nSamples+1:nTot] + phase)
-    
+
     if channel == "mono"
         snd[:,1] = snd_mono
     elseif channel == "right"
@@ -1307,7 +1332,7 @@ function pureTone(;frequency::Real=1000, phase::Real=0, level::Real=65,
         snd[:,1] = snd_mono
         snd[:,2] = snd_mono
     end
-        
+
     return snd
 end
 
@@ -1332,14 +1357,14 @@ Synthetise a pure tone with an interaural level difference.
 ##### Returns:
 
 * `snd` : Array with dimensions (nSamples, 2).
-       
+
 ##### Examples:
 
 ```julia
 pt = pureToneILD(frequency=440, phase=0, level=65, ILD=10, dur=1,
 rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
-""" ->
+"""->
 
 function pureToneILD(;frequency::Real=1000, phase::Real=0,
                      level::Real=65, ILD::Real=10, dur::Real=1, rampDur::Real=0.01,
@@ -1389,14 +1414,14 @@ Synthetise a pure tone with an interaural phase difference.
 ##### Returns:
 
 * `snd` : Array with dimensions (nSamples, 2).
-       
+
 ##### Examples:
 
 ```julia
 pt = pureToneIPD(frequency=440, phase=0, IPD=pi/2, level=65, dur=1,
 rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
-""" ->
+"""->
 
 function pureToneIPD(;frequency::Real=1000, phase::Real=0, IPD::Real=pi,
                      level::Real=65, dur::Real=1, rampDur::Real=0.01,
@@ -1446,14 +1471,14 @@ Synthetise a pure tone with an interaural time difference.
 ##### Returns:
 
 * `snd` : Array with dimensions (nSamples, 2).
-       
+
 ##### Examples:
 
 ```julia
 pt = pureToneITD(frequency=440, phase=0, ITD=0.004/10, level=65, dur=1,
 rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
-""" ->
+"""->
 
 function pureToneITD(;frequency::Real=1000, phase::Real=0, ITD::Real=0,
                      level::Real=65, dur::Real=1, rampDur::Real=0.01,
@@ -1495,14 +1520,14 @@ Synthetise a pure tone with an interaural phase and interaural level difference.
 ##### Returns:
 
 * `snd` : Array with dimensions (nSamples, 2).
-       
+
 ##### Examples:
 
 ```julia
 pt = pureToneIPDILD(frequency=440, phase=0, IPD=pi/2, level=65, ILD=10,
 dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
-""" ->
+"""->
 
 function pureToneIPDILD(;frequency::Real=1000, phase::Real=0, IPD::Real=0,
                      level::Real=65, ILD::Real=0, dur::Real=1, rampDur::Real=0.01,
@@ -1551,14 +1576,14 @@ Synthetise a pure tone with an interaural time and interaural level difference.
 ##### Returns:
 
 * `snd` : Array with dimensions (nSamples, 2).
-       
+
 ##### Examples:
 
 ```julia
 pt = pureToneITDILD(frequency=440, phase=0, ITD=0.004/1000, level=65,
 ILD=10, dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
-""" ->
+"""->
 
 function pureToneITDILD(;frequency::Real=1000, phase::Real=0, ITD::Real=0,
                      level::Real=65, ILD::Real=0, dur::Real=1, rampDur::Real=0.01,
@@ -1586,7 +1611,7 @@ Generate a silence.
 
 This function just fills an array with zeros for the
 desired duration.
-    
+
 ##### Parameters:
 
 * `dur`: Duration of the silence in seconds.
@@ -1596,14 +1621,14 @@ desired duration.
 
 * `snd`: 2-dimensional array of floats
 The array has dimensions (nSamples, 2).
-       
+
 
 ##### Examples:
 
 ```julia
 sil = silence(dur=2, sf=48000)
 ```
-""" ->
+"""->
 function silence(;dur=1, channel="mono", sf=48000)
     nSamples = round(Int, dur * sf)
     if in(channel, ["mono", "diotic"]) == false
@@ -1639,7 +1664,7 @@ sinusoids.
 ##### Returns:
 
 * `snd`: 2-dimensional array of floats. The array has dimensions (nSamples, nChannels).
-       
+
 ##### Examples:
 
 ```julia
@@ -1647,10 +1672,10 @@ nbNoise = steepNoise(f1=440, f2=660, level=65,
 dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 
-""" ->
+"""->
 function steepNoise(;f1=900, f2=1000, level=50, dur=1, rampDur=0.01,
                     channel="diotic", sf=48000, maxLevel=101)
-    
+
     if dur < rampDur*2
         error("Sound duration cannot be less than total duration of ramps")
     end
@@ -1665,16 +1690,16 @@ function steepNoise(;f1=900, f2=1000, level=50, dur=1, rampDur=0.01,
 
     spacing = 1 / dur
     components = 1 + floor((f2 - f1) / spacing)
-    # SL = 10*log10(A^2/NHz) 
+    # SL = 10*log10(A^2/NHz)
     # SL/10 = log10(A^2/NHz)
     # 10^(SL/10) = A^2/NHz
     # A^2 = 10^(SL/10) * NHz
     # RMS = 10^(SL/20) * sqrt(NHz) where NHz is the spacing between harmonics
     amp =  10^((level - maxLevel) / 20) * sqrt((f2 - f1) / components)
-    
+
     timeAll = collect(0:nTot-1) / sf
     timeRamp = collect(0:nRamp-1)
-    
+
     if channel == "mono"
         snd = zeros(nTot, 1)
     else
@@ -1683,7 +1708,7 @@ function steepNoise(;f1=900, f2=1000, level=50, dur=1, rampDur=0.01,
 
     noise= zeros(nTot)
     for f=f1:spacing:f2
-        radFreq = 2 * pi * f 
+        radFreq = 2 * pi * f
         phase = rand() * 2 * pi
         noise = noise + sin(phase + (radFreq * timeAll))
     end
@@ -1693,7 +1718,7 @@ function steepNoise(;f1=900, f2=1000, level=50, dur=1, rampDur=0.01,
     snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * noise[nRamp+1:nRamp+nSamples]
     snd_mono[nRamp+nSamples+1:nTot, 1] = amp * ((1+cos(pi * timeRamp/nRamp))/2) .* noise[nRamp+nSamples+1:nTot]
 
-    
+
     if channel == "right"
         snd[:,2] = snd_mono
     elseif channel == "left"
@@ -1704,7 +1729,7 @@ function steepNoise(;f1=900, f2=1000, level=50, dur=1, rampDur=0.01,
     elseif channel == "dichotic"
         noise2= zeros(nTot)
         for f=f1:spacing:f2
-            radFreq = 2 * pi * f 
+            radFreq = 2 * pi * f
             phase = rand() * 2 * pi
             noise2 = noise2 + sin(phase + (radFreq * timeAll))
         end
@@ -1718,4 +1743,4 @@ function steepNoise(;f1=900, f2=1000, level=50, dur=1, rampDur=0.01,
 
     return snd
 end
- 
+

@@ -1,6 +1,6 @@
 ## The MIT License (MIT)
 
-## Copyright (c) 2013-2015 Samuele Carcagno <sam.carcagno@gmail.com>
+## Copyright (c) 2013-2016 Samuele Carcagno <sam.carcagno@gmail.com>
 
 ## Permission is hereby granted, free of charge, to any person obtaining a copy
 ## of this software and associated documentation files (the "Software"), to deal
@@ -28,14 +28,14 @@ Compute the frequency, in Hz, corresponding to a distance,
 in equivalent cents of `deltaCents` from `f1`.
 
 ##### Parameters
- 
+
 * `f1`: frequency at one end of the interval in Hz
 * `deltaCents`: distance in cents
 
 ##### Returns
 
 * `f2`: frequency at the other end of the interval
-    
+
 ##### Examples
 
 ```julia
@@ -46,7 +46,7 @@ freqFromCentInterval([100, 200, 300], 1.5)
 # for several distances
 freqFromCentInterval(100, [1, 1.5, 2])
 ```
-""" ->
+"""->
 function freqFromCentInterval{T<:Real, P<:Real}(f1::Union{T, AbstractVector{T}}, deltaCent::Union{P, AbstractVector{P}})
     f2 = f1*2.^(deltaCent/1200)
     return f2
@@ -73,7 +73,7 @@ between the frequencies `f1` and `f2`.
 ```julia
 centDistance(1000, 1200)
 ```
-""" ->
+"""->
 
 function centDistance(f1::Real, f2::Real)
 
@@ -81,7 +81,7 @@ function centDistance(f1::Real, f2::Real)
 
     return deltaCents
 end
- 
+
 
 ################################
 ## freqFromERBInterval
@@ -91,7 +91,7 @@ Compute the frequency, in Hz, corresponding to a distance,
 in equivalent rectangular bandwidths (ERBs), of `deltaERB` from `f1`.
 
 ##### Parameters
- 
+
 * `f1`: frequency at one end of the interval in Hz
 * `deltaERB`: distance in ERBs
 
@@ -102,7 +102,7 @@ in equivalent rectangular bandwidths (ERBs), of `deltaERB` from `f1`.
 ##### References
 
 .. [GM] Glasberg, B. R., & Moore, B. C. J. (1990). Derivation of auditory filter shapes from notched-noise data. Hear. Res., 47(1-2), 103–38.
-    
+
 ##### Examples
 
 ```julia
@@ -113,9 +113,9 @@ freqFromERBInterval([100, 200, 300], 1.5)
 # for several distances
 freqFromERBInterval(100, [1, 1.5, 2])
 ```
-""" ->
+"""->
 function freqFromERBInterval{T<:Real, P<:Real}(f1::Union{T, AbstractVector{T}}, deltaERB::Union{P, AbstractVector{P}})
-    f2 = (10.^((deltaERB + 21.4*log10(0.00437*f1 +1))/21.4)-1) / 0.00437 
+    f2 = (10.^((deltaERB + 21.4*log10(0.00437*f1 +1))/21.4)-1) / 0.00437
     return f2
 end
 
@@ -144,7 +144,7 @@ between the frequencies `f1` and `f2`.
 ```julia
 ERBDistance(1000, 1200)
 ```
-""" ->
+"""->
 
 function ERBDistance(f1::Real, f2::Real)
 
@@ -152,7 +152,7 @@ function ERBDistance(f1::Real, f2::Real)
 
     return deltaERB
 end
- 
+
 ###################
 ## intNCyclesFreq
 ###################
@@ -169,7 +169,7 @@ of cycles for the given sound duration.
 ##### Returns
 
 * `adjFreq`: float
-       
+
 ##### Examples
 
 ```julia
@@ -178,8 +178,8 @@ intNCyclesFreq(2, 1000)
 ```
 
 """->
-function intNCyclesFreq(freq::Real, dur::Real)    
+function intNCyclesFreq(freq::Real, dur::Real)
     adjFreq = round(freq*dur)/dur
-    
+
     return adjFreq
 end
