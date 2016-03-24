@@ -126,7 +126,7 @@ Synthetise a complex tone.
 ##### Parameters:
 
 * `F0`: Tone fundamental frequency in hertz.
-* `harmPhase : one of `sine`, `cosine`, `alternating`, `random`, `schroeder`
+* `harmPhase : one of `sine`, `cosine`, `alternating`, `random`, `schroeder-`, `schroeder+`
         Phase relationship between the partials of the complex tone.
 * `lowHarm`: Lowest harmonic component number.
 * `highHarm`: Highest harmonic component number.
@@ -224,7 +224,7 @@ starting and stopping at a chosen time after the tone onset.
 ##### Parameters
 
 * `midF0`: F0 at the FM zero crossing
-* `harmPhase`: one of 'sine', 'cosine', 'alternating', 'random', 'schroeder'.
+* `harmPhase`: one of 'sine', 'cosine', 'alternating', 'random', 'schroeder-', 'schroeder+'.
         Phase relationship between the partials of the complex tone.
 * `lowHarm`: Lowest harmonic component number.
 * `highHarm`: Highest harmonic component number.
