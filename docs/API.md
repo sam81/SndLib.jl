@@ -401,7 +401,7 @@ Synthetise a pure tone.
 * `phase`: Starting phase in radians.
 * `level`: Tone level in dB SPL.
 * `dur`: Tone duration in seconds.
-* `ramp`: Duration of the onset and offset ramps in seconds.
+* `rampDur`: Duration of the onset and offset ramps in seconds.
 * `channel`: Channel in which the tone will be generated.  (`right`, `left` or `diotic`)
 * `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
