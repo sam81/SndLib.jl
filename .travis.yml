@@ -7,9 +7,13 @@ julia:
     - nightly
 notifications:
     email: false
+sudo: true
 
+before_install:
+ - sudo apt-get update
+ - sudo apt-get install -y python3-scipy
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("SndLib"); Pkg.test("SndLib"; coverage=true)'
+  - julia --check-bounds=yes -e 'Pkg.clone(pwd()); ENV["PYTHON"]="/usr/bin/python3"; ";Pkg.build("PyCall"); Pkg.build("SndLib"); Pkg.test("SndLib"; coverage=true)'
 after_success:
 - julia -e 'cd(Pkg.dir("SndLib")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
