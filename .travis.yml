@@ -9,6 +9,10 @@ notifications:
     email: false
 sudo: true
 
+matrix:
+  allow_failures:
+    - julia: nightly
+
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
   - julia --check-bounds=yes -e 'Pkg.clone(pwd()); ENV["PYTHON"]=""; Pkg.build("PyCall"); using Conda; Conda.add("scipy"); Pkg.build("SndLib"); Pkg.test("SndLib"; coverage=true)'
