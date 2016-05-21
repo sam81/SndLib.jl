@@ -1,4 +1,7 @@
 tic()
+if ispath("wavDir") == false
+    mkdir("wavDir)
+end
 include("test_default.jl")
 include("test_examples.jl")
 include("snd_process_tests.jl")
