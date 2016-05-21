@@ -1,6 +1,6 @@
 tic()
 if ispath("wavDir") == false
-    mkdir("wavDir)
+    mkdir("wavDir")
 end
 include("test_default.jl")
 include("test_examples.jl")
