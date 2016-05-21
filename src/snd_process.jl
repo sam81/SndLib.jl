@@ -685,8 +685,9 @@ Windows is not currently supported.
 ##### Examples
 
 ```julia
-pt = pureTone(dur=1, sf=48000)
-sound(pt, 48000)
+#not run
+#pt = pureTone(dur=1, sf=48000)
+#sound(pt, 48000)
 ```
 
 """->
