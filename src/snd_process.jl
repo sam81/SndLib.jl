@@ -128,7 +128,8 @@ If `add original`, the original signal is added to delayed signal of the current
 ```julia
 noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
 channel="diotic", sf=48000, maxLevel=100)
-irn = delayAdd!(noise, delay=1/440, gain=1, iterations=6, configuration="add same", channel=[1,2], sf=48000)
+irn_add_same = delayAdd!(noise, delay=1/440, gain=1, iterations=6, configuration="add same", channel=[1,2], sf=48000)
+irn_add_orig = delayAdd!(noise, delay=1/440, gain=1, iterations=6, configuration="add original", channel=[1,2], sf=48000)
 ```
 """->
 
@@ -680,6 +681,13 @@ Windows is not currently supported.
 
 * `snd`: The sound to be played.
 * `sf`: The sampling frequency.
+
+##### Examples
+
+```julia
+pt = pureTone(dur=1, sf=48000)
+sound(pt, 48000)
+```
 
 """->
 function sound{T<:Real}(snd::Array{T,2}, sf::Integer=48000, nbits::Integer=32)
