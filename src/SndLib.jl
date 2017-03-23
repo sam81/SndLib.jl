@@ -1,6 +1,6 @@
 ## The MIT License (MIT)
 
-## Copyright (c) 2013-2016 Samuele Carcagno <sam.carcagno@gmail.com>
+## Copyright (c) 2013-2017 Samuele Carcagno <sam.carcagno@gmail.com>
 
 ## Permission is hereby granted, free of charge, to any person obtaining a copy
 ## of this software and associated documentation files (the "Software"), to deal
@@ -27,17 +27,17 @@ export addSounds, AMTone, AMToneIPD, asynchChord,
 broadbandNoise,
 centDistance, complexTone,
 delayAdd!,
-fir2Filt!, FMComplex2, FMTone, freqFromCentInterval, freqFromERBInterval,
 ERBDistance, expAMNoise, expSinFMTone,
+fir2Filt!, FMComplex2, FMTone, freqFromCentInterval, freqFromERBInterval,
+gate!, getRMS, getSpectrum,
 hugginsPitch,
-gate!, getRMS,
 intNCyclesFreq, IRN, ITDToIPD, ITDShift!,
 makePink!, 
 phaseShift!, pureTone, pureToneILD, pureToneIPD, pureToneIPDILD, pureToneITD, pureToneITDILD,
 scaleLevel, silence, sound, steepNoise
 
 VERSION < v"0.4-" && using Docile
-using PyCall, WAV
+using DocStringExtensions, DSP, PyCall, WAV
 #pyinitialize("python3")
 @pyimport scipy.signal as scisig
 

@@ -1,6 +1,6 @@
 ## The MIT License (MIT)
 
-## Copyright (c) 2013-2016 Samuele Carcagno <sam.carcagno@gmail.com>
+## Copyright (c) 2013-2017 Samuele Carcagno <sam.carcagno@gmail.com>
 
 ## Permission is hereby granted, free of charge, to any person obtaining a copy
 ## of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,10 @@
 ################################
 ## addSounds
 ################################
-@doc doc"""
+"""
 Add or concatenate two sounds.
+
+$(SIGNATURES)
 
 ##### Parameters
 
@@ -46,7 +48,7 @@ snd2 = pureTone(frequency=880, phase=0, level=65, dur=1,
 rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 snd = addSounds(snd1, snd2, delay=1, sf=48000)
 ```
-"""->
+"""
 
 function addSounds{T<:Real, P<:Real}(snd1::Array{T, 2}, snd2::Array{P, 2}; delay::Real=0, sf::Real=48000)
     nChans1 = size(snd1)[2]
@@ -101,8 +103,10 @@ end
 ############################
 ## delayAdd
 ############################
-@doc doc"""
+"""
 Delay and add algorithm for the generation of iterated rippled noise.
+
+$(SIGNATURES)
 
 ##### Parameters
 
@@ -131,7 +135,7 @@ channel="diotic", sf=48000, maxLevel=100)
 irn_add_same = delayAdd!(noise, delay=1/440, gain=1, iterations=6, configuration="add same", channel=[1,2], sf=48000)
 irn_add_orig = delayAdd!(noise, delay=1/440, gain=1, iterations=6, configuration="add original", channel=[1,2], sf=48000)
 ```
-"""->
+"""
 
 function delayAdd!{T<:Real, P<:Integer}(sig::Array{T,2}; delay::Real=0.01,
                                         gain::Real=1, iterations::Integer=1,
@@ -185,8 +189,10 @@ end
 #####################################
 ## fir2Filt!
 #####################################
-@doc doc"""
+"""
 Filter signal with a fir2 filter.
+
+$(SIGNATURES)
 
 This function designs and applies a fir2 filter to a sound.
 The frequency response of the ideal filter will transition
@@ -237,7 +243,7 @@ noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
 bpNoise = fir2Filt!(400, 600, 4000, 4400,
      noise, nTaps=256, sf=48000) #bandpass filter
 ```
-"""->
+"""
 function fir2Filt!{T<:Real}(f1::Real, f2::Real, f3::Real, f4::Real, snd::Array{T, 2}; nTaps::Integer=256, sf::Real=48000)
 
     f1 = (f1 * 2) / sf
@@ -299,8 +305,10 @@ end
 ####################################
 ## gate!
 ####################################
-@doc doc"""
+"""
 Impose onset and offset ramps to a sound.
+
+$(SIGNATURES)
 
 ##### Parameters:
 
@@ -319,7 +327,7 @@ noise = broadbandNoise(spectrumLevel=40, dur=2, rampDur=0,
 channel="diotic", sf=48000, maxLevel=100)
 gate!(noise, rampDur=0.01, sf=48000)
 ```
-"""->
+"""
 function gate!{T<:Real}(sig::Array{T, 2}; rampDur::Real=0.01, sf::Real=48000)
 
     nRamp = round(Int, rampDur * sf)
@@ -336,8 +344,10 @@ function gate!{T<:Real}(sig::Array{T, 2}; rampDur::Real=0.01, sf::Real=48000)
     return sig
 end
 
-@doc doc"""
+"""
 Compute the root mean square (RMS) value of the signal.
+
+$(SIGNATURES)
 
 ##### Parameters
 
@@ -359,7 +369,7 @@ getRMS(pt, 2)
 getRMS(pt, "each")
 getRMS(pt, "all")
 ```
-"""->
+"""
 function getRMS{T<:Real}(sig::Array{T,2}, channel::Union{AbstractString, Integer})
     RMS = (AbstractFloat)[]
     if channel == "all"
@@ -375,14 +385,94 @@ function getRMS{T<:Real}(sig::Array{T,2}, channel::Union{AbstractString, Integer
         #RMS = sqrt(mean(sig[:,channel].*sig[:,channel]))
     end
     return RMS
+end
+
+#######################
+## getSpectrum
+#######################
+
+"""
+Compute the power spectrum of a sound.
+
+$(SIGNATURES)
+
+##### Arguments
+
+* `sig::Union{AbstractVector{Real}, AbstractMatrix{Real}}`: The sound of which the spectrum should be computed. Columns are assumed to correspond to channels and rows to samples.
+* `sampRate::Real`: The sampling rate of the signal.
+* `window::Function`: The type of window to apply to the signal before computing its FFT (see DSP.jl). Choose `rect` if you don't want to apply any window.
+* `powerOfTwo::Bool`: If `true` `sig` will be padded with zeros (if necessary) so that its length is a power of two.
+
+##### Returns
+
+* `p::Array{Real,1}`: the power spectrum of the signal.
+* `freqArray::Array{Real,1}`: The FFT frequencies.
+
+##### Examples
+
+```julia
+    pt = pureTone(sf=48000)
+    p, freqArr = getSpectrum(pt, 48000)
+
+```
+
+"""
+function getSpectrum{T<:Real}(sig::AbstractVector{T}, sf::Real; window::Function=rect, powerOfTwo::Bool=false)
+
+    n = length(sig)
+    if powerOfTwo == true
+        nfft = 2^nextPowTwo(n)
+    else
+        nfft = n
+    end
+    w = window(n)
+    sig = sig.*w
+
+    p = fft(sig)#, nfft) # take the fourier transform
+
+    nUniquePts = ceil(Int, (nfft+1)/2)
+    p = p[1:nUniquePts]
+    p = abs(p)
+    p = p ./ n  # scale by the number of points so that
+    # the magnitude does not depend on the length
+    # of the signal or on its sampling frequency
+    p = p.^2  # square it to get the power
+
+    # multiply by two (see technical document for details)
+    # odd nfft excludes Nyquist point
+    if nfft % 2 > 0 # we"ve got odd number of points fft
+         p[2:end] = p[2:end] * 2
+    else
+        p[2:(end-1)] = p[2:(end-1)] * 2 # we"ve got even number of points fft
     end
 
+    freqArray = collect(0:(nUniquePts-1)) * (sf / nfft)
+
+    return p, freqArray
+end
+
+function getSpectrum{T<:Real}(sig::AbstractMatrix{T}, sf::Real; window::Function=rect, powerOfTwo::Bool=false)
+    ## If the sound has multiple channels compute spectrum for each separately
+    ## and return the results as a matrix with nCol = nChans
+    nChans = size(sig)[2]
+    p1, freqArray = getSpectrum(sig[:,1], sf, window=window, powerOfTwo=powerOfTwo)
+    p = zeros(length(p1), nChans)
+    p[:,1] = p1
+    for i=2:nChans
+        thisP, foo = getSpectrum(sig[:,i], sf, window=window, powerOfTwo=powerOfTwo)
+        p[:,i] = thisP
+    end
+    return p, freqArray
+end
+    
 ########################
 ## ITDShift!
 ########################
 
-@doc doc"""
+"""
 Set the ITD of a sound within the frequency region bounded by `f1` and `f2`
+
+$(SIGNATURES)
 
 ##### Parameters
 
@@ -407,7 +497,7 @@ noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
 hp = ITDShift!(noise, 500, 600, ITD=300/1000000,
 channel="left", sf=48000) #this generates a Dichotic Pitch
 ```
-"""->
+"""
 function ITDShift!{T<:Real}(sig::Array{T,2}, f1::Real, f2::Real; ITD::Real=300/1000000, channel::AbstractString="left", sf::Real=48000)
 
     if in(channel, ["right", "left"]) == false
@@ -464,10 +554,11 @@ end
 #################################
 ## ITDToIPD
 #################################
-@doc doc"""
-
+"""
 Convert an interaural time difference to an equivalent interaural
 phase difference for a given frequency.
+
+$(SIGNATURES)
 
 ##### Parameters
 
@@ -485,7 +576,7 @@ itd = 300 #microseconds
 itd = 300/1000000 #convert to seconds
 ITDToIPD(itd, 1000)
 ```
-"""->
+"""
 
 function ITDToIPD{T<:Real}(ITD::Real, freq::Union{T, AbstractVector{T}})
 
@@ -497,8 +588,10 @@ end
 #########################
 ## phaseShift!
 #########################
-@doc doc"""
+"""
 Shift the interaural phases of a sound within a given frequency region.
+
+$(SIGNATURES)
 
 ##### Parameters
 
@@ -529,7 +622,7 @@ channel="diotic", sf=48000, maxLevel=100)
 noise = phaseShift!(noise, 500, 600, phaseShift=pi,
 channel=2, sf=48000) #this generates a Dichotic Pitch
 ```
-"""->
+"""
 
 function phaseShift!{T<:Real, P<:Integer}(sig::Array{T, 2}, f1::Real, f2::Real; phaseShift::Real=pi, shiftType::AbstractString="step", channel::Union{P, AbstractVector{P}}=1, sf::Real=48000)
 
@@ -585,8 +678,10 @@ end
 ###############################
 ## makePink!
 ###############################
-@doc doc"""
+"""
 Convert a white noise into a pink noise.
+
+$(SIGNATURES)
 
 The spectrum level of the pink noise at the frequency `ref`
 will be equal to the spectrum level of the white noise input
@@ -611,7 +706,7 @@ noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
 channel="diotic", sf=48000, maxLevel=100)
 noise = makePink!(noise, sf=48000, ref=1000)
 ```
-"""->
+"""
 
 function makePink!{T<:Real}(sig::Array{T, 2}; sf::Real=48000, ref::Real=1000)
 
@@ -639,8 +734,10 @@ end
 ###################################
 ## scaleLevel
 ###################################
-@doc doc"""
+"""
 Increase or decrease the amplitude of a sound signal.
+
+$(SIGNATURES)
 
 ##### Parameters:
 
@@ -658,7 +755,7 @@ noise = broadbandNoise(spectrumLevel=40, dur=1, rampDur=0.01,
 channel="diotic", sf=48000, maxLevel=100)
 noise = scaleLevel(noise, level=-10) #reduce level by 10 dB
 ```
-"""->
+"""
 
 function scaleLevel{T<:Real}(sig::Array{T, 2}; level::Real=10)
 
@@ -673,9 +770,11 @@ end
 #############################
 ## sound
 #############################
-@doc doc"""
+"""
 Simple function to play sounds. Uses aplay on Linux and afplay on OSX.
 Windows is not currently supported.
+
+$(SIGNATURES)
 
 ##### Arguments
 
@@ -690,7 +789,7 @@ Windows is not currently supported.
 #sound(pt, 48000)
 ```
 
-"""->
+"""
 function sound{T<:Real}(snd::Array{T,2}, sf::Integer=48000, nbits::Integer=32)
     tmp = tempname()
     wavwrite(snd, tmp, Fs=sf, nbits=nbits)

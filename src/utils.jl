@@ -1,6 +1,6 @@
 ## The MIT License (MIT)
 
-## Copyright (c) 2013-2016 Samuele Carcagno <sam.carcagno@gmail.com>
+## Copyright (c) 2013-2017 Samuele Carcagno <sam.carcagno@gmail.com>
 
 ## Permission is hereby granted, free of charge, to any person obtaining a copy
 ## of this software and associated documentation files (the "Software"), to deal
@@ -23,9 +23,11 @@
 ################################
 ## freqFromCentInterval
 ################################
-@doc doc"""
+"""
 Compute the frequency, in Hz, corresponding to a distance,
 in equivalent cents of `deltaCents` from `f1`.
+
+$(SIGNATURES)
 
 ##### Parameters
 
@@ -46,7 +48,7 @@ freqFromCentInterval([100, 200, 300], 1.5)
 # for several distances
 freqFromCentInterval(100, [1, 1.5, 2])
 ```
-"""->
+"""
 function freqFromCentInterval{T<:Real, P<:Real}(f1::Union{T, AbstractVector{T}}, deltaCent::Union{P, AbstractVector{P}})
     f2 = f1*2.^(deltaCent/1200)
     return f2
@@ -55,9 +57,11 @@ end
 #######################################
 ## centDistance
 #######################################
-@doc doc"""
+"""
 Compute the distance in cents
 between the frequencies `f1` and `f2`.
+
+$(SIGNATURES)
 
 ##### Parameters
 
@@ -73,7 +77,7 @@ between the frequencies `f1` and `f2`.
 ```julia
 centDistance(1000, 1200)
 ```
-"""->
+"""
 
 function centDistance(f1::Real, f2::Real)
 
@@ -86,9 +90,11 @@ end
 ################################
 ## freqFromERBInterval
 ################################
-@doc doc"""
+"""
 Compute the frequency, in Hz, corresponding to a distance,
 in equivalent rectangular bandwidths (ERBs), of `deltaERB` from `f1`.
+
+$(SIGNATURES)
 
 ##### Parameters
 
@@ -113,7 +119,7 @@ freqFromERBInterval([100, 200, 300], 1.5)
 # for several distances
 freqFromERBInterval(100, [1, 1.5, 2])
 ```
-"""->
+"""
 function freqFromERBInterval{T<:Real, P<:Real}(f1::Union{T, AbstractVector{T}}, deltaERB::Union{P, AbstractVector{P}})
     f2 = (10.^((deltaERB + 21.4*log10(0.00437*f1 +1))/21.4)-1) / 0.00437
     return f2
@@ -122,9 +128,11 @@ end
 #######################################
 ## ERBDistance
 #######################################
-@doc doc"""
+"""
 Compute the distance in equivalent rectangular bandwiths (ERBs)
 between the frequencies `f1` and `f2`.
+
+$(SIGNATURES)
 
 ##### Parameters
 
@@ -144,7 +152,7 @@ between the frequencies `f1` and `f2`.
 ```julia
 ERBDistance(1000, 1200)
 ```
-"""->
+"""
 
 function ERBDistance(f1::Real, f2::Real)
 
@@ -156,10 +164,11 @@ end
 ###################
 ## intNCyclesFreq
 ###################
-@doc doc"""
-
+"""
 Compute the frequency closest to 'freq' that has an integer number
 of cycles for the given sound duration.
+
+$(SIGNATURES)
 
 ##### Parameters
 
@@ -177,7 +186,7 @@ intNCyclesFreq(2.1, 1000)
 intNCyclesFreq(2, 1000)
 ```
 
-"""->
+"""
 function intNCyclesFreq(freq::Real, dur::Real)
     adjFreq = round(freq*dur)/dur
 

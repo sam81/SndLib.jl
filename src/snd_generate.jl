@@ -1,6 +1,6 @@
 ## The MIT License (MIT)
 
-## Copyright (c) 2013-2016 Samuele Carcagno <sam.carcagno@gmail.com>
+## Copyright (c) 2013-2017 Samuele Carcagno <sam.carcagno@gmail.com>
 
 ## Permission is hereby granted, free of charge, to any person obtaining a copy
 ## of this software and associated documentation files (the "Software"), to deal
@@ -20,11 +20,14 @@
 ## OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 ## THE SOFTWARE.
 
+##using DocStringExtensions
 #############################
 ## AMTone
 #############################
-@doc doc"""
+"""
 Generate an amplitude modulated tone.
+
+$(SIGNATURES)
 
 ##### Parameters
 
@@ -54,7 +57,7 @@ snd = AMTone(carrierFreq=1000, AMFreq=20, AMDepth=1, carrierPhase=0,
 AMPhase=0, level=65, dur=1, rampDur=0.01, channel="diotic", sf=48000,
 maxLevel=100)
 ```
-"""->
+"""
 
 function AMTone(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
                 carrierPhase::Real=0, AMPhase::Real=1.5*pi, level::Real=60,
@@ -102,9 +105,11 @@ end
 ##########################
 ## AMToneIPD
 ##########################
-@doc doc"""
+"""
 Generate an amplitude modulated tone with an IPD in the carrier and/or
 modulation phase.
+
+$(SIGNATURES)
 
 ##### Parameters:
 
@@ -133,7 +138,7 @@ snd = AMToneIPD(carrierFreq=1000, AMFreq=20, AMDepth=1, carrierPhase=0,
 AMPhase=0, carrierIPD=0, AMIPD=pi/2, level=65, dur=1, rampDur=0.01,
 channel="right", sf=48000, maxLevel=100)
 ```
-"""->
+"""
 
 function AMToneIPD(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
                 carrierPhase::Real=0, AMPhase::Real=1.5*pi, carrierIPD::Real=0,
@@ -171,8 +176,10 @@ end
 #############################
 ## asynchChord
 #############################
-@doc doc"""
+"""
 Generate an asynchronous chord.
+
+$(SIGNATURES)
 
 This function will add a set of pure tones with a given
 stimulus onset asynchrony (SOA). The temporal order of the
@@ -207,7 +214,7 @@ c1 = asynchChord(freqs=freqs, levels=levels, phases=phases,
 tonesDur=0.2, tonesRampDur=0.01, tonesChannel="diotic",
 SOA=0.06, sf=48000, maxLevel=100)
 ```
-"""->
+"""
 
 function asynchChord{T<:Real}(;freqs::AbstractVector{T}=[200, 400], levels::AbstractVector{T}=[60, 60], phases::AbstractVector{T}=[0, 0], tonesDur::Real=0.2, tonesRampDur::Real=0.01, tonesChannel::AbstractString="diotic", SOA::Real=0.06, sf::Real=48000, maxLevel::Real=101)
 
@@ -234,8 +241,10 @@ end
 #############################
 ## broadbandNoise
 #############################
-@doc doc"""
+"""
 Synthetise a broadband noise.
+
+$(SIGNATURES)
 
 ##### Parameters:
 
@@ -259,7 +268,7 @@ noise = broadbandNoise(spectrumLevel=20, dur=180, rampDur=10,
          channel="diotic", sf=48000, maxLevel=100)
 ```
 
-"""->
+"""
 function broadbandNoise(;spectrumLevel::Real=20, dur::Real=1, rampDur::Real=0.01,
                         channel::AbstractString="diotic", sf::Real=48000, maxLevel::Real=101)
 
@@ -334,8 +343,10 @@ end
 ############################
 ## complexTone
 ############################
-@doc doc"""
+"""
 Synthetise a complex tone.
+
+$(SIGNATURES)
 
 ##### Parameters:
 
@@ -370,7 +381,7 @@ Synthetise a complex tone.
          sf=48000, maxLevel=100)
 ```
 
-"""->
+"""
 function complexTone(;F0::Real=220, harmPhase::AbstractString="sine", lowHarm::Integer=1, highHarm::Integer=10, stretch::Real=0,
                      level::Real=60, dur::Real=1, rampDur::Real=0.01, channel::AbstractString="diotic", sf::Real=48000,
                      maxLevel::Real=101)
@@ -527,9 +538,11 @@ end
 ##############################
 ## expAMNoise
 ##############################
-@doc doc"""
+"""
 Generate a sinusoidally amplitude-modulated noise with an exponentially
 modulated AM frequency.
+
+$(SIGNATURES)
 
 ##### Parameters
 
@@ -557,7 +570,7 @@ snd = expAMNoise(carrierFreq=150, MF=2.5, deltaCents=600, FMPhase=pi, AMDepth = 
      spectrumLevel=30, dur=0.4, rampDur=0.01, channel="diotic", sf=48000, maxLevel=101)
 ```
 
-"""->
+"""
 function expAMNoise(;carrierFreq::Real=150, MF::Real=2.5, deltaCents::Real=600, FMPhase::Real=pi, AMDepth::Real=1, spectrumLevel::Real=30, dur::Real=0.4, rampDur::Real=0.01, channel::AbstractString="diotic", sf::Real=48000, maxLevel::Real=101)
 
     if dur < rampDur*2
@@ -618,8 +631,10 @@ end
 ###################################
 ## expSinFMTone
 ###################################
-@doc doc"""
+"""
 Generate a tone frequency modulated with an exponential sinusoid.
+
+$(SIGNATURES)
 
 ##### Parameters
 
@@ -649,7 +664,7 @@ tone_peak = expSinFMTone(carrierFreq=450, MF=5, deltaCents=300, FMPhase=pi, phas
 tone_trough = expSinFMTone(carrierFreq=450, MF=5, deltaCents=300, FMPhase=0, phase=0, level=60,
     dur=0.2, rampDur=0.01, channel="diotic", sf=48000, maxLevel=101)
 ```
-"""->
+"""
 
 function expSinFMTone(;carrierFreq::Real=450, MF::Real=5, deltaCents::Real=600, FMPhase::Real=pi, phase::Real=0, level::Real=60, dur::Real=0.2, rampDur::Real=0.01, channel::AbstractString="diotic", sf::Real=48000, maxLevel::Real=101)
     amp = 10^((level - maxLevel) / 20)
@@ -687,9 +702,11 @@ end
 ####################################
 ## FMComplex2
 ####################################
-@doc doc"""
+"""
 Synthetise a complex tone with an embedded frequency modulation (FM)
 starting and stopping at a chosen time after the tone onset.
+
+$(SIGNATURES)
 
 ##### Parameters
 
@@ -739,7 +756,7 @@ tone_down = FMComplex2(midF0=140, harmPhase="sine",
                  levelAdj=true, channel="diotic",
                  sf=48000, maxLevel=101)
 ```
-"""->
+"""
 
 function FMComplex2(;midF0::Real=140, harmPhase::AbstractString="sine",
                     lowHarm::Integer=1, highHarm::Integer=10,
@@ -956,8 +973,10 @@ end
 ############################
 ## FMTone
 ############################
-@doc doc"""
+"""
 Generate a frequency modulated tone.
+
+$(SIGNATURES)
 
 ##### Parameters
 
@@ -986,7 +1005,7 @@ Examples
 snd = FMTone(carrierFreq=1000, MF=40, MI=1, phase=0, level=55, dur=1,
      rampDur=0.01, channel="diotic", sf=48000, maxLevel=100)
 ```
-"""->
+"""
 
 function FMTone(;carrierFreq::Real=1000, MF::Real=40, MI::Real=1, phase::Real=0,
                 level::Real=60, dur::Real=1, rampDur::Real=0.01,
@@ -1037,9 +1056,10 @@ end
 ## hugginsPitch
 ################################
 
-@doc doc"""
-
+"""
 Synthetise a complex Huggings Pitch.
+
+$(SIGNATURES)
 
 ##### Parameters
 
@@ -1101,7 +1121,7 @@ dichoticDifferenceValue=pi, phaseRelationship="NoSpi", stretch=0,
 noiseType="white", dur=0.4, rampDur=0.01, sf=48000, maxLevel=101)
 ```
 
-"""->
+"""
 
 function hugginsPitch(;F0::Real=550, lowHarm::Int=1, highHarm::Int=1,
                       spectrumLevel::Real=30, bandwidth::Real=1,
@@ -1199,9 +1219,10 @@ end
 ## IRN
 #################################
 
-@doc doc"""
-
+"""
 Generate an iterated rippled noise
+
+$(SIGNATURES)
 
 ##### Parameters
 
@@ -1228,7 +1249,7 @@ irn = IRN(delay=1/440, gain=1, iterations=6, configuration="add same",
           spectrumLevel=25, dur=1, rampDur=0.01, channel="diotic",
           sf=48000, maxLevel=101)
 ```
-"""->
+"""
 
 function IRN(;delay::Real=0.001, gain::Real=1, iterations::Integer=6,
              configuration::AbstractString="add same", spectrumLevel::Real=25,
@@ -1265,8 +1286,10 @@ end
 ####################################
 ## pureTone
 ####################################
-@doc doc"""
+"""
 Synthetise a pure tone.
+
+$(SIGNATURES)
 
 ##### Parameters:
 
@@ -1275,7 +1298,7 @@ Synthetise a pure tone.
 * `level`: Tone level in dB SPL.
 * `dur`: Tone duration in seconds.
 * `rampDur`: Duration of the onset and offset ramps in seconds.
-* `channel`: Channel in which the tone will be generated.  (`right`, `left` or `diotic`)
+* `channel`: Channel in which the tone will be generated.  (`mono`, `right`, `left` or `diotic`)
 * `sf`: Samplig frequency in Hz.
 * `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of amplitude 1.
 
@@ -1290,7 +1313,7 @@ Synthetise a pure tone.
 pt = pureTone(frequency=440, phase=0, level=65, dur=1,
 rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
-"""->
+"""
 function pureTone(;frequency::Real=1000, phase::Real=0, level::Real=65,
                   dur::Real=1, rampDur::Real=0.01,
                   channel::AbstractString="diotic", sf::Real=48000,
@@ -1339,8 +1362,10 @@ end
 ##################################
 ## pureToneILD
 ##################################
-@doc doc"""
+"""
 Synthetise a pure tone with an interaural level difference.
+
+$(SIGNATURES)
 
 ##### Parameters:
 
@@ -1364,7 +1389,7 @@ Synthetise a pure tone with an interaural level difference.
 pt = pureToneILD(frequency=440, phase=0, level=65, ILD=10, dur=1,
 rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
-"""->
+"""
 
 function pureToneILD(;frequency::Real=1000, phase::Real=0,
                      level::Real=65, ILD::Real=10, dur::Real=1, rampDur::Real=0.01,
@@ -1396,8 +1421,10 @@ end
 ######################################
 ## pureToneIPD
 ######################################
-@doc doc"""
+"""
 Synthetise a pure tone with an interaural phase difference.
+
+$(SIGNATURES)
 
 ##### Parameters:
 
@@ -1421,7 +1448,7 @@ Synthetise a pure tone with an interaural phase difference.
 pt = pureToneIPD(frequency=440, phase=0, IPD=pi/2, level=65, dur=1,
 rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
-"""->
+"""
 
 function pureToneIPD(;frequency::Real=1000, phase::Real=0, IPD::Real=pi,
                      level::Real=65, dur::Real=1, rampDur::Real=0.01,
@@ -1453,8 +1480,10 @@ end
 ######################################
 ## pureToneITD
 ######################################
-@doc doc"""
+"""
 Synthetise a pure tone with an interaural time difference.
+
+$(SIGNATURES)
 
 ##### Parameters:
 
@@ -1478,7 +1507,7 @@ Synthetise a pure tone with an interaural time difference.
 pt = pureToneITD(frequency=440, phase=0, ITD=0.004/10, level=65, dur=1,
 rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
-"""->
+"""
 
 function pureToneITD(;frequency::Real=1000, phase::Real=0, ITD::Real=0,
                      level::Real=65, dur::Real=1, rampDur::Real=0.01,
@@ -1501,8 +1530,10 @@ end
 ## pureToneIPDILD
 ####################################
 
-@doc doc"""
+"""
 Synthetise a pure tone with an interaural phase and interaural level difference.
+
+$(SIGNATURES)
 
 ##### Parameters:
 
@@ -1527,7 +1558,7 @@ Synthetise a pure tone with an interaural phase and interaural level difference.
 pt = pureToneIPDILD(frequency=440, phase=0, IPD=pi/2, level=65, ILD=10,
 dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
-"""->
+"""
 
 function pureToneIPDILD(;frequency::Real=1000, phase::Real=0, IPD::Real=0,
                      level::Real=65, ILD::Real=0, dur::Real=1, rampDur::Real=0.01,
@@ -1557,8 +1588,10 @@ end
 #########################################
 ## pureToneITDILD
 #########################################
-@doc doc"""
+"""
 Synthetise a pure tone with an interaural time and interaural level difference.
+
+$(SIGNATURES)
 
 ##### Parameters:
 
@@ -1583,7 +1616,7 @@ Synthetise a pure tone with an interaural time and interaural level difference.
 pt = pureToneITDILD(frequency=440, phase=0, ITD=0.004/1000, level=65,
 ILD=10, dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
-"""->
+"""
 
 function pureToneITDILD(;frequency::Real=1000, phase::Real=0, ITD::Real=0,
                      level::Real=65, ILD::Real=0, dur::Real=1, rampDur::Real=0.01,
@@ -1606,8 +1639,10 @@ end
 ##################################
 ## silence
 ##################################
-@doc doc"""
+"""
 Generate a silence.
+
+$(SIGNATURES)
 
 This function just fills an array with zeros for the
 desired duration.
@@ -1628,7 +1663,7 @@ The array has dimensions (nSamples, 2).
 ```julia
 sil = silence(dur=2, sf=48000)
 ```
-"""->
+"""
 function silence(;dur=1, channel="mono", sf=48000)
     nSamples = round(Int, dur * sf)
     if in(channel, ["mono", "diotic"]) == false
@@ -1646,9 +1681,11 @@ end
 #####################################
 ## steepNoise
 #####################################
-@doc doc"""
+"""
 Synthetise band-limited noise from the addition of random-phase
 sinusoids.
+
+$(SIGNATURES)
 
 ##### Parameters:
 
@@ -1672,7 +1709,7 @@ nbNoise = steepNoise(f1=440, f2=660, level=65,
 dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 
-"""->
+"""
 function steepNoise(;f1=900, f2=1000, level=50, dur=1, rampDur=0.01,
                     channel="diotic", sf=48000, maxLevel=101)
 
