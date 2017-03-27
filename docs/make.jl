@@ -9,5 +9,5 @@ if ispath("site/")
 end
 
 include("runWeave.jl") #convert weave file to markdown
-makedocs()
+makedocs(modules = [SndLib])
 run(`mkdocs build`)

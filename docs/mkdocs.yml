@@ -1,5 +1,6 @@
 site_name: SndLib.jl
-theme: readthedocs
+theme_dir: cinder
+repo_url: https://github.com/sam81/SndLib.jl
 
 extra_css:
   - assets/Documenter.css
