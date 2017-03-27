@@ -6,12 +6,12 @@
 The following code generates a 1 kHz pure tone:
 
 ```{julia; fig_cap="A pure tone."}
-using SndLib, DSP, PyPlot
+using SndLib, DSP, Gadfly
 
 pt = pureTone(frequency=1000, dur=0.1, rampDur=0.01, sf=48000)
-figure()
-plot(pt[:,1], color="black")
-xlabel("Time (s)"); ylabel("Amplitude (a.u.)")
+tArr = collect(0:size(pt)[1]-1)/48000
+plot(x=tArr, y=pt[:,1], Geom.line,
+Guide.xlabel("Time (s)"), Guide.ylabel("Amplitude (a.u.)"))
 ```
 
 if you're on Linux or OS X, you can listen to it using the `sound` function:
@@ -24,9 +24,9 @@ The following code generates an amplitude-modulated tone:
 
 ```{julia; fig_cap="An amplitude modulated tone."}
 amtone = AMTone(carrierFreq=1000, AMFreq=50, AMDepth=1, AMPhase=-pi/2, dur=0.1, rampDur=0.01, sf=48000)
-figure()
-plot(amtone[:,1], color="black")
-xlabel("Time (s)"); ylabel("Amplitude (a.u.)")
+tArr = collect(0:size(amtone)[1]-1)/48000
+plot(x=tArr, y=amtone[:,1], Geom.line,
+Guide.xlabel("Time (s)"), Guide.ylabel("Amplitude (a.u.)"))
 ```
 
 we can use the `DSP` module to plot the spectrum of the tone:
@@ -34,9 +34,8 @@ we can use the `DSP` module to plot the spectrum of the tone:
 ```{julia; fig_cap="Spectrum of the amplitude-modulated tone."}
 spec = periodogram(amtone[:,1], onesided=true, fs=48000, window=hamming)
 idx = find(spec.freq .<= 2000)
-figure()
-plot(spec.freq[idx], 10*log10(spec.power)[idx], color="black")
-xlabel("Frequency (Hz)"); ylabel("Level (dB)")
+plot(x=spec.freq[idx], y=10*log10(spec.power)[idx], Geom.line,
+Guide.xlabel("Frequency (Hz)"), Guide.ylabel("Level (dB)"))
 ```
 
 
