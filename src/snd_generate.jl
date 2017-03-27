@@ -548,7 +548,7 @@ $(SIGNATURES)
 
 * `carrierFreq`: Carrier AM frequency in hertz.
 * `MF`: Amplitude modulation frequency in Hz.
-* `deltaCents`: AM frequency excursion in cents. The instataneous AM frequency of the noise will vary from `carrierFreq`**(-`deltaCents`/1200) to `carrierFreq`**(`deltaCents`/1200).
+* `deltaCents`: AM frequency excursion in cents. The instataneous AM frequency of the noise will vary from `carrierFreq`^(-`deltaCents`/1200) to `carrierFreq`^(`deltaCents`/1200).
 * `FMPhase`: Starting phase of the AM modulation in radians.
 * `AMDepth`: Amplitude modulation depth.
 * `spectrumLevel`: Noise spectrum level in dB SPL.
@@ -641,7 +641,7 @@ $(SIGNATURES)
 * `carrierFreq`: Carrier frequency in hertz.
 * `MF`: Modulation frequency in Hz.
 * `deltaCents`: Frequency excursion in cents. The instataneous frequency of the tone
-         will vary from `carrierFreq**(-deltaCents/1200)` to `carrierFreq**(deltaCents/1200)`.
+         will vary from `carrierFreq^(-deltaCents/1200)` to `carrierFreq^(deltaCents/1200)`.
 * `FMPhase`: Starting FM phase in radians.
 * `phase`: Starting phase in radians.
 * `level`: Tone level in dB SPL.
