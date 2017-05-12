@@ -2,4 +2,4 @@ DocStringExtensions
 DSP
 PyCall
 WAV
-julia 0.4-
+julia 0.5

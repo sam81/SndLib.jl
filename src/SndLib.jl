@@ -36,7 +36,6 @@ makePink!,
 phaseShift!, pureTone, pureToneILD, pureToneIPD, pureToneIPDILD, pureToneITD, pureToneITDILD,
 scaleLevel, silence, sound, steepNoise
 
-VERSION < v"0.4-" && using Docile
 using DocStringExtensions, DSP, PyCall, WAV
 #pyinitialize("python3")
 @pyimport scipy.signal as scisig
