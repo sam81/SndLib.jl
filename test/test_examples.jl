@@ -1,8 +1,8 @@
 using SndLib
 
 fToProcess = ["snd_generate.jl", "snd_process.jl", "utils.jl"]
-#for fName in fToProcess
-fName = fToProcess[1]
+for fName in fToProcess
+##fName = fToProcess[1]
     fIn = open(string("../src/", fName), "r")
     fOut = open(string("test_", fName), "w")
     lns = readlines(fIn)
@@ -37,7 +37,7 @@ fName = fToProcess[1]
     
 
     close(fIn); close(fOut)
-#end
+end
 
 for fName in fToProcess
     fNameTest = string("test_", fName)
