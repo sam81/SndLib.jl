@@ -121,7 +121,7 @@ freqFromERBInterval(100, [1, 1.5, 2])
 ```
 """
 function freqFromERBInterval{T<:Real, P<:Real}(f1::Union{T, AbstractVector{T}}, deltaERB::Union{P, AbstractVector{P}})
-    f2 = (10.^((deltaERB + 21.4*log10(0.00437*f1 +1))/21.4)-1) / 0.00437
+    f2 = (10.^((deltaERB + 21.4*log10.(0.00437*f1 +1))/21.4)-1) / 0.00437
     return f2
 end
 

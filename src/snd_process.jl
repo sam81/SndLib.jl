@@ -337,8 +337,8 @@ function gate!{T<:Real}(sig::Array{T, 2}; rampDur::Real=0.01, sf::Real=48000)
 
     nChans = size(sig)[2]
     for i = 1:nChans
-        sig[1:nRamp, i] = sig[1:nRamp, i] .*  ((1-cos(pi * timeRamp/nRamp))/2)
-        sig[nStartSecondRamp+1:nTot, i] = sig[nStartSecondRamp+1:nTot, i] .* ((1+cos(pi * timeRamp/nRamp))/2)
+        sig[1:nRamp, i] = sig[1:nRamp, i] .*  ((1-cos.(pi * timeRamp/nRamp))/2)
+        sig[nStartSecondRamp+1:nTot, i] = sig[nStartSecondRamp+1:nTot, i] .* ((1+cos.(pi * timeRamp/nRamp))/2)
     end
 
     return sig
@@ -512,9 +512,9 @@ function ITDShift!{T<:Real}(sig::Array{T,2}, f1::Real, f2::Real; ITD::Real=300/1
     #remove DC offset and nyquist for the second half of the FFT
     freqArray2 = -flipdim(collect(1:(nUniquePnts-1)),1) * (sf / fftPoints)
     #find the indexes of the frequencies for which to set the ITD for the first half of the FFT
-    sh1 = find((freqArray1 .>= f1) & (freqArray1 .<= f2))
+    sh1 = find((freqArray1 .>= f1) .& (freqArray1 .<= f2))
     #same as above for the second half of the FFT
-    sh2 = find((freqArray2 .<= -f1) & (freqArray2 .>= -f2))
+    sh2 = find((freqArray2 .<= -f1) .& (freqArray2 .>= -f2))
     #compute IPSs for the first half of the FFT
     phaseShiftArray1 = ITDToIPD(ITD/1000000, freqArray1[sh1])
     #same as above for the second half of the FFT
@@ -532,12 +532,12 @@ function ITDShift!{T<:Real}(sig::Array{T,2}, f1::Real, f2::Real; ITD::Real=300/1
 
     x1 = x[p1Start:p1End] #first half of the FFT
     x2 = x[p2Start:p2End] #second half of the FFT
-    x1mag = abs(x1); x2mag = abs(x2)
-    x1Phase =  angle(x1); x2Phase =  angle(x2);
+    x1mag = abs.(x1); x2mag = abs.(x2)
+    x1Phase =  angle.(x1); x2Phase =  angle.(x2);
     x1Phase[sh1] = x1Phase[sh1] + phaseShiftArray1 #change phases
     x2Phase[sh2] = x2Phase[sh2] + phaseShiftArray2
-    x1 = x1mag .* (cos(x1Phase) + (1im * sin(x1Phase))) #rebuild FFTs
-    x2 = x2mag .* (cos(x2Phase) + (1im * sin(x2Phase)))
+    x1 = x1mag .* (cos.(x1Phase) + (1im * sin.(x1Phase))) #rebuild FFTs
+    x2 = x2mag .* (cos.(x2Phase) + (1im * sin.(x2Phase)))
     x = vcat(x1, x2)
     x = real(ifft(x)) #inverse transform to get the sound back
 
@@ -638,8 +638,8 @@ function phaseShift!{T<:Real, P<:Integer}(sig::Array{T, 2}, f1::Real, f2::Real; 
     freqArray2 = -flipdim(collect(1:(nUniquePnts-1)), 1) * (sf / fftPoints) #remove DC offset and nyquist
     ## sh1 = where((freqArray1>f1) & (freqArray1<f2))
     ## sh2 = where((freqArray2<-f1) & (freqArray2>-f2))
-    sh1 = find((freqArray1 .>= f1) & (freqArray1 .<= f2))
-    sh2 = find((freqArray2 .<= -f1) & (freqArray2 .>= -f2))
+    sh1 = find((freqArray1 .>= f1) .& (freqArray1 .<= f2))
+    sh2 = find((freqArray2 .<= -f1) .& (freqArray2 .>= -f2))
 
     p1Start = 1; p1End = length(freqArray1)
     p2Start = length(freqArray1)+1; p2End = fftPoints
@@ -661,12 +661,12 @@ function phaseShift!{T<:Real, P<:Integer}(sig::Array{T, 2}, f1::Real, f2::Real; 
         x = fft(sig[:, ch])#, fftPoints)
         x1 = x[p1Start:p1End]
         x2 = x[p2Start:p2End]
-        x1mag = abs(x1); x2mag = abs(x2)
-        x1Phase =  angle(x1); x2Phase =  angle(x2);
+        x1mag = abs.(x1); x2mag = abs.(x2)
+        x1Phase =  angle.(x1); x2Phase =  angle.(x2);
         x1Phase[sh1] = x1Phase[sh1] + phaseShiftArray1
         x2Phase[sh2] =  x2Phase[sh2] + phaseShiftArray2
-        x1 = x1mag .* (cos(x1Phase) + (1im * sin(x1Phase)))
-        x2 = x2mag .* (cos(x2Phase) + (1im * sin(x2Phase)))
+        x1 = x1mag .* (cos.(x1Phase) + (1im * sin.(x1Phase)))
+        x2 = x2mag .* (cos.(x2Phase) + (1im * sin.(x2Phase)))
         x = vcat(x1, x2)
         x = real(ifft(x))
         sig[:, ch] = x[1:nSamples]
@@ -719,10 +719,10 @@ function makePink!{T<:Real}(sig::Array{T, 2}; sf::Real=48000, ref::Real=1000)
         n = length(x)
         idx = collect(1:n)#arange(1, len(x))
         mag = zeros(n)
-        mag[1:n] = abs(x[1:n]) .* sqrt(ref./idx)
-        mag[1] = abs(x[1])
-        ph = angle(x)
-        x = mag .* (cos(ph) + 1im * sin(ph))
+        mag[1:n] = abs.(x[1:n]) .* sqrt.(ref./idx)
+        mag[1] = abs.(x[1])
+        ph = angle.(x)
+        x = mag .* (cos.(ph) + 1im * sin.(ph))
         sig[:,i] = irfft(x, nSamples)
     end
 
