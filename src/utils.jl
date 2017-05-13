@@ -78,7 +78,6 @@ $(SIGNATURES)
 centDistance(1000, 1200)
 ```
 """
-
 function centDistance(f1::Real, f2::Real)
 
     deltaCents = 1200*log2(f2/f1)
@@ -153,7 +152,6 @@ $(SIGNATURES)
 ERBDistance(1000, 1200)
 ```
 """
-
 function ERBDistance(f1::Real, f2::Real)
 
     deltaERB = 21.4*log10(0.00437*f2+1) - 21.4*log10(0.00437*f1+1)
