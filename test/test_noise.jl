@@ -35,3 +35,12 @@ end
 
 
 
+## Test error condition
+@test_throws(ErrorException, broadbandNoise(dur=1, rampDur=0.6))
+
+@test_throws(ErrorException, broadbandNoise(channel="foo"))
+
+@test_throws(ErrorException, steepNoise(dur=1, rampDur=0.6))
+
+@test_throws(ErrorException, steepNoise(channel="foo"))
+

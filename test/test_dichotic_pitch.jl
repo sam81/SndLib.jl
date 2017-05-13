@@ -55,3 +55,13 @@ for channel in channelOpts
         end
     end
 end
+
+
+## Test error condition
+@test_throws(ErrorException, hugginsPitch(dur=1, rampDur=0.6))
+
+@test_throws(ErrorException, hugginsPitch(bandwidthUnit="foo"))
+
+@test_throws(ErrorException, hugginsPitch(phaseRelationship="foo"))
+
+@test_throws(ErrorException, hugginsPitch(noiseType="foo"))

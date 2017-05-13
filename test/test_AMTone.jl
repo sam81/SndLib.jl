@@ -24,3 +24,7 @@ for channel in channelOpts
 end
 
 
+## Test error condition
+@test_throws(ErrorException, AMTone(dur=1, rampDur=0.6))
+
+@test_throws(ErrorException, AMTone(channel="foo"))

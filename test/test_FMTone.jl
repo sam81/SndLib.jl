@@ -23,3 +23,9 @@ for channel in channelOpts
     wavwrite(snd, wavDir*"FMTone_"*channel*".wav", Fs=sf, nbits=nbits)
 end
 
+
+## Test error condition
+@test_throws(ErrorException, FMTone(dur=1, rampDur=0.6))
+
+@test_throws(ErrorException, FMTone(channel="foo"))
+

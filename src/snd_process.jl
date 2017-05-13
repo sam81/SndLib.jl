@@ -432,7 +432,7 @@ function getSpectrum{T<:Real}(sig::AbstractVector{T}, sf::Real; window::Function
 
     nUniquePts = ceil(Int, (nfft+1)/2)
     p = p[1:nUniquePts]
-    p = abs(p)
+    p = abs.(p)
     p = p ./ n  # scale by the number of points so that
     # the magnitude does not depend on the length
     # of the signal or on its sampling frequency

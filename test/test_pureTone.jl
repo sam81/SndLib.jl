@@ -18,3 +18,6 @@ for channel in channelOpts
     wavwrite(pt, wavDir*"pt_"*channel*".wav", Fs=sf, nbits=nbits)
 end
 
+@test_throws(ErrorException, pureTone(dur=1, rampDur=0.6))
+
+@test_throws(ErrorException, pureTone(channel="foo"))

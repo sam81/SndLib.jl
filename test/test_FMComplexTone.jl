@@ -35,3 +35,13 @@ for channel in channelOpts
                  Fs=sf, nbits=nbits)
     end
 end
+
+
+## Test error condition
+@test_throws(ErrorException, FMComplex2(dur=1, rampDur=0.6))
+
+@test_throws(ErrorException, FMComplex2(dur=1, FMDur=1, FMStartTime=0.2))
+
+@test_throws(ErrorException, FMComplex2(channel="foo"))
+
+@test_throws(ErrorException, FMComplex2(harmPhase="foo"))
