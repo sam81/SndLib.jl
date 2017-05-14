@@ -674,6 +674,14 @@ tone_trough = expSinFMTone(carrierFreq=450, MF=5, deltaCents=300, FMPhase=0, pha
 """
 
 function expSinFMTone(;carrierFreq::Real=450, MF::Real=5, deltaCents::Real=600, FMPhase::Real=pi, phase::Real=0, level::Real=60, dur::Real=0.2, rampDur::Real=0.01, channel::String="diotic", sf::Real=48000, maxLevel::Real=101)
+
+    if dur < rampDur*2
+        error("Sound duration cannot be less than total duration of ramps")
+    end
+    if in(channel, ["mono", "right", "left", "diotic"]) == false
+        error("`channel` must be one of 'mono', 'right', 'left', 'diotic'")
+    end
+
     amp = 10^((level - maxLevel) / 20)
     nSamples = round(Int, (dur-rampDur*2) * sf)
     nRamp = round(Int, rampDur * sf)

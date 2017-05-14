@@ -793,9 +793,9 @@ $(SIGNATURES)
 function sound{T<:Real}(snd::Array{T,2}, sf::Integer=48000, nbits::Integer=32)
     tmp = tempname()
     wavwrite(snd, tmp, Fs=sf, nbits=nbits)
-    if OS_NAME == :Linux
+    if is_linux()
         run(`aplay $tmp`)
-    elseif OS_NAME == :OSX
+    elseif is_apple()
         run(`afplay $tmp`)
     else
         println("Sorry sound function does not currently support your operating system")
