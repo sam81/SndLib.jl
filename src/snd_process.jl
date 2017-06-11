@@ -345,6 +345,77 @@ function gate!{T<:Real}(sig::Array{T, 2}; rampDur::Real=0.01, sf::Real=48000)
 end
 
 """
+Compute the autocorrelation function of a sound.
+
+$(SIGNATURES)
+
+##### Arguments:
+
+* `sig::Union{AbstractVector{Real}, AbstractMatrix{Real}}`: the signal for which the autocorrelation should be computed.
+* `sf::Real`: the sampling frequency of the signal.
+* `maxLag::Real`: the maximum lag (1/f) for which the autocorrelation function should be computed.
+* `normalize::Bool`: whether the autocorrelation should be scaled between [-1, 1].
+* `window::Function`: The type of window to apply to the signal before computing its ACF (see DSP.jl).
+                      Choose `rect` if you don't want to apply any window.
+
+##### Returns
+
+* `acf::Array{Real,1}`: the autocorrelation function.
+* `lags::Array{Real,1}`: the time lags for which the autocorrelation function was computed.
+
+##### Examples
+
+```julia
+    using DSP
+    sf = 48000
+    dur = 1
+    nSamp = round(Int, sf*dur)
+    tArr = collect(0:nSamp-1)/sf
+    freq = 440
+    sig = sin(2*pi*freq*tArr)
+    maxLag = 1/200
+    acf, lags = getACF(sig, sf, maxLag, normalize=true, window=hamming)
+```
+
+"""
+function getACF{T<:Real}(sig::AbstractVector{T}, sf::Real, maxLag::Real=length(sig)/sf; normalize::Bool=true, window::Function=rect)
+
+    n = length(sig)
+    w = window(n)
+    sig = sig.*w
+
+    maxLagPnt = round(Int, maxLag*sf)
+    if maxLagPnt > n
+        maxLagPnt = n
+    end
+    out = xcorr(sig, sig)[n:n+maxLagPnt-1]
+
+    lags = collect(1:maxLagPnt)./sf
+
+    if normalize == true
+        out = out ./ maximum(out)
+    end
+    return out, lags
+
+end 
+
+
+function getACF{T<:Real}(sig::AbstractMatrix{T}, sf::Real, maxLag::Real=size(sig)[1]/sf; normalize::Bool=true, window::Function=rect)
+    ## If the sound has multiple channels compute ACF for each separately
+    ## and return the results as a matrix with nCol = nChans
+    nChans = size(sig)[2]
+    acf1, lags = getACF(sig[:,1], sf, maxLag, normalize=normalize, window=window)
+    acf = zeros(length(acf1), nChans)
+    acf[:,1] = acf1
+    for i=2:nChans
+        thisAcf, foo = getACF(sig[:,i], sf, maxLag, normalize=normalize, window=window)
+        acf[:,i] = thisAcf
+    end
+    return acf, lags
+end
+
+
+"""
 Compute the root mean square (RMS) value of the signal.
 
 $(SIGNATURES)
@@ -399,7 +470,7 @@ $(SIGNATURES)
 ##### Arguments
 
 * `sig::Union{AbstractVector{Real}, AbstractMatrix{Real}}`: The sound of which the spectrum should be computed. Columns are assumed to correspond to channels and rows to samples.
-* `sampRate::Real`: The sampling rate of the signal.
+* `sf::Real`: The sampling rate of the signal.
 * `window::Function`: The type of window to apply to the signal before computing its FFT (see DSP.jl). Choose `rect` if you don't want to apply any window.
 * `powerOfTwo::Bool`: If `true` `sig` will be padded with zeros (if necessary) so that its length is a power of two.
 
