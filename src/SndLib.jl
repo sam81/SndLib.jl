@@ -32,7 +32,7 @@ fir2Filt!, FMComplex2, FMTone, freqFromCentInterval, freqFromERBInterval,
 gate!, getACF, getRMS, getSpectrum,
 hugginsPitch,
 intNCyclesFreq, IRN, ITDToIPD, ITDShift!,
-makePink!, 
+makePink!, nextPowTwo,
 phaseShift!, pureTone, pureToneILD, pureToneIPD, pureToneIPDILD, pureToneITD, pureToneITDILD,
 scaleLevel, silence, sound, steepNoise
 

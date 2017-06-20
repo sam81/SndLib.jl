@@ -490,14 +490,17 @@ $(SIGNATURES)
 """
 function getSpectrum{T<:Real}(sig::AbstractVector{T}, sf::Real; window::Function=rect, powerOfTwo::Bool=false)
 
-    n = length(sig)
+    n = length(sig) #size(sig)[1]
+    w = window(n)
+    sig = sig.*w
     if powerOfTwo == true
-        nfft = 2^nextPowTwo(n)
+        nfft = nextpow2(n) #2^nextPowTwo(n)
+        if nfft != n #zero-pad
+            sig = vcat(sig, zeros(eltype(sig), nfft-n))
+        end
     else
         nfft = n
     end
-    w = window(n)
-    sig = sig.*w
 
     p = fft(sig)#, nfft) # take the fourier transform
 
@@ -654,6 +657,32 @@ function ITDToIPD{T<:Real}(ITD::Real, freq::Union{T, AbstractVector{T}})
     IPD = (ITD ./ (1./freq)) * 2 * pi
 
     return IPD
+end
+
+#########################
+## nextPowTwo
+#########################
+"""
+Find the exponent of the next power of 2 closest to `x`.
+
+$(SIGNATURES)
+
+#### Arguments
+
+* `x::Real`
+
+#### Examples
+
+    ```julia
+    nextPowTwo(6)
+    nextPowTwo(511)
+    isequal(2^(nextPowTwo(6)), 2^3)
+    ```
+
+"""
+function nextPowTwo(x::Real)
+    out = round(Int, ceil(log2(x)))
+    return out
 end
 
 #########################
