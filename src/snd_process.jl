@@ -372,7 +372,7 @@ $(SIGNATURES)
     nSamp = round(Int, sf*dur)
     tArr = collect(0:nSamp-1)/sf
     freq = 440
-    sig = sin(2*pi*freq*tArr)
+    sig = sin.(2*pi*freq*tArr)
     maxLag = 1/200
     acf, lags = getACF(sig, sf, maxLag, normalize=true, window=hamming)
 ```
