@@ -36,9 +36,15 @@ makePink!, nextPowTwo,
 phaseShift!, pureTone, pureToneILD, pureToneIPD, pureToneIPDILD, pureToneITD, pureToneITDILD,
 scaleLevel, silence, sound, steepNoise
 
-using Compat, DocStringExtensions, DSP, PyCall, WAV
+using Compat, DocStringExtensions, DSP, FFTW, PyCall, Random, Statistics, WAV
 #pyinitialize("python3")
-@pyimport scipy.signal as scisig
+#@pyimport scipy.signal as scisig
+
+const scisig = PyNULL()
+
+function __init__()
+    copy!(scisig, pyimport_conda("scipy.signal", "scipy"))
+end
 
 include("snd_generate.jl")
 include("snd_process.jl")

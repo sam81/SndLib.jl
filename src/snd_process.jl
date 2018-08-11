@@ -49,8 +49,7 @@ rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 snd = addSounds(snd1, snd2, delay=1, sf=48000)
 ```
 """
-
-function addSounds{T<:Real, P<:Real}(snd1::Array{T, 2}, snd2::Array{P, 2}; delay::Real=0, sf::Real=48000)
+function addSounds(snd1::Array{T, 2}, snd2::Array{P, 2}; delay::Real=0, sf::Real=48000) where {T<:Real, P<:Real}
     nChans1 = size(snd1)[2]
     nChans2 = size(snd2)[2]
     if nChans1 != nChans2
@@ -136,12 +135,11 @@ irn_add_same = delayAdd!(noise, delay=1/440, gain=1, iterations=6, configuration
 irn_add_orig = delayAdd!(noise, delay=1/440, gain=1, iterations=6, configuration="add original", channel=[1,2], sf=48000)
 ```
 """
-
-function delayAdd!{T<:Real, P<:Integer}(sig::Array{T,2}; delay::Real=0.01,
-                                        gain::Real=1, iterations::Integer=1,
-                                        configuration::AbstractString="add same",
-                                        channel::Union{P, AbstractVector{P}}=[1:size(sig)[2]],
-                                        sf::Real=48000)
+function delayAdd!(sig::Array{T,2}; delay::Real=0.01,
+                   gain::Real=1, iterations::Integer=1,
+                   configuration::AbstractString="add same",
+                   channel::Union{P, AbstractVector{P}}=[1:size(sig)[2]],
+                   sf::Real=48000) where {T<:Real, P<:Integer}
 
     if in(configuration, ["add same", "add original"]) == false
         error("`configuration` must be either 'add same', or 'add original'")
@@ -163,7 +161,7 @@ function delayAdd!{T<:Real, P<:Integer}(sig::Array{T,2}; delay::Real=0.01,
 
     for ch in chans
         delayed_sig = zeros(nSamples, 1)
-        en_input = sqrt(sum(sig[:,ch].^2))
+        en_input = sqrt(sum(sig[:,ch] .^2))
         if configuration == "add same"
             for i=1:iterations
                 delayed_sig = vcat(sig[delayPnt+1:nSamples,ch], sig[1:delayPnt,ch])
@@ -177,7 +175,7 @@ function delayAdd!{T<:Real, P<:Integer}(sig::Array{T,2}; delay::Real=0.01,
                 sig[:,ch] = original_sig[:,ch] + delayed_sig
             end
         end
-        en_output = sqrt(sum(sig[:,ch].^2))
+        en_output = sqrt(sum(sig[:,ch] .^2))
         scale_factor = en_input / en_output
         sig[:,ch] = sig[:,ch] * scale_factor
     end
@@ -244,7 +242,7 @@ bpNoise = fir2Filt!(400, 600, 4000, 4400,
      noise, nTaps=256, sf=48000) #bandpass filter
 ```
 """
-function fir2Filt!{T<:Real}(f1::Real, f2::Real, f3::Real, f4::Real, snd::Array{T, 2}; nTaps::Integer=256, sf::Real=48000)
+function fir2Filt!(f1::Real, f2::Real, f3::Real, f4::Real, snd::Array{T, 2}; nTaps::Integer=256, sf::Real=48000) where {T<:Real}
 
     f1 = (f1 * 2) / sf
     f2 = (f2 * 2) / sf
@@ -264,7 +262,7 @@ function fir2Filt!{T<:Real}(f1::Real, f2::Real, f3::Real, f4::Real, snd::Array{T
         m = [0, 0.00003, 1, 1, 0]
     end
 
-    b = convert(Array{eltype(snd),1}, scisig.firwin2(nTaps,f,m))
+    b = convert(Array{eltype(snd),1}, scisig[:firwin2](nTaps,f,m))
     nChans = size(snd)[2]
     for i=1:nChans
         snd[:, i] = fftconvolve(snd[:,i], b, "same")
@@ -328,7 +326,7 @@ channel="diotic", sf=48000, maxLevel=100)
 gate!(noise, rampDur=0.01, sf=48000)
 ```
 """
-function gate!{T<:Real}(sig::Array{T, 2}; rampDur::Real=0.01, sf::Real=48000)
+function gate!(sig::Array{T, 2}; rampDur::Real=0.01, sf::Real=48000) where {T<:Real}
 
     nRamp = round(Int, rampDur * sf)
     timeRamp = collect(0:nRamp-1)
@@ -337,8 +335,8 @@ function gate!{T<:Real}(sig::Array{T, 2}; rampDur::Real=0.01, sf::Real=48000)
 
     nChans = size(sig)[2]
     for i = 1:nChans
-        sig[1:nRamp, i] = sig[1:nRamp, i] .*  ((1-cos.(pi * timeRamp/nRamp))/2)
-        sig[nStartSecondRamp+1:nTot, i] = sig[nStartSecondRamp+1:nTot, i] .* ((1+cos.(pi * timeRamp/nRamp))/2)
+        sig[1:nRamp, i] = sig[1:nRamp, i] .*  ((1 .- cos.(pi * timeRamp/nRamp))/2)
+        sig[nStartSecondRamp+1:nTot, i] = sig[nStartSecondRamp+1:nTot, i] .* ((1 .+ cos.(pi * timeRamp/nRamp))/2)
     end
 
     return sig
@@ -378,7 +376,7 @@ $(SIGNATURES)
 ```
 
 """
-function getACF{T<:Real}(sig::AbstractVector{T}, sf::Real, maxLag::Real=length(sig)/sf; normalize::Bool=true, window::Function=rect)
+function getACF(sig::AbstractVector{T}, sf::Real, maxLag::Real=length(sig)/sf; normalize::Bool=true, window::Function=rect) where {T<:Real}
 
     n = length(sig)
     w = window(n)
@@ -400,7 +398,7 @@ function getACF{T<:Real}(sig::AbstractVector{T}, sf::Real, maxLag::Real=length(s
 end 
 
 
-function getACF{T<:Real}(sig::AbstractMatrix{T}, sf::Real, maxLag::Real=size(sig)[1]/sf; normalize::Bool=true, window::Function=rect)
+function getACF(sig::AbstractMatrix{T}, sf::Real, maxLag::Real=size(sig)[1]/sf; normalize::Bool=true, window::Function=rect) where {T<:Real}
     ## If the sound has multiple channels compute ACF for each separately
     ## and return the results as a matrix with nCol = nChans
     nChans = size(sig)[2]
@@ -441,7 +439,7 @@ getRMS(pt, "each")
 getRMS(pt, "all")
 ```
 """
-function getRMS{T<:Real}(sig::Array{T,2}, channel::Union{AbstractString, Integer})
+function getRMS(sig::Array{T,2}, channel::Union{AbstractString, Integer}) where {T<:Real}
     RMS = (AbstractFloat)[]
     if channel == "all"
         push!(RMS, sqrt(mean(sig.*sig)))
@@ -488,7 +486,7 @@ $(SIGNATURES)
 ```
 
 """
-function getSpectrum{T<:Real}(sig::AbstractVector{T}, sf::Real; window::Function=rect, powerOfTwo::Bool=false)
+function getSpectrum(sig::AbstractVector{T}, sf::Real; window::Function=rect, powerOfTwo::Bool=false) where {T<:Real}
 
     n = length(sig) #size(sig)[1]
     w = window(n)
@@ -510,7 +508,7 @@ function getSpectrum{T<:Real}(sig::AbstractVector{T}, sf::Real; window::Function
     p = p ./ n  # scale by the number of points so that
     # the magnitude does not depend on the length
     # of the signal or on its sampling frequency
-    p = p.^2  # square it to get the power
+    p = p .^2  # square it to get the power
 
     # multiply by two (see technical document for details)
     # odd nfft excludes Nyquist point
@@ -525,7 +523,7 @@ function getSpectrum{T<:Real}(sig::AbstractVector{T}, sf::Real; window::Function
     return p, freqArray
 end
 
-function getSpectrum{T<:Real}(sig::AbstractMatrix{T}, sf::Real; window::Function=rect, powerOfTwo::Bool=false)
+function getSpectrum(sig::AbstractMatrix{T}, sf::Real; window::Function=rect, powerOfTwo::Bool=false) where {T<:Real}
     ## If the sound has multiple channels compute spectrum for each separately
     ## and return the results as a matrix with nCol = nChans
     nChans = size(sig)[2]
@@ -572,7 +570,7 @@ hp = ITDShift!(noise, 500, 600, ITD=300/1000000,
 channel="left", sf=48000) #this generates a Dichotic Pitch
 ```
 """
-function ITDShift!{T<:Real}(sig::Array{T,2}, f1::Real, f2::Real; ITD::Real=300/1000000, channel::AbstractString="left", sf::Real=48000)
+function ITDShift!(sig::Array{T,2}, f1::Real, f2::Real; ITD::Real=300/1000000, channel::AbstractString="left", sf::Real=48000) where {T<:Real}
 
     if in(channel, ["right", "left"]) == false
         error("Channel must be one of 'right', or 'left'")
@@ -584,11 +582,11 @@ function ITDShift!{T<:Real}(sig::Array{T,2}, f1::Real, f2::Real; ITD::Real=300/1
     #compute the frequencies of the first half of the FFT
     freqArray1 = collect(0:nUniquePnts) * (sf / fftPoints)
     #remove DC offset and nyquist for the second half of the FFT
-    freqArray2 = -flipdim(collect(1:(nUniquePnts-1)),1) * (sf / fftPoints)
+    freqArray2 = -reverse(collect(1:(nUniquePnts-1)), dims=1) * (sf / fftPoints)
     #find the indexes of the frequencies for which to set the ITD for the first half of the FFT
-    sh1 = find((freqArray1 .>= f1) .& (freqArray1 .<= f2))
+    sh1 = findall((freqArray1 .>= f1) .& (freqArray1 .<= f2))
     #same as above for the second half of the FFT
-    sh2 = find((freqArray2 .<= -f1) .& (freqArray2 .>= -f2))
+    sh2 = findall((freqArray2 .<= -f1) .& (freqArray2 .>= -f2))
     #compute IPSs for the first half of the FFT
     phaseShiftArray1 = ITDToIPD(ITD/1000000, freqArray1[sh1])
     #same as above for the second half of the FFT
@@ -651,10 +649,9 @@ itd = 300/1000000 #convert to seconds
 ITDToIPD(itd, 1000)
 ```
 """
+function ITDToIPD(ITD::Real, freq::Union{T, AbstractVector{T}}) where {T<:Real}
 
-function ITDToIPD{T<:Real}(ITD::Real, freq::Union{T, AbstractVector{T}})
-
-    IPD = (ITD ./ (1./freq)) * 2 * pi
+    IPD = (ITD ./ (1. /freq)) * 2 * pi
 
     return IPD
 end
@@ -723,8 +720,7 @@ noise = phaseShift!(noise, 500, 600, phaseShift=pi,
 channel=2, sf=48000) #this generates a Dichotic Pitch
 ```
 """
-
-function phaseShift!{T<:Real, P<:Integer}(sig::Array{T, 2}, f1::Real, f2::Real; phaseShift::Real=pi, shiftType::AbstractString="step", channel::Union{P, AbstractVector{P}}=1, sf::Real=48000)
+function phaseShift!(sig::Array{T, 2}, f1::Real, f2::Real; phaseShift::Real=pi, shiftType::AbstractString="step", channel::Union{P, AbstractVector{P}}=1, sf::Real=48000) where {T<:Real, P<:Integer}
 
     if in(shiftType, ["linear", "random", "step"]) == false
         error("`shiftType`must be one of 'linear', 'random', 'step'")
@@ -735,11 +731,11 @@ function phaseShift!{T<:Real, P<:Integer}(sig::Array{T, 2}, f1::Real, f2::Real; 
     fftPoints = nSamples#nextpow2(nSamples)
     nUniquePnts = ceil((fftPoints+1)/2)
     freqArray1 = collect(0:nUniquePnts) * (sf / fftPoints)
-    freqArray2 = -flipdim(collect(1:(nUniquePnts-1)), 1) * (sf / fftPoints) #remove DC offset and nyquist
+    freqArray2 = -reverse(collect(1:(nUniquePnts-1)), dims=1) * (sf / fftPoints) #remove DC offset and nyquist
     ## sh1 = where((freqArray1>f1) & (freqArray1<f2))
     ## sh2 = where((freqArray2<-f1) & (freqArray2>-f2))
-    sh1 = find((freqArray1 .>= f1) .& (freqArray1 .<= f2))
-    sh2 = find((freqArray2 .<= -f1) .& (freqArray2 .>= -f2))
+    sh1 = findall((freqArray1 .>= f1) .& (freqArray1 .<= f2))
+    sh2 = findall((freqArray2 .<= -f1) .& (freqArray2 .>= -f2))
 
     p1Start = 1; p1End = length(freqArray1)
     p2Start = length(freqArray1)+1; p2End = fftPoints
@@ -753,7 +749,7 @@ function phaseShift!{T<:Real, P<:Integer}(sig::Array{T, 2}, f1::Real, f2::Real; 
         phaseShiftArray2 = [float(-phaseShift) for ll=1:length(sh1)]
     elseif shiftType == "random"
         phaseShiftArray1 = rand(length(sh1))*phaseShift
-        phaseShiftArray2 = -flipdim(phaseShiftArray1, 1)
+        phaseShiftArray2 = -reverse(phaseShiftArray1, dims=1)
     end
 
     for c=1:length(channel)
@@ -807,8 +803,7 @@ channel="diotic", sf=48000, maxLevel=100)
 noise = makePink!(noise, sf=48000, ref=1000)
 ```
 """
-
-function makePink!{T<:Real}(sig::Array{T, 2}; sf::Real=48000, ref::Real=1000)
+function makePink!(sig::Array{T, 2}; sf::Real=48000, ref::Real=1000) where {T<:Real}
 
     nSamples = size(sig)[1]
     nChans = size(sig)[2]
@@ -856,8 +851,7 @@ channel="diotic", sf=48000, maxLevel=100)
 noise = scaleLevel(noise, level=-10) #reduce level by 10 dB
 ```
 """
-
-function scaleLevel{T<:Real}(sig::Array{T, 2}; level::Real=10)
+function scaleLevel(sig::Array{T, 2}; level::Real=10) where {T<:Real}
 
     #10**(level/20) is the amplitude corresponding to level
     #by multiplying the amplitudes we're adding the decibels
@@ -890,7 +884,7 @@ $(SIGNATURES)
 ```
 
 """
-function sound{T<:Real}(snd::Array{T,2}, sf::Integer=48000, nbits::Integer=32)
+function sound(snd::Array{T,2}, sf::Integer=48000, nbits::Integer=32) where {T<:Real}
     tmp = tempname()
     wavwrite(snd, tmp, Fs=sf, nbits=nbits)
     if is_linux()

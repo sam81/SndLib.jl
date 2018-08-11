@@ -49,8 +49,8 @@ freqFromCentInterval([100, 200, 300], 1.5)
 freqFromCentInterval(100, [1, 1.5, 2])
 ```
 """
-function freqFromCentInterval{T<:Real, P<:Real}(f1::Union{T, AbstractVector{T}}, deltaCent::Union{P, AbstractVector{P}})
-    f2 = f1*2.^(deltaCent/1200)
+function freqFromCentInterval(f1::Union{T, AbstractVector{T}}, deltaCent::Union{P, AbstractVector{P}}) where {T<:Real, P<:Real}
+    f2 = f1*2 .^ (deltaCent/1200)
     return f2
 end
 
@@ -119,8 +119,8 @@ freqFromERBInterval([100, 200, 300], 1.5)
 freqFromERBInterval(100, [1, 1.5, 2])
 ```
 """
-function freqFromERBInterval{T<:Real, P<:Real}(f1::Union{T, AbstractVector{T}}, deltaERB::Union{P, AbstractVector{P}})
-    f2 = (10.^((deltaERB + 21.4*log10.(0.00437*f1 +1))/21.4)-1) / 0.00437
+function freqFromERBInterval(f1::Union{T, AbstractVector{T}}, deltaERB::Union{P, AbstractVector{P}}) where {T<:Real, P<:Real}
+    f2 = (10 .^ ((deltaERB .+ 21.4*log10.(0.00437*f1 .+ 1))/21.4) .-1) / 0.00437
     return f2
 end
 

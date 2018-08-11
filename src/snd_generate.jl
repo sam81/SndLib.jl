@@ -58,7 +58,6 @@ AMPhase=0, level=65, dur=1, rampDur=0.01, channel="diotic", sf=48000,
 maxLevel=100)
 ```
 """
-
 function AMTone(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
                 carrierPhase::Real=0, AMPhase::Real=1.5*pi, level::Real=60,
                 dur::Real=1, rampDur::Real=0.01, channel::String="diotic",
@@ -80,9 +79,9 @@ function AMTone(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
     timeRamp = collect(0:nRamp-1)
 
     snd_mono = zeros(nTot, 1)
-    snd_mono[1:nRamp, 1] = amp * (1+AMDepth*sin.(2*pi*AMFreq*timeAll[1:nRamp]+AMPhase)) .* ((1-cos.(pi* timeRamp/nRamp))/2) .* sin.(2*pi*carrierFreq * timeAll[1:nRamp] + carrierPhase)
-    snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * (1 + AMDepth*sin.(2*pi*AMFreq*timeAll[nRamp+1:nRamp+nSamples]+AMPhase)) .* sin.(2*pi*carrierFreq * timeAll[nRamp+1:nRamp+nSamples] + carrierPhase)
-    snd_mono[nRamp+nSamples+1:nTot, 1] = amp * (1 + AMDepth*sin.(2*pi*AMFreq*timeAll[nRamp+nSamples+1:nTot]+AMPhase)) .* ((1+cos.(pi * timeRamp/nRamp))/2) .* sin.(2*pi*carrierFreq * timeAll[nRamp+nSamples+1:nTot] + carrierPhase)
+    snd_mono[1:nRamp, 1] = amp * (1 .+ AMDepth*sin.(2*pi*AMFreq*timeAll[1:nRamp] .+ AMPhase)) .* ((1 .- cos.(pi* timeRamp/nRamp))/2) .* sin.(2*pi*carrierFreq * timeAll[1:nRamp] .+ carrierPhase)
+    snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * (1 .+ AMDepth*sin.(2*pi*AMFreq*timeAll[nRamp+1:nRamp+nSamples] .+ AMPhase)) .* sin.(2*pi*carrierFreq * timeAll[nRamp+1:nRamp+nSamples] .+ carrierPhase)
+    snd_mono[nRamp+nSamples+1:nTot, 1] = amp * (1 .+ AMDepth*sin.(2*pi*AMFreq*timeAll[nRamp+nSamples+1:nTot] .+ AMPhase)) .* ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* sin.(2*pi*carrierFreq * timeAll[nRamp+nSamples+1:nTot] .+ carrierPhase)
 
     if channel == "mono"
         snd = snd_mono
@@ -139,7 +138,6 @@ AMPhase=0, carrierIPD=0, AMIPD=pi/2, level=65, dur=1, rampDur=0.01,
 channel="right", sf=48000, maxLevel=100)
 ```
 """
-
 function AMToneIPD(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
                 carrierPhase::Real=0, AMPhase::Real=1.5*pi, carrierIPD::Real=0,
                 AMIPD::Real=0, level::Real=60,
@@ -215,8 +213,7 @@ tonesDur=0.2, tonesRampDur=0.01, tonesChannel="diotic",
 SOA=0.06, sf=48000, maxLevel=100)
 ```
 """
-
-function asynchChord{T<:Real}(;freqs::AbstractVector{T}=[200, 400], levels::AbstractVector{T}=[60, 60], phases::AbstractVector{T}=[0, 0], tonesDur::Real=0.2, tonesRampDur::Real=0.01, tonesChannel::String="diotic", SOA::Real=0.06, sf::Real=48000, maxLevel::Real=101)
+function asynchChord(;freqs::AbstractVector{T}=[200, 400], levels::AbstractVector{T}=[60, 60], phases::AbstractVector{T}=[0, 0], tonesDur::Real=0.2, tonesRampDur::Real=0.01, tonesChannel::String="diotic", SOA::Real=0.06, sf::Real=48000, maxLevel::Real=101) where {T<:Real}
 
     if tonesDur < tonesRampDur*2
         error("Tones duration cannot be less than total duration of tone ramps")
@@ -311,9 +308,9 @@ function broadbandNoise(;spectrumLevel::Real=20, dur::Real=1, rampDur::Real=0.01
     #since A = RMS*sqrt(2)
     scaled_noise = noise / (RMS * sqrt(2))
 
-    snd_mono[1:nRamp, 1] = amp * ((1-cos.(pi * timeRamp/nRamp))/2) .* scaled_noise[1:nRamp]
+    snd_mono[1:nRamp, 1] = amp * ((1 .- cos.(pi * timeRamp/nRamp))/2) .* scaled_noise[1:nRamp]
     snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * scaled_noise[nRamp+1:nRamp+nSamples]
-    snd_mono[nRamp+nSamples+1:nTot, 1] = amp * ((1+cos.(pi * timeRamp/nRamp))/2) .* scaled_noise[nRamp+nSamples+1:nTot]
+    snd_mono[nRamp+nSamples+1:nTot, 1] = amp * ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* scaled_noise[nRamp+nSamples+1:nTot]
 
     if channel == "mono"
         snd = snd_mono
@@ -336,9 +333,9 @@ function broadbandNoise(;spectrumLevel::Real=20, dur::Real=1, rampDur::Real=0.01
         #since A = RMS*sqrt(2)
         scaled_noise2 = noise2 / (RMS2 * sqrt(2))
 
-        snd_mono2[1:nRamp, 1] = amp * ((1-cos.(pi * timeRamp/nRamp))/2) .* scaled_noise2[1:nRamp]
+        snd_mono2[1:nRamp, 1] = amp * ((1 .- cos.(pi * timeRamp/nRamp))/2) .* scaled_noise2[1:nRamp]
         snd_mono2[nRamp+1:nRamp+nSamples, 1] = amp * scaled_noise2[nRamp+1:nRamp+nSamples]
-        snd_mono2[nRamp+nSamples+1:nTot, 1] = amp * ((1+cos.(pi * timeRamp/nRamp))/2) .* scaled_noise2[nRamp+nSamples+1:nTot]
+        snd_mono2[nRamp+nSamples+1:nTot, 1] = amp * ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* scaled_noise2[nRamp+nSamples+1:nTot]
         snd[:,1] = snd_mono
         snd[:,2] = snd_mono2
 
@@ -510,9 +507,9 @@ function complexTone(;F0::Real=220, harmPhase::String="sine", lowHarm::Integer=1
 
     if channel == "mono" || channel == "right" || channel == "left" || channel == "diotic"
         snd_mono = zeros(nTot, 1)
-        snd_mono[1:nRamp, 1]                     = amp * ((1-cos.(pi * timeRamp/nRamp))/2) .* tone[1:nRamp]
+        snd_mono[1:nRamp, 1]                     = amp * ((1 .- cos.(pi * timeRamp/nRamp))/2) .* tone[1:nRamp]
         snd_mono[nRamp+1:nRamp+nSamples, 1]        = amp * tone[nRamp+1:nRamp+nSamples]
-        snd_mono[nRamp+nSamples+1:nTot, 1] = amp * ((1+cos.(pi * timeRamp/nRamp))/2) .* tone[nRamp+nSamples+1:nTot]
+        snd_mono[nRamp+nSamples+1:nTot, 1] = amp * ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* tone[nRamp+nSamples+1:nTot]
     end
     if channel == "mono"
         snd = snd_mono
@@ -524,19 +521,19 @@ function complexTone(;F0::Real=220, harmPhase::String="sine", lowHarm::Integer=1
         snd[:,1] = snd_mono
         snd[:,2] = snd_mono
     elseif channel == "odd left"
-        snd[1:nRamp, 1]                     = amp * ((1-cos.(pi * timeRamp/nRamp))/2) .* toneOdd[1:nRamp]
+        snd[1:nRamp, 1]                     = amp * ((1 .- cos.(pi * timeRamp/nRamp))/2) .* toneOdd[1:nRamp]
         snd[nRamp+1:nRamp+nSamples, 1]        = amp * toneOdd[nRamp+1:nRamp+nSamples]
-        snd[nRamp+nSamples+1:nTot, 1] = amp * ((1+cos.(pi * timeRamp/nRamp))/2) .* toneOdd[nRamp+nSamples+1:nTot]
-        snd[1:nRamp, 2]                     = amp * ((1-cos.(pi * timeRamp/nRamp))/2) .* toneEven[1:nRamp]
+        snd[nRamp+nSamples+1:nTot, 1] = amp * ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* toneOdd[nRamp+nSamples+1:nTot]
+        snd[1:nRamp, 2]                     = amp * ((1 .- cos.(pi * timeRamp/nRamp))/2) .* toneEven[1:nRamp]
         snd[nRamp+1:nRamp+nSamples, 2]        = amp * toneEven[nRamp+1:nRamp+nSamples]
-        snd[nRamp+nSamples+1:nTot, 2] = amp * ((1+cos.(pi * timeRamp/nRamp))/2) .* toneEven[nRamp+nSamples+1:nTot]
+        snd[nRamp+nSamples+1:nTot, 2] = amp * ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* toneEven[nRamp+nSamples+1:nTot]
     elseif channel == "odd right"
-        snd[1:nRamp, 2]                     = amp * ((1-cos.(pi * timeRamp/nRamp))/2) .* toneOdd[1:nRamp]
+        snd[1:nRamp, 2]                     = amp * ((1 .- cos.(pi * timeRamp/nRamp))/2) .* toneOdd[1:nRamp]
         snd[nRamp+1:nRamp+nSamples, 2]        = amp * toneOdd[nRamp+1:nRamp+nSamples]
-        snd[nRamp+nSamples+1:nTot, 2] = amp * ((1+cos.(pi * timeRamp/nRamp))/2) .* toneOdd[nRamp+nSamples+1:nTot]
-        snd[1:nRamp, 1]                     = amp * ((1-cos.(pi * timeRamp/nRamp))/2) .* toneEven[1:nRamp]
+        snd[nRamp+nSamples+1:nTot, 2] = amp * ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* toneOdd[nRamp+nSamples+1:nTot]
+        snd[1:nRamp, 1]                     = amp * ((1 .- cos.(pi * timeRamp/nRamp))/2) .* toneEven[1:nRamp]
         snd[nRamp+1:nRamp+nSamples, 1]        = amp * toneEven[nRamp+1:nRamp+nSamples]
-        snd[nRamp+nSamples+1:nTot, 1] = amp * ((1+cos.(pi * timeRamp/nRamp))/2) .* toneEven[nRamp+nSamples+1:nTot]
+        snd[nRamp+nSamples+1:nTot, 1] = amp * ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* toneEven[nRamp+nSamples+1:nTot]
     end
 
     return snd
@@ -606,12 +603,12 @@ function expAMNoise(;carrierFreq::Real=150, MF::Real=2.5, deltaCents::Real=600, 
         scaled_noise2 = noise2 / (RMS2 * sqrt(2))
     end
 
-    fArr = 2*pi*carrierFreq*2.^((deltaCents/1200)*cos.(2*pi*MF*timeAll+FMPhase))
+    fArr = 2*pi*carrierFreq*2 .^((deltaCents/1200)*cos.(2*pi*MF*timeAll .+ FMPhase))
     ang = (cumsum(fArr)/sf)
     snd_mono = zeros(nTot, 1)
-    snd_mono[1:nRamp, 1] = amp * (1 + AMDepth*sin.(ang[1:nRamp])) .* ((1-cos.(pi * timeRamp/nRamp))/2) .* scaled_noise[1:nRamp]
-    snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * (1 + AMDepth*sin.(ang[nRamp+1:nRamp+nSamples])) .* scaled_noise[nRamp+1:nRamp+nSamples]
-    snd_mono[nRamp+nSamples+1:nTot, 1] = amp * (1 + AMDepth*sin.(ang[nRamp+nSamples+1:nTot])) .* ((1+cos.(pi * timeRamp/nRamp))/2) .* scaled_noise[nRamp+nSamples+1:nTot]
+    snd_mono[1:nRamp, 1] = amp * (1 .+ AMDepth*sin.(ang[1:nRamp])) .* ((1 .- cos.(pi * timeRamp/nRamp))/2) .* scaled_noise[1:nRamp]
+    snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * (1 .+ AMDepth*sin.(ang[nRamp+1:nRamp+nSamples])) .* scaled_noise[nRamp+1:nRamp+nSamples]
+    snd_mono[nRamp+nSamples+1:nTot, 1] = amp * (1 .+ AMDepth*sin.(ang[nRamp+nSamples+1:nTot])) .* ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* scaled_noise[nRamp+nSamples+1:nTot]
 
     if channel == "mono"
         snd = snd_mono
@@ -627,9 +624,9 @@ function expAMNoise(;carrierFreq::Real=150, MF::Real=2.5, deltaCents::Real=600, 
         snd[:,2] = snd_mono
     elseif channel == "dichotic"
         snd[:,2] = snd_mono
-        snd[1:nRamp, 1] = amp * (1 + AMDepth*sin.(ang[1:nRamp])) .* ((1-cos.(pi * timeRamp/nRamp))/2) .* scaled_noise2[1:nRamp]
+        snd[1:nRamp, 1] = amp * (1 + AMDepth*sin.(ang[1:nRamp])) .* ((1 .- cos.(pi * timeRamp/nRamp))/2) .* scaled_noise2[1:nRamp]
         snd[nRamp+1:nRamp+nSamples, 1] = amp * (1 + AMDepth*sin.(ang[nRamp+1:nRamp+nSamples])) .* scaled_noise2[nRamp+1:nRamp+nSamples]
-        snd[nRamp+nSamples+1:nTot, 1] = amp * (1 + AMDepth*sin.(ang[nRamp+nSamples+1:nTot])) .* ((1+cos.(pi * timeRamp/nRamp))/2) .* scaled_noise2[nRamp+nSamples+1:nTot]
+        snd[nRamp+nSamples+1:nTot, 1] = amp * (1 + AMDepth*sin.(ang[nRamp+nSamples+1:nTot])) .* ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* scaled_noise2[nRamp+nSamples+1:nTot]
     end
 
     return snd
@@ -672,7 +669,6 @@ tone_trough = expSinFMTone(carrierFreq=450, MF=5, deltaCents=300, FMPhase=0, pha
     dur=0.2, rampDur=0.01, channel="diotic", sf=48000, maxLevel=101)
 ```
 """
-
 function expSinFMTone(;carrierFreq::Real=450, MF::Real=5, deltaCents::Real=600, FMPhase::Real=pi, phase::Real=0, level::Real=60, dur::Real=0.2, rampDur::Real=0.01, channel::String="diotic", sf::Real=48000, maxLevel::Real=101)
 
     if dur < rampDur*2
@@ -689,13 +685,13 @@ function expSinFMTone(;carrierFreq::Real=450, MF::Real=5, deltaCents::Real=600, 
 
     timeAll = collect(0:nTot-1) / sf
     timeRamp = collect(0:nRamp-1)
-    fArr = 2*pi*carrierFreq*2.^((deltaCents/1200)*cos.(2*pi*MF*timeAll+FMPhase))
-    ang = (cumsum(fArr)/sf) + phase
+    fArr = 2*pi*carrierFreq*2 .^((deltaCents/1200)*cos.(2*pi*MF*timeAll .+ FMPhase))
+    ang = (cumsum(fArr)/sf) .+ phase
 
     snd_mono = zeros(nTot, 1)
-    snd_mono[1:nRamp, 1] = amp * ((1-cos.(pi * timeRamp/nRamp))/2) .* sin.(ang[1:nRamp])
+    snd_mono[1:nRamp, 1] = amp * ((1 .- cos.(pi * timeRamp/nRamp))/2) .* sin.(ang[1:nRamp])
     snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * sin.(ang[nRamp+1:nRamp+nSamples])
-    snd_mono[nRamp+nSamples+1:nTot, 1] = amp * ((1+cos.(pi * timeRamp/nRamp))/2) .* sin.(ang[nRamp+nSamples+1:nTot])
+    snd_mono[nRamp+nSamples+1:nTot, 1] = amp * ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* sin.(ang[nRamp+nSamples+1:nTot])
     if channel == "mono"
         snd = zeros(nTot, 1)
     else
@@ -772,7 +768,6 @@ tone_down = FMComplex2(midF0=140, harmPhase="sine",
                  sf=48000, maxLevel=101)
 ```
 """
-
 function FMComplex2(;midF0::Real=140, harmPhase::String="sine",
                     lowHarm::Integer=1, highHarm::Integer=10,
                     level::Real=60, dur::Real=0.45, rampDur::Real=0.01,
@@ -851,9 +846,9 @@ function FMComplex2(;midF0::Real=140, harmPhase::String="sine",
 
     for i=lowHarm:highHarm
         fArr = zeros(nTot)
-        fArr[1:fmStartPnt] = startF0*i
-        fArr[fmStartPnt+1:fmStartPnt+nFMSamples] = (midF0*i + FMDepthHz*i*sin.(2*pi*MF*fmTime/sf+FMStartPhase))
-        fArr[fmStartPnt+nFMSamples+1:nTot] = endF0*i
+        fArr[1:fmStartPnt] .= startF0*i
+        fArr[fmStartPnt+1:fmStartPnt+nFMSamples] = (midF0*i .+ FMDepthHz*i*sin.(2*pi*MF*fmTime/sf .+ FMStartPhase))
+        fArr[fmStartPnt+nFMSamples+1:nTot] .= endF0*i
         if harmPhase == "sine"
             ang = cumsum(2*pi*fArr/sf)
             if in(channel, ["mono", "right", "left", "diotic"])
@@ -933,7 +928,7 @@ function FMComplex2(;midF0::Real=140, harmPhase::String="sine",
     if levelAdj == true
         if in(channel, ["mono", "right", "left", "diotic"])
             tone[1:fmStartPnt] = tone[1:fmStartPnt] .* sqrt.(((startF0Rad / (2*pi)) * (sf))/ midF0)
-            tone[fmStartPnt+1:fmStartPnt+nFMSamples] = tone[fmStartPnt+1:fmStartPnt+nFMSamples] .* sqrt.((midF0 + (FMDepthHz * sin.(FMStartPhase + (fmTime * fmRadFreq)))) / midF0)
+            tone[fmStartPnt+1:fmStartPnt+nFMSamples] = tone[fmStartPnt+1:fmStartPnt+nFMSamples] .* sqrt.((midF0 .+ (FMDepthHz * sin.(FMStartPhase .+ (fmTime * fmRadFreq)))) / midF0)
             tone[fmStartPnt+nFMSamples+1:nTot] = tone[fmStartPnt+nFMSamples+1:nTot] .* sqrt.( ((endF0Rad / (2*pi)) * (sf))/ midF0)
         elseif in(channel, ["odd left", "odd right"])
             toneEven[1:fmStartPnt] = toneEven[1:fmStartPnt] * sqrt.(((startF0Rad / (2*pi)) * (sf))/ midF0)
@@ -953,16 +948,16 @@ function FMComplex2(;midF0::Real=140, harmPhase::String="sine",
     end
 
     if in(channel, ["odd right", "odd left"]) == false
-        tone[1:nRamp, 1]                     = amp * ((1-cos.(pi * timeRamp/nRamp))/2) .* tone[1:nRamp]
+        tone[1:nRamp, 1]                     = amp * ((1 .- cos.(pi * timeRamp/nRamp))/2) .* tone[1:nRamp]
         tone[nRamp+1:nRamp+nSamples, 1]        = amp * tone[nRamp+1:nRamp+nSamples]
-        tone[nRamp+nSamples+1:nTot, 1] = amp * ((1+cos.(pi * timeRamp/nRamp))/2) .* tone[nRamp+nSamples+1:nTot]
+        tone[nRamp+nSamples+1:nTot, 1] = amp * ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* tone[nRamp+nSamples+1:nTot]
     else
-        toneOdd[1:nRamp, 1]                     = amp * ((1-cos.(pi * timeRamp/nRamp))/2) .* toneOdd[1:nRamp]
+        toneOdd[1:nRamp, 1]                     = amp * ((1 .- cos.(pi * timeRamp/nRamp))/2) .* toneOdd[1:nRamp]
         toneOdd[nRamp+1:nRamp+nSamples, 1]        = amp * toneOdd[nRamp+1:nRamp+nSamples]
-        toneOdd[nRamp+nSamples+1:nTot, 1] = amp * ((1+cos.(pi * timeRamp/nRamp))/2) .* toneOdd[nRamp+nSamples+1:nTot]
-        toneEven[1:nRamp, 1]                     = amp * ((1-cos.(pi * timeRamp/nRamp))/2) .* toneEven[1:nRamp]
+        toneOdd[nRamp+nSamples+1:nTot, 1] = amp * ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* toneOdd[nRamp+nSamples+1:nTot]
+        toneEven[1:nRamp, 1]                     = amp * ((1 .- cos.(pi * timeRamp/nRamp))/2) .* toneEven[1:nRamp]
         toneEven[nRamp+1:nRamp+nSamples, 1]        = amp * toneEven[nRamp+1:nRamp+nSamples]
-        toneEven[nRamp+nSamples+1:nTot, 1] = amp * ((1+cos.(pi * timeRamp/nRamp))/2) .* toneEven[nRamp+nSamples+1:nTot]
+        toneEven[nRamp+nSamples+1:nTot, 1] = amp * ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* toneEven[nRamp+nSamples+1:nTot]
     end
 
     if channel == "mono"
@@ -1021,7 +1016,6 @@ snd = FMTone(carrierFreq=1000, MF=40, MI=1, phase=0, level=55, dur=1,
      rampDur=0.01, channel="diotic", sf=48000, maxLevel=100)
 ```
 """
-
 function FMTone(;carrierFreq::Real=1000, MF::Real=40, MI::Real=1, phase::Real=0,
                 level::Real=60, dur::Real=1, rampDur::Real=0.01,
                 channel::String="diotic", sf::Real=48000, maxLevel::Real=101)
@@ -1042,9 +1036,9 @@ function FMTone(;carrierFreq::Real=1000, MF::Real=40, MI::Real=1, phase::Real=0,
     timeRamp = collect(0:nRamp-1)
 
     snd_mono = zeros(nTot, 1)
-    snd_mono[1:nRamp, 1] = amp * ((1-cos.(pi * timeRamp/nRamp))/2) .* sin.(2*pi*carrierFreq*timeAll[1:nRamp] + MI*sin.(2*pi*MF * timeAll[1:nRamp] + phase))
-    snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * sin.(2*pi*carrierFreq * timeAll[nRamp+1:nRamp+nSamples] +MI * sin.(2*pi*MF * timeAll[nRamp+1:nRamp+nSamples] + phase))
-    snd_mono[nRamp+nSamples+1:nTot, 1] = amp * ((1+cos.(pi * timeRamp/nRamp))/2) .* sin.(2*pi*carrierFreq * timeAll[nRamp+nSamples+1:nTot]+MI*sin.(2*pi*MF * timeAll[nRamp+nSamples+1:nTot] + phase))
+    snd_mono[1:nRamp, 1] = amp * ((1 .- cos.(pi * timeRamp/nRamp))/2) .* sin.(2*pi*carrierFreq*timeAll[1:nRamp] .+ MI*sin.(2*pi*MF * timeAll[1:nRamp] .+ phase))
+    snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * sin.(2*pi*carrierFreq * timeAll[nRamp+1:nRamp+nSamples] .+ MI * sin.(2*pi*MF * timeAll[nRamp+1:nRamp+nSamples] .+ phase))
+    snd_mono[nRamp+nSamples+1:nTot, 1] = amp * ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* sin.(2*pi*carrierFreq * timeAll[nRamp+nSamples+1:nTot] .+ MI*sin.(2*pi*MF * timeAll[nRamp+nSamples+1:nTot] .+ phase))
 
     if channel == "mono"
         snd = zeros(nTot, 1)
@@ -1137,7 +1131,6 @@ noiseType="white", dur=0.4, rampDur=0.01, sf=48000, maxLevel=101)
 ```
 
 """
-
 function hugginsPitch(;F0::Real=550, lowHarm::Int=1, highHarm::Int=1,
                       spectrumLevel::Real=30, bandwidth::Real=1,
                       bandwidthUnit::String="ERB", dichoticDifference::String="IPD stepped",
@@ -1177,14 +1170,14 @@ function hugginsPitch(;F0::Real=550, lowHarm::Int=1, highHarm::Int=1,
     end
 
     cfs = collect(lowHarm:highHarm)*F0 #center frequencies
-    cfs = cfs + stretchHz
+    cfs = cfs .+ stretchHz
     if phaseRelationship == "NoSpi"
         if bandwidthUnit == "Hz"
-            shiftLo = cfs - (bandwidth/2)
-            shiftHi = cfs + (bandwidth/2)
+            shiftLo = cfs .- (bandwidth/2)
+            shiftHi = cfs .+ (bandwidth/2)
         elseif bandwidthUnit == "Cent"
-            shiftLo = cfs*2.^(-(bandwidth/2)/1200)
-            shiftHi = cfs*2.^((bandwidth/2)/1200)
+            shiftLo = cfs*2 .^(-(bandwidth/2)/1200)
+            shiftHi = cfs*2 .^((bandwidth/2)/1200)
         elseif bandwidthUnit == "ERB"
             shiftLo = freqFromERBInterval(cfs, -bandwidth/2)
             shiftHi = freqFromERBInterval(cfs, bandwidth/2)
@@ -1201,8 +1194,8 @@ function hugginsPitch(;F0::Real=550, lowHarm::Int=1, highHarm::Int=1,
             shiftLo[2:length(shiftLo)] = cfs + (bandwidth/2)
             shiftHi[1:length(shiftHi)-1] = cfs - (bandwidth/2)
         elseif bandwidthUnit == "Cent"
-            shiftLo[2:length(shiftLo)] = cfs*2.^((bandwidth/2)/1200)
-            shiftHi[1:length(shiftHi)-1] = cfs*2.^((bandwidth/2)/1200)
+            shiftLo[2:length(shiftLo)] = cfs*2 .^((bandwidth/2)/1200)
+            shiftHi[1:length(shiftHi)-1] = cfs*2 .^((bandwidth/2)/1200)
         elseif bandwidthUnit == "ERB"
             shiftLo[2:length(shiftLo)] = freqFromERBInterval(cfs, bandwidth/2)
             shiftHi[1:length(shiftHi)-1] = freqFromERBInterval(cfs, -bandwidth/2)
@@ -1265,7 +1258,6 @@ irn = IRN(delay=1/440, gain=1, iterations=6, configuration="add same",
           sf=48000, maxLevel=101)
 ```
 """
-
 function IRN(;delay::Real=0.001, gain::Real=1, iterations::Integer=6,
              configuration::String="add same", spectrumLevel::Real=25,
              dur::Real=1, rampDur::Real=0.01, channel::String="diotic",
@@ -1356,9 +1348,9 @@ function pureTone(;frequency::Real=1000, phase::Real=0, level::Real=65,
     end
 
     snd_mono = zeros(nTot, 1)
-    snd_mono[1:nRamp, 1] = amp * ((1 - cos.(pi * timeRamp/nRamp))/2) .* sin.(2*pi*frequency * timeAll[1:nRamp] + phase)
-    snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * sin.(2*pi*frequency * timeAll[nRamp+1:nRamp+nSamples] + phase)
-    snd_mono[nRamp+nSamples+1:nTot, 1] = amp * ((1 + cos.(pi * timeRamp/nRamp))/2) .* sin.(2*pi*frequency * timeAll[nRamp+nSamples+1:nTot] + phase)
+    snd_mono[1:nRamp, 1] = amp * ((1 .- cos.(pi * timeRamp/nRamp))/2) .* sin.(2*pi*frequency * timeAll[1:nRamp] .+ phase)
+    snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * sin.(2*pi*frequency * timeAll[nRamp+1:nRamp+nSamples] .+ phase)
+    snd_mono[nRamp+nSamples+1:nTot, 1] = amp * ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* sin.(2*pi*frequency * timeAll[nRamp+nSamples+1:nTot] .+ phase)
 
     if channel == "mono"
         snd[:,1] = snd_mono
@@ -1405,7 +1397,6 @@ pt = pureToneILD(frequency=440, phase=0, level=65, ILD=10, dur=1,
 rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 """
-
 function pureToneILD(;frequency::Real=1000, phase::Real=0,
                      level::Real=65, ILD::Real=10, dur::Real=1, rampDur::Real=0.01,
                      channel::String="right", sf::Real=48000, maxLevel::Real=101)
@@ -1464,7 +1455,6 @@ pt = pureToneIPD(frequency=440, phase=0, IPD=pi/2, level=65, dur=1,
 rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 """
-
 function pureToneIPD(;frequency::Real=1000, phase::Real=0, IPD::Real=pi,
                      level::Real=65, dur::Real=1, rampDur::Real=0.01,
                      channel::String="right", sf::Real=48000, maxLevel::Real=101)
@@ -1523,7 +1513,6 @@ pt = pureToneITD(frequency=440, phase=0, ITD=0.004/10, level=65, dur=1,
 rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 """
-
 function pureToneITD(;frequency::Real=1000, phase::Real=0, ITD::Real=0,
                      level::Real=65, dur::Real=1, rampDur::Real=0.01,
                      channel::String="right", sf::Real=48000, maxLevel::Real=101)
@@ -1574,7 +1563,6 @@ pt = pureToneIPDILD(frequency=440, phase=0, IPD=pi/2, level=65, ILD=10,
 dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 """
-
 function pureToneIPDILD(;frequency::Real=1000, phase::Real=0, IPD::Real=0,
                      level::Real=65, ILD::Real=0, dur::Real=1, rampDur::Real=0.01,
                      channel::String="right", sf::Real=48000, maxLevel::Real=101)
@@ -1632,7 +1620,6 @@ pt = pureToneITDILD(frequency=440, phase=0, ITD=0.004/1000, level=65,
 ILD=10, dur=1, rampDur=0.01, channel="right", sf=48000, maxLevel=100)
 ```
 """
-
 function pureToneITDILD(;frequency::Real=1000, phase::Real=0, ITD::Real=0,
                      level::Real=65, ILD::Real=0, dur::Real=1, rampDur::Real=0.01,
                      channel::String="right", sf::Real=48000, maxLevel::Real=101)
@@ -1762,13 +1749,13 @@ function steepNoise(;f1=900, f2=1000, level=50, dur=1, rampDur=0.01,
     for f=f1:spacing:f2
         radFreq = 2 * pi * f
         phase = rand() * 2 * pi
-        noise = noise + sin.(phase + (radFreq * timeAll))
+        noise = noise .+ sin.(phase .+ (radFreq * timeAll))
     end
 
     snd_mono = zeros(nTot, 1)
-    snd_mono[1:nRamp, 1] = amp .* ((1-cos.(pi * timeRamp/nRamp))/2) .* noise[1:nRamp]
+    snd_mono[1:nRamp, 1] = amp .* ((1 .- cos.(pi * timeRamp/nRamp))/2) .* noise[1:nRamp]
     snd_mono[nRamp+1:nRamp+nSamples, 1] = amp * noise[nRamp+1:nRamp+nSamples]
-    snd_mono[nRamp+nSamples+1:nTot, 1] = amp * ((1+cos.(pi * timeRamp/nRamp))/2) .* noise[nRamp+nSamples+1:nTot]
+    snd_mono[nRamp+nSamples+1:nTot, 1] = amp * ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* noise[nRamp+nSamples+1:nTot]
 
 
     if channel == "right"
@@ -1786,9 +1773,9 @@ function steepNoise(;f1=900, f2=1000, level=50, dur=1, rampDur=0.01,
             noise2 = noise2 + sin.(phase + (radFreq * timeAll))
         end
         snd_mono2 = zeros(nTot, 1)
-        snd_mono2[1:nRamp, 1] = amp .* ((1-cos.(pi * timeRamp/nRamp))/2) .* noise2[1:nRamp]
+        snd_mono2[1:nRamp, 1] = amp .* ((1 .- cos.(pi * timeRamp/nRamp))/2) .* noise2[1:nRamp]
         snd_mono2[nRamp+1:nRamp+nSamples, 1] = amp * noise2[nRamp+1:nRamp+nSamples]
-        snd_mono2[nRamp+nSamples+1:nTot, 1] = amp * ((1+cos.(pi * timeRamp/nRamp))/2) .* noise2[nRamp+nSamples+1:nTot]
+        snd_mono2[nRamp+nSamples+1:nTot, 1] = amp * ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* noise2[nRamp+nSamples+1:nTot]
         snd[:,1] = snd_mono
         snd[:,2] = snd_mono2
     end

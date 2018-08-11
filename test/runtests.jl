@@ -1,4 +1,4 @@
-tic()
+t1 = time_ns() #tic()
 if ispath("wavDir") == false
     mkdir("wavDir")
 end
@@ -22,5 +22,7 @@ include("test_pureToneIPD.jl")
 include("test_pureToneITD.jl")
 include("test_pureToneIPDILD.jl")
 include("test_silence.jl")
-toc()
+t2 = time_ns() #toc()
+println((float(t2-t1)*1e-9))
+
 
