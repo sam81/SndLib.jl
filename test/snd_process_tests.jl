@@ -1,4 +1,4 @@
-using Base.Test, SndLib
+using Test, SndLib
 
 #test when snd2 is embedded in snd1
 x = pureTone(dur=1)

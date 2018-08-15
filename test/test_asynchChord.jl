@@ -1,4 +1,4 @@
-using Base.Test, SndLib, WAV
+using Test, SndLib, WAV
 
 wavDir = "wavDir/"
 sf = 48000

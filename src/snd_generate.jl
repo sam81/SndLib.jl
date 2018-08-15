@@ -1,6 +1,6 @@
 ## The MIT License (MIT)
 
-## Copyright (c) 2013-2017 Samuele Carcagno <sam.carcagno@gmail.com>
+## Copyright (c) 2013-2018 Samuele Carcagno <sam.carcagno@gmail.com>
 
 ## Permission is hereby granted, free of charge, to any person obtaining a copy
 ## of this software and associated documentation files (the "Software"), to deal
@@ -430,9 +430,9 @@ function complexTone(;F0::Real=220, harmPhase::String="sine", lowHarm::Integer=1
                 tone =  tone + sin.(2 * pi * ((F0 * i) + stretchHz) * timeAll)
             elseif channel == "odd left" || channel == "odd right"
                 if i%2 > 0 #odd harmonic
-                    toneOdd = toneOdd + sin.(2 * pi * ((F0 * i)+stretchHz) * timeAll)
+                    toneOdd = toneOdd + sin.(2 * pi * ((F0 * i) + stretchHz) * timeAll)
                 else
-                    toneEven = toneEven + sin.(2 * pi * ((F0 * i)+stretchHz) * timeAll)
+                    toneEven = toneEven + sin.(2 * pi * ((F0 * i) + stretchHz) * timeAll)
                 end
             end
         end
@@ -442,9 +442,9 @@ function complexTone(;F0::Real=220, harmPhase::String="sine", lowHarm::Integer=1
                 tone = tone + cos.(2 * pi * ((F0 * i)+stretchHz) * timeAll)
             elseif channel == "odd left" || channel == "odd right"
                 if i%2 > 0 #odd harmonic
-                    toneOdd = toneOdd + cos.(2 * pi * ((F0 * i)+stretchHz) * timeAll)
+                    toneOdd = toneOdd + cos.(2 * pi * ((F0 * i) + stretchHz) * timeAll)
                 else
-                    toneEven = toneEven + cos.(2 * pi * ((F0 * i)+stretchHz) * timeAll)
+                    toneEven = toneEven + cos.(2 * pi * ((F0 * i) + stretchHz) * timeAll)
                 end
             end
         end
@@ -452,15 +452,15 @@ function complexTone(;F0::Real=220, harmPhase::String="sine", lowHarm::Integer=1
         for i=lowHarm:highHarm
             if i%2 > 0 #odd harmonic
                 if channel == "mono" || channel == "right" || channel == "left" || channel == "diotic"
-                    tone = tone + cos.(2 * pi * ((F0 * i)+stretchHz) * timeAll)
+                    tone = tone + cos.(2 * pi * ((F0 * i) + stretchHz) * timeAll)
                 elseif channel == "odd left" || channel == "odd right"
-                    toneOdd = toneOdd + cos.(2 * pi * ((F0 * i)+stretchHz) * timeAll)
+                    toneOdd = toneOdd + cos.(2 * pi * ((F0 * i) + stretchHz) * timeAll)
                 end
             else #even harmonic
                 if channel == "mono" || channel == "right" || channel == "left" || channel == "diotic"
-                    tone = tone + sin.(2 * pi * ((F0 * i)+stretchHz) * timeAll)
+                    tone = tone + sin.(2 * pi * ((F0 * i) + stretchHz) * timeAll)
                 elseif channel == "odd left" || channel == "odd right"
-                    toneEven = toneEven + sin.(2 * pi * ((F0 * i)+stretchHz) * timeAll)
+                    toneEven = toneEven + sin.(2 * pi * ((F0 * i) + stretchHz) * timeAll)
                 end
             end
         end
@@ -468,12 +468,12 @@ function complexTone(;F0::Real=220, harmPhase::String="sine", lowHarm::Integer=1
         for i=lowHarm:highHarm
             phase = -pi * i * (i - 1) / (highHarm-lowHarm+1)
             if channel == "mono" || channel == "right" || channel == "left" || channel == "diotic"
-                tone = tone + sin.(2 * pi * ((F0 * i)+stretchHz) * timeAll + phase)
+                tone = tone + sin.(2 * pi * ((F0 * i)+stretchHz) * timeAll .+ phase)
             elseif channel == "odd left" || channel == "odd right"
                 if i%2 > 0 #odd harmonic
-                    toneOdd = toneOdd + sin.(2 * pi * ((F0 * i)+stretchHz) * timeAll + phase)
+                    toneOdd = toneOdd + sin.(2 * pi * ((F0 * i) + stretchHz) * timeAll .+ phase)
                 else
-                    toneEven = toneEven + sin.(2 * pi * ((F0 * i)+stretchHz) * timeAll + phase)
+                    toneEven = toneEven + sin.(2 * pi * ((F0 * i) + stretchHz) * timeAll .+ phase)
                 end
             end
         end
@@ -481,12 +481,12 @@ function complexTone(;F0::Real=220, harmPhase::String="sine", lowHarm::Integer=1
         for i=lowHarm:highHarm
             phase = pi * i * (i - 1) / (highHarm-lowHarm+1)
             if channel == "mono" || channel == "right" || channel == "left" || channel == "diotic"
-                tone = tone + sin.(2 * pi * ((F0 * i)+stretchHz) * timeAll + phase)
+                tone = tone + sin.(2 * pi * ((F0 * i)+stretchHz) * timeAll .+ phase)
             elseif channel == "odd left" || channel == "odd right"
                 if i%2 > 0 #odd harmonic
-                    toneOdd = toneOdd + sin.(2 * pi * ((F0 * i)+stretchHz) * timeAll + phase)
+                    toneOdd = toneOdd + sin.(2 * pi * ((F0 * i) + stretchHz) * timeAll .+ phase)
                 else
-                    toneEven = toneEven + sin.(2 * pi * ((F0 * i)+stretchHz) * timeAll + phase)
+                    toneEven = toneEven + sin.(2 * pi * ((F0 * i) + stretchHz) * timeAll .+ phase)
                 end
             end
         end
@@ -494,12 +494,12 @@ function complexTone(;F0::Real=220, harmPhase::String="sine", lowHarm::Integer=1
         for i=lowHarm:highHarm
             phase = rand() * 2 * pi
             if channel == "mono" || channel == "right" || channel == "left" || channel == "diotic"
-                tone = tone + sin.(2 * pi * ((F0 * i)+stretchHz) * timeAll + phase)
+                tone = tone + sin.(2 * pi * ((F0 * i)+stretchHz) * timeAll .+ phase)
             elseif channel == "odd left" || channel == "odd right"
                 if i%2 > 0 #odd harmonic
-                    toneOdd = toneOdd + sin.(2 * pi * ((F0 * i)+stretchHz) * timeAll + phase)
+                    toneOdd = toneOdd + sin.(2 * pi * ((F0 * i) + stretchHz) * timeAll .+ phase)
                 else
-                    toneEven = toneEven + sin.(2 * pi * ((F0 * i)+stretchHz) * timeAll + phase)
+                    toneEven = toneEven + sin.(2 * pi * ((F0 * i) + stretchHz) * timeAll .+ phase)
                 end
             end
         end
@@ -624,9 +624,9 @@ function expAMNoise(;carrierFreq::Real=150, MF::Real=2.5, deltaCents::Real=600, 
         snd[:,2] = snd_mono
     elseif channel == "dichotic"
         snd[:,2] = snd_mono
-        snd[1:nRamp, 1] = amp * (1 + AMDepth*sin.(ang[1:nRamp])) .* ((1 .- cos.(pi * timeRamp/nRamp))/2) .* scaled_noise2[1:nRamp]
-        snd[nRamp+1:nRamp+nSamples, 1] = amp * (1 + AMDepth*sin.(ang[nRamp+1:nRamp+nSamples])) .* scaled_noise2[nRamp+1:nRamp+nSamples]
-        snd[nRamp+nSamples+1:nTot, 1] = amp * (1 + AMDepth*sin.(ang[nRamp+nSamples+1:nTot])) .* ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* scaled_noise2[nRamp+nSamples+1:nTot]
+        snd[1:nRamp, 1] = amp * (1 .+ AMDepth*sin.(ang[1:nRamp])) .* ((1 .- cos.(pi * timeRamp/nRamp))/2) .* scaled_noise2[1:nRamp]
+        snd[nRamp+1:nRamp+nSamples, 1] = amp * (1 .+ AMDepth*sin.(ang[nRamp+1:nRamp+nSamples])) .* scaled_noise2[nRamp+1:nRamp+nSamples]
+        snd[nRamp+nSamples+1:nTot, 1] = amp * (1 .+ AMDepth*sin.(ang[nRamp+nSamples+1:nTot])) .* ((1 .+ cos.(pi * timeRamp/nRamp))/2) .* scaled_noise2[nRamp+nSamples+1:nTot]
     end
 
     return snd
@@ -888,7 +888,7 @@ function FMComplex2(;midF0::Real=140, harmPhase::String="sine",
             end
         elseif harmPhase == "schroeder-"
             phase = -pi * i * (i - 1) / (highHarm-lowHarm+1)
-            ang = cumsum(2*pi*fArr/sf + phase)
+            ang = cumsum(2*pi*fArr/sf .+ phase)
             if in(channel, ["mono", "right", "left", "diotic"])
                 tone = tone + sin.(ang)
             elseif in(channel, ["odd left", "odd right"])
@@ -900,7 +900,7 @@ function FMComplex2(;midF0::Real=140, harmPhase::String="sine",
             end
         elseif harmPhase == "schroeder+"
             phase = pi * i * (i - 1) / (highHarm-lowHarm+1)
-            ang = cumsum(2*pi*fArr/sf + phase)
+            ang = cumsum(2*pi*fArr/sf .+ phase)
             if in(channel, ["mono", "right", "left", "diotic"])
                 tone = tone + sin.(ang)
             elseif in(channel, ["odd left", "odd right"])
@@ -912,7 +912,7 @@ function FMComplex2(;midF0::Real=140, harmPhase::String="sine",
             end
         elseif harmPhase == "random"
             phase = rand() * 2 * pi
-            ang = cumsum(2*pi*fArr/sf + phase)
+            ang = cumsum(2*pi*fArr/sf .+ phase)
             if in(channel, ["mono", "right", "left", "diotic"])
                 tone = tone + sin.(ang)
             elseif in(channel, ["odd left", "odd right"])
@@ -932,11 +932,11 @@ function FMComplex2(;midF0::Real=140, harmPhase::String="sine",
             tone[fmStartPnt+nFMSamples+1:nTot] = tone[fmStartPnt+nFMSamples+1:nTot] .* sqrt.( ((endF0Rad / (2*pi)) * (sf))/ midF0)
         elseif in(channel, ["odd left", "odd right"])
             toneEven[1:fmStartPnt] = toneEven[1:fmStartPnt] * sqrt.(((startF0Rad / (2*pi)) * (sf))/ midF0)
-            toneEven[fmStartPnt+1:fmStartPnt+nFMSamples] = toneEven[fmStartPnt+1:fmStartPnt+nFMSamples]  .* sqrt.((midF0 + (FMDepthHz * sin.(FMStartPhase + (fmTime * fmRadFreq)))) / midF0)
+            toneEven[fmStartPnt+1:fmStartPnt+nFMSamples] = toneEven[fmStartPnt+1:fmStartPnt+nFMSamples]  .* sqrt.((midF0 .+ (FMDepthHz * sin.(FMStartPhase .+ (fmTime * fmRadFreq)))) / midF0)
             toneEven[fmStartPnt+nFMSamples+1:nTot] = toneEven[fmStartPnt+nFMSamples+1:nTot] .* sqrt.(((endF0Rad / (2*pi)) * (sf))/ midF0)
 
             toneOdd[1:fmStartPnt] = toneOdd[1:fmStartPnt] * sqrt.(((startF0Rad / (2*pi)) .* (sf))/ midF0)
-            toneOdd[fmStartPnt+1:fmStartPnt+nFMSamples] = toneOdd[fmStartPnt+1:fmStartPnt+nFMSamples] .* sqrt.((midF0 + (FMDepthHz * sin.(FMStartPhase + (fmTime * fmRadFreq)))) / midF0)
+            toneOdd[fmStartPnt+1:fmStartPnt+nFMSamples] = toneOdd[fmStartPnt+1:fmStartPnt+nFMSamples] .* sqrt.((midF0 .+ (FMDepthHz * sin.(FMStartPhase .+ (fmTime * fmRadFreq)))) / midF0)
             toneOdd[fmStartPnt+nFMSamples+1:nTot] = toneOdd[fmStartPnt+nFMSamples+1:nTot] .* sqrt.(((endF0Rad / (2*pi)) * (sf))/ midF0)
         end
     end
@@ -1191,8 +1191,8 @@ function hugginsPitch(;F0::Real=550, lowHarm::Int=1, highHarm::Int=1,
         shiftLo[1] = 10
         shiftHi[end] = sf/2
         if bandwidthUnit == "Hz"
-            shiftLo[2:length(shiftLo)] = cfs + (bandwidth/2)
-            shiftHi[1:length(shiftHi)-1] = cfs - (bandwidth/2)
+            shiftLo[2:length(shiftLo)] = cfs .+ (bandwidth/2)
+            shiftHi[1:length(shiftHi)-1] = cfs .- (bandwidth/2)
         elseif bandwidthUnit == "Cent"
             shiftLo[2:length(shiftLo)] = cfs*2 .^((bandwidth/2)/1200)
             shiftHi[1:length(shiftHi)-1] = cfs*2 .^((bandwidth/2)/1200)
@@ -1770,7 +1770,7 @@ function steepNoise(;f1=900, f2=1000, level=50, dur=1, rampDur=0.01,
         for f=f1:spacing:f2
             radFreq = 2 * pi * f
             phase = rand() * 2 * pi
-            noise2 = noise2 + sin.(phase + (radFreq * timeAll))
+            noise2 = noise2 + sin.(phase .+ (radFreq * timeAll))
         end
         snd_mono2 = zeros(nTot, 1)
         snd_mono2[1:nRamp, 1] = amp .* ((1 .- cos.(pi * timeRamp/nRamp))/2) .* noise2[1:nRamp]

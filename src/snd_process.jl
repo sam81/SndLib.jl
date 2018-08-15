@@ -1,6 +1,6 @@
 ## The MIT License (MIT)
 
-## Copyright (c) 2013-2017 Samuele Carcagno <sam.carcagno@gmail.com>
+## Copyright (c) 2013-2018 Samuele Carcagno <sam.carcagno@gmail.com>
 
 ## Permission is hereby granted, free of charge, to any person obtaining a copy
 ## of this software and associated documentation files (the "Software"), to deal
@@ -651,7 +651,7 @@ ITDToIPD(itd, 1000)
 """
 function ITDToIPD(ITD::Real, freq::Union{T, AbstractVector{T}}) where {T<:Real}
 
-    IPD = (ITD ./ (1. /freq)) * 2 * pi
+    IPD = (ITD ./ (1.0 ./freq)) * 2 * pi
 
     return IPD
 end
@@ -742,8 +742,8 @@ function phaseShift!(sig::Array{T, 2}, f1::Real, f2::Real; phaseShift::Real=pi, 
     #println(string(p1Start, " ", p1End, " ", p2Start, " ", p2End))
 
     if shiftType == "linear"
-        phaseShiftArray1 = linspace(0, phaseShift, length(sh1))
-        phaseShiftArray2 = - linspace(phaseShift, 0, length(sh2))
+        phaseShiftArray1 = range(0, stop=phaseShift, length=length(sh1))
+        phaseShiftArray2 = - range(phaseShift, stop=0, length=length(sh2))
     elseif shiftType == "step"
         phaseShiftArray1 = [float(phaseShift) for ll=1:length(sh1)]
         phaseShiftArray2 = [float(-phaseShift) for ll=1:length(sh1)]
