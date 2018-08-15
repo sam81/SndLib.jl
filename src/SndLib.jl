@@ -36,7 +36,7 @@ makePink!, nextPowTwo,
 phaseShift!, pureTone, pureToneILD, pureToneIPD, pureToneIPDILD, pureToneITD, pureToneITDILD,
 scaleLevel, silence, sound, steepNoise
 
-using Compat, DocStringExtensions, DSP, FFTW, PyCall, Random, Statistics, WAV
+using DocStringExtensions, DSP, FFTW, PyCall, Random, Statistics, WAV
 #pyinitialize("python3")
 #@pyimport scipy.signal as scisig
 
