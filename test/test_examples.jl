@@ -8,34 +8,21 @@ for fName in fToProcess
     lns = readlines(fIn)
     idxStart = (Int)[]
     idxStop = (Int)[]
-    if VERSION < v"0.6-" #readlines returns lines with newline character
-        for i=1:length(lns)
-            if lns[i] == "```julia\n"
-                push!(idxStart, i+1)
-            elseif lns[i] == "```\n"
-                push!(idxStop, i-1)
-            end
-        end
-        for i=1:length(idxStart)
-            write(fOut, lns[idxStart[i]:idxStop[i]])
-        end
-    else
-        for i=1:length(lns)
-            if lns[i] == "```julia"
-                push!(idxStart, i+1)
-            elseif lns[i] == "```"
-                push!(idxStop, i-1)
-            end
-        end
 
-        for i=1:length(idxStart)
-            for j=idxStart[i]:idxStop[i]
-                write(fOut, lns[j]*"\n")
-            end
+    for i=1:length(lns)
+        if lns[i] == "```julia"
+            push!(idxStart, i+1)
+        elseif lns[i] == "```"
+            push!(idxStop, i-1)
+        end
+    end
+
+    for i=1:length(idxStart)
+        for j=idxStart[i]:idxStop[i]
+            write(fOut, lns[j]*"\n")
         end
     end
     
-
     close(fIn); close(fOut)
 end
 
