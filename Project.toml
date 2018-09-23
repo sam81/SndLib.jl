@@ -1,0 +1,13 @@
+name = "SndLib"
+uuid = "5fae5e62-bec4-11e8-2200-55c8034a6a85"
+authors = ["Samuele Carcagno <sam.carcagno@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+DSP = "717857b8-e6f2-59f4-9121-6e50c889abd2"
+DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
+FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
+PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+WAV = "8149f6b0-98f6-5db9-b78f-408fbbb8ef88"
