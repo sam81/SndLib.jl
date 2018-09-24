@@ -492,7 +492,7 @@ function getSpectrum(sig::AbstractVector{T}, sf::Real; window::Function=rect, po
     w = window(n)
     sig = sig.*w
     if powerOfTwo == true
-        nfft = nextpow2(n) #2^nextPowTwo(n)
+        nfft = nextpow(2, n) #2^nextPowTwo(n)
         if nfft != n #zero-pad
             sig = vcat(sig, zeros(eltype(sig), nfft-n))
         end

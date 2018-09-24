@@ -2,8 +2,7 @@ t1 = time_ns() #tic()
 if ispath("wavDir") == false
     mkdir("wavDir")
 end
-include("test_default.jl")
-include("test_examples.jl")
+
 include("snd_process_tests.jl")
 include("test_AMTone.jl")
 include("test_AMToneIPD.jl")
@@ -22,6 +21,10 @@ include("test_pureToneIPD.jl")
 include("test_pureToneITD.jl")
 include("test_pureToneIPDILD.jl")
 include("test_silence.jl")
+
+include("test_default.jl")
+include("test_examples.jl")
+include("run_getSpectrum.jl")
 t2 = time_ns() #toc()
 println((float(t2-t1)*1e-9))
 
