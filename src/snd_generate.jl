@@ -1,6 +1,6 @@
 ## The MIT License (MIT)
 
-## Copyright (c) 2013-2018 Samuele Carcagno <sam.carcagno@gmail.com>
+## Copyright (c) 2013-2019 Samuele Carcagno <sam.carcagno@gmail.com>
 
 ## Permission is hereby granted, free of charge, to any person obtaining a copy
 ## of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +21,7 @@
 ## THE SOFTWARE.
 
 ##using DocStringExtensions
+
 #############################
 ## AMTone
 #############################
@@ -37,7 +38,7 @@ $(SIGNATURES)
   modulation).
 * `carrierPhase`: Starting phase in radians.
 * `AMPhase`: Starting AM phase in radians.
-* `level`: Tone level in dB SPL.
+* `level`: Average tone level in dB SPL. See notes.
 * `dur`: Tone duration in seconds.
 * `rampDur`: Duration of the onset and offset ramps in seconds.
 * `channel`: Channel in which the tone will be generated, one of `mono`, `right`,
@@ -50,6 +51,18 @@ $(SIGNATURES)
 
 * `snd`: array
 
+##### Notes:
+
+For a fixed base amplitude, the average power of an AM tone (as defined in this function) increases proportionally with AM depth by a factor of 1+AMDepth^2/2 (Viemeister, 1979, Yost et al., 1989, Hartmann, 2004). This function compensates for this average increase in power. You can use the `AMToneVarLev` function if you want to generate AM tones varying in average power with AM depth.
+
+##### References:
+        
+* Hartmann, W. M. (2004). Signals, Sound, and Sensation. Springer Science & Business Media
+* [Viemeister, N. F. (1979). Temporal modulation transfer functions based upon modulation thresholds. The Journal of the Acoustical Society of America, 66(5), 1364–1380.](https://doi.org/10.1121/1.383531)
+* [Yost, W., Sheft, S., & Opie, J. (1989). Modulation interference in detection and discrimination of amplitude modulation. The Journal of the Acoustical Society of America, 86(December 1989), 2138–2147.](https://doi.org/10.1121/1.398474)
+
+    
+        
 ##### Examples:
 
 ```julia
@@ -59,9 +72,102 @@ maxLevel=100)
 ```
 """
 function AMTone(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
-                carrierPhase::Real=0, AMPhase::Real=1.5*pi, level::Real=60,
-                dur::Real=1, rampDur::Real=0.01, channel::String="diotic",
-                sf::Real=48000, maxLevel::Real=101)
+                      carrierPhase::Real=0, AMPhase::Real=1.5*pi, level::Real=60,
+                      dur::Real=1, rampDur::Real=0.01, channel::String="diotic",
+                      sf::Real=48000, maxLevel::Real=101)
+
+    if dur < rampDur*2
+        error("Sound duration cannot be less than total duration of ramps")
+    end
+    if in(channel, ["mono", "right", "left", "diotic"]) == false
+        error("`channel` must be one of 'mono', 'right', 'left', or 'diotic'")
+    end
+
+    nSamples = round(Int, (dur-rampDur*2) * sf)
+    nRamp = round(Int, rampDur * sf)
+    nTot = nSamples + (nRamp * 2)
+
+    timeAll = collect(0:nTot-1) / sf
+    timeRamp = collect(0:nRamp-1)
+
+    snd_mono = zeros(nTot, 1)
+    snd_mono[:, 1] = (1 .+ AMDepth*sin.(2*pi*AMFreq*timeAll[:] .+ AMPhase)) .* sin.(2*pi*carrierFreq * timeAll[:] .+ carrierPhase)
+
+    if channel == "mono"
+        snd = snd_mono
+    else
+        snd = zeros(nTot, 2)
+    end
+
+    if channel == "right"
+        snd[:,2] = snd_mono
+    elseif channel == "left"
+        snd[:,1] = snd_mono
+    elseif channel == "diotic"
+        snd[:,1] = snd_mono
+        snd[:,2] = snd_mono
+    end
+
+    
+    setLevel!(snd, level=level, channel=channel, maxLevel=maxLevel)
+    gate!(snd, rampDur=rampDur, sf=sf)
+
+    return snd
+end
+
+#############################
+## AMToneVarLev
+#############################
+"""
+Generate an amplitude modulated tone.
+
+$(SIGNATURES)
+
+##### Parameters
+
+* `carrierFreq`: Carrier frequency in hertz.
+* `AMFreq`:  Amplitude modulation frequency in Hz.
+* `AMDepth`: Amplitude modulation depth (a value of 1 corresponds to 100%
+  modulation).
+* `carrierPhase`: Starting phase in radians.
+* `AMPhase`: Starting AM phase in radians.
+* `level`: Average tone level in dB SPL. See notes.
+* `dur`: Tone duration in seconds.
+* `rampDur`: Duration of the onset and offset ramps in seconds.
+* `channel`: Channel in which the tone will be generated, one of `mono`, `right`,
+  `left`, or `diotic`.
+* `sf`: Samplig frequency in Hz.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of
+  amplitude 1.
+
+##### Returns:
+
+* `snd`: array
+
+##### Notes:
+
+For a fixed base amplitude, the average power of an AM tone (as defined in this function) increases proportionally with AM depth by a factor of 1+AMDepth^2/2 (Viemeister, 1979, Yost et al., 1989, Hartmann, 2004). This function compensates for this average increase in power. You can use the `AMToneVarLev` function if you want to generate AM tones varying in average power with AM depth.
+
+##### References:
+        
+* Hartmann, W. M. (2004). Signals, Sound, and Sensation. Springer Science & Business Media
+* [Viemeister, N. F. (1979). Temporal modulation transfer functions based upon modulation thresholds. The Journal of the Acoustical Society of America, 66(5), 1364–1380.](https://doi.org/10.1121/1.383531)
+* [Yost, W., Sheft, S., & Opie, J. (1989). Modulation interference in detection and discrimination of amplitude modulation. The Journal of the Acoustical Society of America, 86(December 1989), 2138–2147.](https://doi.org/10.1121/1.398474)
+
+    
+        
+##### Examples:
+
+```julia
+snd = AMTone(carrierFreq=1000, AMFreq=20, AMDepth=1, carrierPhase=0,
+AMPhase=0, level=65, dur=1, rampDur=0.01, channel="diotic", sf=48000,
+maxLevel=100)
+```
+"""
+function AMToneVarLev(;carrierFreq::Real=1000, AMFreq::Real=20, AMDepth::Real=1,
+                      carrierPhase::Real=0, AMPhase::Real=1.5*pi, level::Real=60,
+                      dur::Real=1, rampDur::Real=0.01, channel::String="diotic",
+                      sf::Real=48000, maxLevel::Real=101)
 
     if dur < rampDur*2
         error("Sound duration cannot be less than total duration of ramps")

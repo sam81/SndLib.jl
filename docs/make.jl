@@ -1,4 +1,4 @@
-using Documenter
+using Documenter, SndLib
 
 if ispath("buld/")
     rm("build/", recursive=true)

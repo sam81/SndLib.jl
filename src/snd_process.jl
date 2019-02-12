@@ -1,6 +1,6 @@
 ## The MIT License (MIT)
 
-## Copyright (c) 2013-2018 Samuele Carcagno <sam.carcagno@gmail.com>
+## Copyright (c) 2013-2019 Samuele Carcagno <sam.carcagno@gmail.com>
 
 ## Permission is hereby granted, free of charge, to any person obtaining a copy
 ## of this software and associated documentation files (the "Software"), to deal
@@ -860,6 +860,76 @@ function scaleLevel(sig::Array{T, 2}; level::Real=10) where {T<:Real}
     return sig
 end
 
+#############################
+## setlevel!
+#############################
+"""
+Set the RMS level of a sound signal to a given value..
+
+$(SIGNATURES)
+
+##### Parameters
+
+* `sig`:  Signal whose level is to be set.
+* `level`: The desired RMS level of the signal in dB SPL.
+* `channel`: Channel in which the level will be set, one of `mono`, `right`, 'left', 'both', or 'diotic'.
+* `maxLevel`: Level in dB SPL output by the soundcard for a sinusoid of
+  amplitude 1.
+
+##### Returns:
+
+* `snd`: array
+        
+##### Examples:
+
+```julia
+pt1 = pureTone(frequency=1000, phase=0, level=60, dur=1,
+               rampDur=0, channel="diotic", sf=48000, maxLevel=100)
+pt2 = copy(pt1)
+pt2 = setLevel!(pt2, level=40, channel="all", maxLevel=100)
+rms1 = getRMS(pt1, 1)
+rms2 = getRMS(pt2, 1)
+20*log10(rms1[1]/rms2[1])
+
+```
+"""
+function setLevel!(sig::Array{T, 2}; level::Real=10, channel::Union{AbstractString, Integer, AbstractVector{P}}="all", maxLevel::Real=101) where {T<:Real, P<:Integer}
+
+    if typeof(channel) == String
+        if in(channel, ["all", "mono", "right", "left", "diotic", "both"]) == false
+            error("`channel` string must be one of 'mono', 'right', 'left', 'both', or 'diotic'")
+        end
+
+        if (channel == "mono") & (size(sig)[2] > 1)
+            error("attempting to set mono level in signal with >1 channel")
+        end
+
+        if (in(channel, ["right", "left", "diotic", "both"]) == true) & (size(sig)[2] != 2)
+            error("channel specification not meaningful for non-stereo signal")
+        end
+    end
+
+    if channel == "all"
+        chans = collect(1:size(sig)[2])
+    elseif channel in ["both", "diotic"]
+        chans = [1,2]
+    elseif channel in ["left", "mono"]
+        chans = [1]
+    elseif channel == "right"
+        chans = [2]
+    else
+        chans = channel
+    end
+
+    for ch=1:length(chans)
+        i = chans[ch]
+        currAmplitude = sqrt(mean(sig[:,i].*sig[:,i]))*sqrt(2)
+        currLevel = 20*log10(currAmplitude)+maxLevel
+        sig[:,i] = sig[:,i] * 10^((level-currLevel)/20)
+    end
+    
+    return sig
+end
 
 #############################
 ## sound
