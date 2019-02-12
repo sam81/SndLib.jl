@@ -1,6 +1,6 @@
-using Documenter, SndLib
-
-if ispath("buld/")
+using Documenter, DocumenterMarkdown, SndLib
+#push!(LOAD_PATH,"src/")
+if ispath("build/")
     rm("build/", recursive=true)
 end
 
@@ -9,5 +9,5 @@ if ispath("site/")
 end
 
 include("runWeave.jl") #convert weave file to markdown
-makedocs(modules = [SndLib])
+makedocs(format = Markdown(), modules = [SndLib], source="src", build="build")
 run(`mkdocs build`)

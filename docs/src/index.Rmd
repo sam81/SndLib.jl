@@ -3,7 +3,7 @@
 
 ``SndLib.jl`` is a Julia module to synthetise sounds for psychoacoustics experiments. Detailed documentation for each function is provided in the [Function Reference](http://samcarcagno.altervista.org/SndLib/site/API/). A few examples of the available functions are given below.
 
-The following code generates a 1 kHz pure tone:
+The following code generates a 1-kHz pure tone:
 
 ```{julia; fig_cap="A pure tone."}
 using SndLib, DSP, Gadfly
@@ -14,7 +14,7 @@ plot(x=tArr, y=pt[:,1], Geom.line,
 Guide.xlabel("Time (s)"), Guide.ylabel("Amplitude (a.u.)"))
 ```
 
-if you're on Linux or OS X, you can listen to it using the `sound` function:
+if you're on Linux or MacOS, you can listen to it using the `sound` function:
 
 ```{julia; eval=false}
 sound(pt)
@@ -33,8 +33,8 @@ we can use the `DSP` module to plot the spectrum of the tone:
 
 ```{julia; fig_cap="Spectrum of the amplitude-modulated tone."}
 spec = periodogram(amtone[:,1], onesided=true, fs=48000, window=hamming)
-idx = find(spec.freq .<= 2000)
-plot(x=spec.freq[idx], y=10*log10(spec.power)[idx], Geom.line,
+idx = findall(spec.freq .<= 2000)
+plot(x=spec.freq[idx], y=10*log10.(spec.power)[idx], Geom.line,
 Guide.xlabel("Frequency (Hz)"), Guide.ylabel("Level (dB)"))
 ```
 
