@@ -1,6 +1,6 @@
 ## The MIT License (MIT)
 
-## Copyright (c) 2013-2019 Samuele Carcagno <sam.carcagno@gmail.com>
+## Copyright (c) 2013-2020 Samuele Carcagno <sam.carcagno@gmail.com>
 
 ## Permission is hereby granted, free of charge, to any person obtaining a copy
 ## of this software and associated documentation files (the "Software"), to deal
@@ -85,6 +85,35 @@ function centDistance(f1::Real, f2::Real)
     return deltaCents
 end
 
+##############################################
+## centToPercent
+## ###########################################
+"""
+Convert a distance in musical cents to a distance in percentage
+
+$(SIGNATURES)
+
+##### Parameters
+
+* `cnt`: cent value
+
+##### Returns
+
+* `pcnt`: percent value
+
+##### Examples
+
+```julia
+centToPercent(100)
+centToPercent(centDistance(100, 120))
+centToPercent(centDistance(100, 80))
+centToPercent(percentToCent(6))
+```
+"""
+function centToPercent(cnt::Real)
+    pcnt = (2^(cnt/1200)-1)*100
+    return pcnt
+end
 
 ################################
 ## freqFromERBInterval
@@ -189,4 +218,33 @@ function intNCyclesFreq(freq::Real, dur::Real)
     adjFreq = round(freq*dur)/dur
 
     return adjFreq
+end
+
+##############################################
+## percentToPercent
+## ###########################################
+"""
+Convert a distance in percentage to a distance in cents
+
+$(SIGNATURES)
+
+##### Parameters
+
+* `pcnt`: percent value
+
+##### Returns
+
+* `cnt`: cent value
+
+##### Examples
+
+```julia
+percentToCent(100)
+percentToCent(6)
+percentToCent(centToPercent(100))
+```
+"""
+function percentToCent(pcnt::Real)
+    cnt = 1200*log2(pcnt/100+1)
+    return cnt
 end

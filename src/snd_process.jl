@@ -1,6 +1,6 @@
 ## The MIT License (MIT)
 
-## Copyright (c) 2013-2019 Samuele Carcagno <sam.carcagno@gmail.com>
+## Copyright (c) 2013-2020 Samuele Carcagno <sam.carcagno@gmail.com>
 
 ## Permission is hereby granted, free of charge, to any person obtaining a copy
 ## of this software and associated documentation files (the "Software"), to deal
@@ -262,7 +262,7 @@ function fir2Filt!(f1::Real, f2::Real, f3::Real, f4::Real, snd::Array{T, 2}; nTa
         m = [0, 0.00003, 1, 1, 0]
     end
 
-    b = convert(Array{eltype(snd),1}, scisig[:firwin2](nTaps,f,m))
+    b = convert(Array{eltype(snd),1}, scisig.firwin2(nTaps,f,m))
     nChans = size(snd)[2]
     for i=1:nChans
         snd[:, i] = fftconvolve(snd[:,i], b, "same")

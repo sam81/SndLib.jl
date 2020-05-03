@@ -1,6 +1,6 @@
 ## The MIT License (MIT)
 
-## Copyright (c) 2013-2019 Samuele Carcagno <sam.carcagno@gmail.com>
+## Copyright (c) 2013-2020 Samuele Carcagno <sam.carcagno@gmail.com>
 
 ## Permission is hereby granted, free of charge, to any person obtaining a copy
 ## of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@ module SndLib
 
 export addSounds, AMTone, AMToneIPD, AMToneVarLev, asynchChord,
 broadbandNoise,
-centDistance, complexTone,
+centDistance, centToPercent, complexTone,
 delayAdd!,
 ERBDistance, expAMNoise, expSinFMTone,
 fir2Filt!, FMComplex2, FMTone, freqFromCentInterval, freqFromERBInterval,
@@ -33,7 +33,7 @@ gate!, getACF, getRMS, getSpectrum,
 hugginsPitch,
 intNCyclesFreq, IRN, ITDToIPD, ITDShift!,
 makePink!, nextPowTwo,
-phaseShift!, pureTone, pureToneILD, pureToneIPD, pureToneIPDILD, pureToneITD, pureToneITDILD,
+phaseShift!, percentToCent, pureTone, pureToneILD, pureToneIPD, pureToneIPDILD, pureToneITD, pureToneITDILD,
 scaleLevel, setLevel!, silence, sound, steepNoise
 
 using DocStringExtensions, DSP, FFTW, PyCall, Random, Statistics, WAV
